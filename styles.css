@@ -939,6 +939,10 @@ a {
   box-shadow: 0 12px 30px rgba(29, 158, 117, 0.10);
 }
 
+.topics-embed-frame--home {
+  min-height: 980px;
+}
+
 .topics-embed-card__actions {
   display: flex;
   flex-wrap: wrap;

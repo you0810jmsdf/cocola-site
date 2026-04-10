@@ -229,28 +229,19 @@
         <div class="section-heading">
           <p class="eyebrow">Topics</p>
           <h2>最近のCOCoLa</h2>
-          <p>現行サイトに掲載しているTOPICSの見せ方を踏襲しつつ、入口として見やすく整理したハイライトです。</p>
+          <p>現行の TOPICS 一覧をそのまま読み込み、最近の活動やお知らせがトップから見えるようにしています。</p>
         </div>
-        <div class="topics-timeline">
-          <article class="topic-item topic-item--green">
-            <p class="topic-item__date">2025.8.1</p>
-            <h3>有志による新団体「イルミライマルシェ」結成</h3>
-            <p>COCoLa から派生する形で、新しい動きが生まれています。</p>
-          </article>
-          <article class="topic-item topic-item--orange">
-            <p class="topic-item__date">2025.11.29</p>
-            <h3>イルミライマルシェ実現</h3>
-            <p>有志の活動が実際のイベントとして形になり、地域との接点が広がりました。</p>
-          </article>
-          <article class="topic-item topic-item--blue">
-            <p class="topic-item__date">継続開催</p>
-            <h3>オンラインミーティング・朝カフェ会</h3>
-            <p>定期的な交流の場が、活動の土台として続いています。</p>
-          </article>
-        </div>
-        <div class="topics-actions" data-topics-embed data-topics-mode="home">
-          <a class="button button--secondary" href="#" data-topics-link hidden target="_blank" rel="noreferrer noopener">TOPICS一覧を見る</a>
-          <p class="topics-embed-card__note" data-topics-empty>WebアプリURLを設定すると、ここからTOPICS一覧へ遷移できます。</p>
+        <div class="topics-embed-card" data-topics-embed data-topics-mode="home">
+          <div class="topics-embed-card__header">
+            <p class="eyebrow">Latest Topics</p>
+            <h3>最近の TOPICS 一覧</h3>
+            <p>イベント、お知らせ、活動実績などをリアルタイムに読み込みます。</p>
+          </div>
+          <iframe class="topics-embed-frame topics-embed-frame--home" data-topics-frame title="最近のCOCoLa TOPICS" hidden loading="lazy"></iframe>
+          <div class="topics-embed-card__actions">
+            <a class="button button--secondary" href="#" data-topics-link hidden target="_blank" rel="noreferrer noopener">TOPICS一覧を見る</a>
+            <p class="topics-embed-card__note" data-topics-empty>WebアプリURLを設定すると、ここに最近の TOPICS 一覧が表示されます。</p>
+          </div>
         </div>
       </section>
 
