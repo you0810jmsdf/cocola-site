@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Apps | COCoLa</title>
+  <meta name="description" content="COCoLaで使っているマップやイベント一覧などのアプリ入口ページです。">
+  <meta name="theme-color" content="#f3efe3">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Apps | COCoLa">
+  <meta property="og:description" content="COCoLaで使っているマップやイベント一覧などのアプリ入口ページです。">
+  <meta property="og:image" content="../assets/COCoLa_Logo_BG.png">
+  <meta property="og:locale" content="ja_JP">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Apps | COCoLa">
+  <meta name="twitter:description" content="COCoLaで使っているマップやイベント一覧などのアプリ入口ページです。">
+  <meta name="twitter:image" content="../assets/COCoLa_Logo_BG.png">
+  <link rel="icon" type="image/png" href="../assets/COCoLa_Logo_transparent.png">
+  <link rel="apple-touch-icon" href="../assets/COCoLa_Logo_BG.png">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="site-header">
+      <a class="brand" href="../index.html" aria-label="COCoLa トップへ">
+        <img class="brand__logo" src="../assets/COCoLa_Logo_transparent.png" alt="COCoLa ロゴ">
+      </a>
+      <nav class="site-nav" aria-label="サイトナビゲーション">
+        <a href="../index.html">トップ</a>
+        <a href="../categories/mono/">6つのつくる</a>
+        <a href="../apps/">Apps</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="page-hero page-hero--blue">
+        <div class="page-hero__copy">
+          <p class="eyebrow">Apps</p>
+          <p class="breadcrumb"><a href="../index.html">トップ</a> / Apps</p>
+          <h1>COCoLaのアプリ入口</h1>
+          <p class="page-hero__lead">COCoLaで育っている活動を、地図や一覧で見られるアプリをまとめています。目的に合わせて、知りたい入口からアクセスできます。</p>
+        </div>
+        <aside class="page-hero__note">
+          <p class="page-hero__label">できること</p>
+          <h2>活動を地図や一覧でたどる</h2>
+          <p>クリエイター、文化財、おでかけスポット、イベント情報などを、それぞれ見やすい形でたどれます。</p>
+        </aside>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <p class="eyebrow">App Links</p>
+          <h2>利用できるアプリ</h2>
+        </div>
+        <div class="apps-grid">
+          <article class="app-card">
+            <p class="app-card__tag">ものをつくる</p>
+            <h3>クリエイターズマップ</h3>
+            <p>地域で活動するつくり手や表現者を、地図から探せるマップです。</p>
+            <div class="app-card__actions">
+              <a class="button button--secondary" data-app-link="creatorsMap" href="#" target="_blank" rel="noreferrer noopener">開く</a>
+            </div>
+          </article>
+          <article class="app-card">
+            <p class="app-card__tag">つながりをつくる</p>
+            <h3>印西市文化財マップ</h3>
+            <p>印西市内の文化財を地図と写真で知るためのマップです。</p>
+            <div class="app-card__actions">
+              <a class="button button--secondary" data-app-link="heritageMap" href="#" target="_blank" rel="noreferrer noopener">開く</a>
+            </div>
+            <a class="app-card__hint" data-app-link="heritageMap">文化財マップのURLを設定するとここから開けます。</a>
+          </article>
+          <article class="app-card">
+            <p class="app-card__tag">ともにつくる</p>
+            <h3>おでかけMAP</h3>
+            <p>地域のおでかけ先やおすすめスポットを、地図でたどれるアプリです。</p>
+            <div class="app-card__actions">
+              <a class="button button--secondary" data-app-link="odekakeMap" href="#" target="_blank" rel="noreferrer noopener">開く</a>
+            </div>
+          </article>
+          <article class="app-card">
+            <p class="app-card__tag">イベント</p>
+            <h3>印西市イベント一覧</h3>
+            <p>COCoLa TOPICS Webアプリに集約している印西市周辺のイベント一覧です。</p>
+            <div class="app-card__actions">
+              <a class="button button--secondary" data-app-link="eventsList" href="#" target="_blank" rel="noreferrer noopener">開く</a>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>COCoLa | Apps</p>
+      <div class="site-footer__links">
+        <a href="../index.html">トップへ戻る</a>
+        <a href="../categories/mono/">6つのつくるを見る</a>
+      </div>
+    </footer>
+  </div>
+  <script src="../assets/site-config.js"></script>
+  <script src="../assets/app-links.js"></script>
+</body>
+</html>
