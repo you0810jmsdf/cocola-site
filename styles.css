@@ -28,6 +28,7 @@ html,
 body {
   margin: 0;
   min-height: 100%;
+  overflow-x: hidden;
   background:
     radial-gradient(circle at top left, rgba(29, 158, 117, 0.15), transparent 28%),
     radial-gradient(circle at top right, rgba(109, 121, 216, 0.12), transparent 24%),
@@ -48,7 +49,7 @@ a {
 }
 
 .page-shell {
-  max-width: 1280px;
+  width: min(100%, 1280px);
   margin: 0 auto;
 }
 
@@ -127,6 +128,7 @@ a {
 .hero__cards {
   position: relative;
   z-index: 1;
+  min-width: 0;
 }
 
 .hero__copy {
@@ -152,6 +154,7 @@ a {
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
+  overflow-wrap: anywhere;
 }
 
 .hero h1,
@@ -165,6 +168,7 @@ a {
   line-height: 1.18;
   letter-spacing: 0.01em;
   max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .hero h1 span {
@@ -1034,7 +1038,7 @@ a.app-card__hint[aria-disabled="true"] {
 
 @media (max-width: 780px) {
   body {
-    padding: 14px;
+    padding: 10px;
   }
 
   .site-header {
@@ -1055,6 +1059,42 @@ a.app-card__hint[aria-disabled="true"] {
     padding: 20px;
   }
 
+  .hero {
+    gap: 20px;
+    padding: 22px 18px;
+    border-radius: 24px;
+  }
+
+  .hero__copy {
+    gap: 12px;
+  }
+
+  .hero__logo {
+    width: min(260px, 86%);
+    margin-inline: auto;
+  }
+
+  .eyebrow {
+    font-size: 0.68rem;
+    letter-spacing: 0.10em;
+    line-height: 1.6;
+  }
+
+  .hero h1 {
+    font-size: clamp(1.45rem, 7.2vw, 2rem);
+    line-height: 1.35;
+    letter-spacing: 0;
+  }
+
+  .hero h1 span {
+    white-space: normal;
+  }
+
+  .hero__lead {
+    font-size: 0.94rem;
+    line-height: 1.9;
+  }
+
   .activity-grid,
   .voice-grid,
   .detail-grid,
@@ -1066,6 +1106,11 @@ a.app-card__hint[aria-disabled="true"] {
   .cta-card__actions {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .button {
+    width: 100%;
+    padding-inline: 16px;
   }
 
   .category-nav {
