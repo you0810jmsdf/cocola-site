@@ -494,6 +494,87 @@
       text-align: right;
     }
 
+    /* 取消ボタン */
+    .cancel-btn {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 4px 10px;
+      border: 1px solid var(--coral);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--coral);
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 120ms;
+    }
+    .cancel-btn:hover {
+      background: #fdf1f0;
+    }
+
+    .card-foot {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    /* モーダルオーバーレイ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(30, 37, 34, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+    .modal-overlay[hidden] {
+      display: none;
+    }
+    .modal-box {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: 0 12px 40px rgba(29, 54, 45, 0.18);
+      padding: 24px;
+      width: min(420px, 100%);
+      display: grid;
+      gap: 16px;
+    }
+    .modal-box h3 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+    .modal-box p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+    .modal-target-title {
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .modal-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font: inherit;
+      font-size: 1rem;
+    }
+    .modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .modal-error {
+      color: var(--coral);
+      font-size: 0.9rem;
+      min-height: 1.2em;
+    }
+
     @media (max-width: 820px) {
       .page {
         padding: 16px 12px 32px;
@@ -620,6 +701,20 @@
   </main>
 
 
+<!-- 取消モーダル -->
+<div class="modal-overlay" id="cancelModal" hidden aria-modal="true" role="dialog">
+  <div class="modal-box">
+    <h3>提案を取消しますか？</h3>
+    <p>取消すと提案のステータスが「終了」になります。<br>対象: <span class="modal-target-title" id="modalTitle"></span></p>
+    <input class="modal-input" type="password" id="modalPassword" placeholder="管理者パスワード" autocomplete="off">
+    <p class="modal-error" id="modalError"></p>
+    <div class="modal-actions">
+      <button class="button secondary" type="button" id="modalCancel">キャンセル</button>
+      <button class="button" type="button" id="modalConfirm" style="background:var(--coral);border-color:var(--coral);">取消を実行</button>
+    </div>
+  </div>
+</div>
+
 <script>
     // ★ GAS WebアプリのデプロイURLをここに設定してください
     // GASエディタ → デプロイ → デプロイを管理 → ウェブアプリのURL (exec で終わるURL)
@@ -704,6 +799,9 @@
           '<div class="copy-block"><strong>理由・詳細</strong><p>' + escapeHtml(detail) + '</p></div>' +
           '<div class="copy-block"><strong>必要なもの</strong><p>' + escapeHtml(needs) + '</p></div>' +
         '</div>' +
+        '<div class="card-foot">' +
+          '<button class="cancel-btn" type="button" data-cancel-id="' + escapeHtml(proposal.id) + '" data-cancel-title="' + escapeHtml(proposal.title) + '">取消</button>' +
+        '</div>' +
         '<div class="vote-box" aria-label="投票状況">' +
           '<div class="progress-track" aria-hidden="true">' +
             '<div class="progress-bar" style="width: ' + escapeHtml(proposal.progressPercent) + '%"></div>' +
@@ -737,6 +835,72 @@
         });
       });
     }
+
+    // 取消モーダル
+    var cancelModal = document.getElementById('cancelModal');
+    var modalTitle = document.getElementById('modalTitle');
+    var modalPassword = document.getElementById('modalPassword');
+    var modalError = document.getElementById('modalError');
+    var modalConfirm = document.getElementById('modalConfirm');
+    var pendingCancelId = null;
+
+    function openCancelModal(id, title) {
+      pendingCancelId = id;
+      modalTitle.textContent = title;
+      modalPassword.value = '';
+      modalError.textContent = '';
+      cancelModal.hidden = false;
+      modalPassword.focus();
+    }
+
+    function closeCancelModal() {
+      cancelModal.hidden = true;
+      pendingCancelId = null;
+    }
+
+    document.getElementById('modalCancel').addEventListener('click', closeCancelModal);
+
+    cancelModal.addEventListener('click', function(e) {
+      if (e.target === cancelModal) closeCancelModal();
+    });
+
+    modalConfirm.addEventListener('click', function() {
+      var pw = modalPassword.value;
+      if (!pw) { modalError.textContent = 'パスワードを入力してください。'; return; }
+      modalConfirm.disabled = true;
+      modalConfirm.textContent = '処理中…';
+      fetch(GAS_URL + '?mode=cancel&id=' + encodeURIComponent(pendingCancelId) + '&pw=' + encodeURIComponent(pw))
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+          if (res.ok) {
+            closeCancelModal();
+            // データ再取得して再描画
+            return fetch(GAS_URL + '?mode=json')
+              .then(function(r) { return r.json(); })
+              .then(function(data) {
+                state.data = data;
+                renderStats();
+                renderProposals();
+              });
+          } else {
+            modalError.textContent = res.error || 'パスワードが違います。';
+          }
+        })
+        .catch(function() {
+          modalError.textContent = '通信エラーが発生しました。';
+        })
+        .finally(function() {
+          modalConfirm.disabled = false;
+          modalConfirm.textContent = '取消を実行';
+        });
+    });
+
+    // グリッドへのイベントデリゲーション（動的カードに対応）
+    grid.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-cancel-id]');
+      if (!btn) return;
+      openCancelModal(btn.dataset.cancelId, btn.dataset.cancelTitle);
+    });
 
     renderStats();
     renderProposals();
