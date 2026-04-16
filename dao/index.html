@@ -718,7 +718,7 @@
 <script>
     // ★ GAS WebアプリのデプロイURLをここに設定してください
     // GASエディタ → デプロイ → デプロイを管理 → ウェブアプリのURL (exec で終わるURL)
-    var GAS_URL = 'https://script.google.com/macros/s/AKfycbwKtygJ1IsfixZGUeidFoFYfPX-t-b7jSP_ebWqC7y9WXY7B6cuabJVVXkLiB3ncoWSqQ/exec';
+    var GAS_URL = 'https://script.google.com/macros/s/AKfycbzAnY0zGRxFhD_Xo40wkqgUZFwX3ajfQKW2HXWZVajoPDvzmtk_4MDGStjnYtoscN6Tpg/exec';
 
     var state = {
       filter: 'all',
@@ -875,7 +875,7 @@
           if (res.ok) {
             closeCancelModal();
             // データ再取得して再描画
-            return fetch(GAS_URL + '?mode=json')
+            return fetch(GAS_URL + '?mode=json&t=' + Date.now())
               .then(readJsonResponse)
               .then(function(data) {
                 state.data = data;
@@ -917,19 +917,25 @@
       });
     }
 
-    fetch(GAS_URL + '?mode=json')
-      .then(readJsonResponse)
-      .then(function(data) {
-        state.data = data;
-        setFormLink(proposalForm, data.proposalFormUrl);
-        setFormLink(voteForm, data.voteFormUrl);
-        renderStats();
-        renderProposals();
-      })
-      .catch(function() {
-        empty.hidden = false;
-        empty.textContent = '提案データの読み込みに時間がかかっています。少し待ってから再読み込みしてください。';
-      });
+    function loadDaoData() {
+      return fetch(GAS_URL + '?mode=json&t=' + Date.now())
+        .then(readJsonResponse)
+        .then(function(data) {
+          state.data = data;
+          setFormLink(proposalForm, data.proposalFormUrl);
+          setFormLink(voteForm, data.voteFormUrl);
+          renderStats();
+          renderProposals();
+        })
+        .catch(function() {
+          empty.hidden = false;
+          empty.textContent = '提案データの読み込みに時間がかかっています。少し待ってから再読み込みしてください。';
+        });
+    }
+
+    loadDaoData();
+    window.addEventListener('focus', loadDaoData);
+    setInterval(loadDaoData, 30000);
   </script>
 </body>
 </html>
