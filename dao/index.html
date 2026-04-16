@@ -205,6 +205,97 @@
       color: #7f8b86;
     }
 
+    .guide-band {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr);
+      gap: 18px;
+      padding: 20px;
+      margin: 0 0 18px;
+      align-items: center;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .video-frame {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #111916;
+    }
+
+    .video-frame video {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #111916;
+    }
+
+    .guide-copy {
+      display: grid;
+      gap: 12px;
+    }
+
+    .guide-copy h2 {
+      margin: 0;
+      font-size: 1.45rem;
+      line-height: 1.35;
+      letter-spacing: 0;
+    }
+
+    .guide-copy p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .steps {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .steps li {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      min-height: 44px;
+    }
+
+    .step-number {
+      display: inline-flex;
+      width: 34px;
+      height: 34px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      background: #e7f5f0;
+      color: var(--green-deep);
+      font-weight: 800;
+    }
+
+    .steps strong {
+      display: block;
+      line-height: 1.35;
+    }
+
+    .steps span:last-child {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .movie-link {
+      color: var(--green-deep);
+      font-weight: 700;
+    }
+
     .toolbar {
       display: flex;
       gap: 10px;
@@ -409,6 +500,7 @@
       }
 
       .top,
+      .guide-band,
       .grid {
         grid-template-columns: 1fr;
       }
@@ -433,6 +525,7 @@
     @media (max-width: 520px) {
       .intro,
       .action-panel,
+      .guide-band,
       .proposal-card {
         padding: 15px;
       }
@@ -452,120 +545,6 @@
       }
     }
 
-    /* 取消ボタン */
-    .cancel-btn {
-      display: inline-flex;
-      align-items: center;
-      min-height: 32px;
-      padding: 4px 10px;
-      border: 1px solid var(--coral);
-      border-radius: 6px;
-      background: #fff;
-      color: var(--coral);
-      font: inherit;
-      font-size: 0.82rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 120ms;
-    }
-    .cancel-btn:hover {
-      background: #fdf1f0;
-    }
-
-    /* モーダルオーバーレイ */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(30, 37, 34, 0.45);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-      padding: 16px;
-    }
-    .modal-overlay[hidden] {
-      display: none;
-    }
-    .modal-box {
-      background: var(--paper);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      box-shadow: 0 12px 40px rgba(29, 54, 45, 0.18);
-      padding: 24px;
-      width: min(420px, 100%);
-      display: grid;
-      gap: 14px;
-    }
-    .modal-box h3 {
-      margin: 0;
-      font-size: 1.1rem;
-      color: var(--coral);
-    }
-    .modal-box p {
-      margin: 0;
-      font-size: 0.95rem;
-      color: var(--muted);
-    }
-    .modal-box strong {
-      color: var(--ink);
-    }
-    .modal-field label {
-      display: block;
-      font-size: 0.86rem;
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-    .modal-field input {
-      width: 100%;
-      min-height: 42px;
-      padding: 8px 12px;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      font: inherit;
-      font-size: 1rem;
-      background: var(--wash);
-      color: var(--ink);
-    }
-    .modal-field input:focus {
-      outline: 2px solid var(--green);
-      outline-offset: 1px;
-      background: #fff;
-    }
-    .modal-actions {
-      display: flex;
-      gap: 10px;
-    }
-    .btn-danger {
-      flex: 1;
-      min-height: 42px;
-      padding: 8px 14px;
-      border: 1px solid var(--coral);
-      border-radius: 6px;
-      background: var(--coral);
-      color: #fff;
-      font: inherit;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .btn-danger:disabled {
-      opacity: 0.6;
-      cursor: default;
-    }
-    .btn-neutral {
-      min-height: 42px;
-      padding: 8px 14px;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      background: #fff;
-      color: var(--ink);
-      font: inherit;
-      cursor: pointer;
-    }
-    .modal-error {
-      min-height: 1.4em;
-      font-size: 0.88rem;
-      color: var(--coral);
-    }
   </style>
 </head>
 <body>
@@ -579,19 +558,48 @@
       <section class="top" aria-label="提案と投票">
         <div class="intro">
           <p class="eyebrow">COCoLa DAO</p>
-          <h1>やりたいことを出し合い、投票で次の動きを決める。</h1>
-          <p class="lead">提案は公開後に投票できます。賛成の重みが有効投票権重みの過半数を超えると、承認として扱います。</p>
+          <h1>みんなの声で、COCoLaの次の動きをつくる。</h1>
+          <p class="lead">ここは、やってみたいことを提案し、みんなで投票して進め方を決めるページです。初めての人は、下の動画と3つの流れから見てください。</p>
           <div class="stats" id="stats"></div>
         </div>
 
         <aside class="action-panel" aria-label="フォーム">
           <h2>提案・投票フォーム</h2>
-          <p>提案者には3pt、承認された提案には追加で5ptが入ります。</p>
+          <p>思いついたことは提案へ。応援したいものには投票へ。</p>
           <div class="actions">
             <a class="button" id="proposalForm" href="#" target="_blank" rel="noopener">提案する</a>
             <a class="button secondary" id="voteForm" href="#" target="_blank" rel="noopener">投票する</a>
           </div>
         </aside>
+      </section>
+
+      <section class="guide-band" aria-label="初めての人へ">
+        <div class="video-frame">
+          <video controls preload="metadata" poster="../assets/COCoLa_Logo_transparent.png">
+            <source src="../assets/video/cocola-dao-intro.mp4" type="video/mp4">
+            お使いのブラウザでは動画を再生できません。
+          </video>
+        </div>
+        <div class="guide-copy">
+          <p class="eyebrow">はじめに</p>
+          <h2>COCoLa DAOは、声を出した人と動いた人が見える仕組みです。</h2>
+          <p>難しい言葉を知らなくても大丈夫です。やりたいことを出す、いいと思ったものに投票する、決まったら一緒に動く。そのための場所です。</p>
+          <ol class="steps">
+            <li>
+              <span class="step-number">1</span>
+              <span><strong>提案する</strong><span>イベント、場づくり、広報、学び、制作など、やってみたいことを書きます。</span></span>
+            </li>
+            <li>
+              <span class="step-number">2</span>
+              <span><strong>投票する</strong><span>公開された提案を見て、賛成・反対とコメントを送ります。</span></span>
+            </li>
+            <li>
+              <span class="step-number">3</span>
+              <span><strong>進める</strong><span>賛成の重みが過半数を超えた提案は、実行に向けて動き出します。</span></span>
+            </li>
+          </ol>
+          <a class="movie-link" href="https://drive.google.com/file/d/1aXknQog6qJ_hm5BJBdiOh3r6auPY1tvE/view?usp=sharing" target="_blank" rel="noopener">動画を別画面で開く</a>
+        </div>
       </section>
 
       <section aria-label="提案一覧">
@@ -611,24 +619,8 @@
     </div>
   </main>
 
-  <!-- 取消確認モーダル -->
-  <div class="modal-overlay" id="cancelModal" hidden role="dialog" aria-modal="true" aria-labelledby="cancelModalTitle">
-    <div class="modal-box">
-      <h3>提案を取り消す</h3>
-      <p><strong id="cancelModalTitle"></strong> を「終了」に変更します。この操作はスプレッドシートに直接書き込みます。</p>
-      <div class="modal-field">
-        <label for="cancelPwInput">管理者パスワード</label>
-        <input type="password" id="cancelPwInput" autocomplete="off" placeholder="パスワードを入力">
-      </div>
-      <p class="modal-error" id="cancelError" aria-live="polite"></p>
-      <div class="modal-actions">
-        <button class="btn-danger" id="cancelConfirmBtn" type="button">取り消す</button>
-        <button class="btn-neutral" id="cancelAbortBtn" type="button">キャンセル</button>
-      </div>
-    </div>
-  </div>
 
-  <script>
+<script>
     // ★ GAS WebアプリのデプロイURLをここに設定してください
     // GASエディタ → デプロイ → デプロイを管理 → ウェブアプリのURL (exec で終わるURL)
     var GAS_URL = 'https://script.google.com/macros/s/AKfycbwDzs2IbPgVaDEFhlnnFdC7DJS6MKo_wMLZGHDAcyMkG1SwR4NrpW5ex6dON1UZQBPP/exec';
@@ -695,20 +687,13 @@
       var detail = proposal.detail || '詳細はこれから追記されます。';
       var needs = proposal.needs || '必要になったものから相談します。';
       var eligible = proposal.eligibleWeight || state.data.eligibleWeight || 0;
-      var cancelable = proposal.statusKey !== 'closed';
-      var cancelBtn = cancelable
-        ? '<button class="cancel-btn" type="button" data-cancel-id="' + escapeHtml(proposal.id) + '" data-cancel-title="' + escapeHtml(proposal.title) + '">取消</button>'
-        : '';
       return '<article class="proposal-card" data-status="' + escapeHtml(proposal.statusKey) + '">' +
         '<div class="card-head">' +
           '<div class="identity">' +
             '<span class="proposal-id">' + escapeHtml(proposal.id) + '</span>' +
             '<h3 class="proposal-title">' + escapeHtml(proposal.title) + '</h3>' +
           '</div>' +
-          '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">' +
-            '<span class="status ' + statusClass(proposal.statusKey) + '">' + escapeHtml(proposal.status) + '</span>' +
-            cancelBtn +
-          '</div>' +
+          '<span class="status ' + statusClass(proposal.statusKey) + '">' + escapeHtml(proposal.status) + '</span>' +
         '</div>' +
         '<div class="meta">' +
           '<span class="pill">' + escapeHtml(proposal.category) + '</span>' +
@@ -756,68 +741,6 @@
     renderStats();
     renderProposals();
     bindFilters();
-
-    // --- 取消モーダル ---
-    var cancelModal = document.getElementById('cancelModal');
-    var cancelModalTitle = document.getElementById('cancelModalTitle');
-    var cancelPwInput = document.getElementById('cancelPwInput');
-    var cancelError = document.getElementById('cancelError');
-    var cancelConfirmBtn = document.getElementById('cancelConfirmBtn');
-    var cancelAbortBtn = document.getElementById('cancelAbortBtn');
-    var pendingCancelId = null;
-
-    grid.addEventListener('click', function(e) {
-      var btn = e.target.closest('[data-cancel-id]');
-      if (!btn) return;
-      pendingCancelId = btn.dataset.cancelId;
-      cancelModalTitle.textContent = btn.dataset.cancelTitle;
-      cancelPwInput.value = '';
-      cancelError.textContent = '';
-      cancelModal.hidden = false;
-      cancelPwInput.focus();
-    });
-
-    cancelAbortBtn.addEventListener('click', function() {
-      cancelModal.hidden = true;
-      pendingCancelId = null;
-    });
-
-    cancelModal.addEventListener('click', function(e) {
-      if (e.target === cancelModal) {
-        cancelModal.hidden = true;
-        pendingCancelId = null;
-      }
-    });
-
-    cancelConfirmBtn.addEventListener('click', function() {
-      if (!pendingCancelId) return;
-      var pw = cancelPwInput.value;
-      if (!pw) { cancelError.textContent = 'パスワードを入力してください'; return; }
-      cancelConfirmBtn.disabled = true;
-      cancelError.textContent = '';
-      fetch(GAS_URL + '?mode=cancel&id=' + encodeURIComponent(pendingCancelId) + '&pw=' + encodeURIComponent(pw))
-        .then(function(r) { return r.ok ? r.json() : Promise.reject(new Error('通信エラー')); })
-        .then(function(result) {
-          cancelConfirmBtn.disabled = false;
-          if (result.ok) {
-            cancelModal.hidden = true;
-            pendingCancelId = null;
-            return fetch(GAS_URL + '?mode=json')
-              .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
-              .then(function(data) {
-                state.data = data;
-                renderStats();
-                renderProposals();
-              });
-          } else {
-            cancelError.textContent = result.error || '取り消しに失敗しました';
-          }
-        })
-        .catch(function(err) {
-          cancelConfirmBtn.disabled = false;
-          cancelError.textContent = (err && err.message) ? err.message : '通信エラーが発生しました';
-        });
-    });
 
     fetch(GAS_URL + '?mode=json')
       .then(function(response) { return response.ok ? response.json() : Promise.reject(new Error('load failed')); })
