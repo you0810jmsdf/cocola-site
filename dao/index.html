@@ -451,6 +451,121 @@
         justify-self: start;
       }
     }
+
+    /* 取消ボタン */
+    .cancel-btn {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 4px 10px;
+      border: 1px solid var(--coral);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--coral);
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 120ms;
+    }
+    .cancel-btn:hover {
+      background: #fdf1f0;
+    }
+
+    /* モーダルオーバーレイ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(30, 37, 34, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+    .modal-overlay[hidden] {
+      display: none;
+    }
+    .modal-box {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: 0 12px 40px rgba(29, 54, 45, 0.18);
+      padding: 24px;
+      width: min(420px, 100%);
+      display: grid;
+      gap: 14px;
+    }
+    .modal-box h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      color: var(--coral);
+    }
+    .modal-box p {
+      margin: 0;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+    .modal-box strong {
+      color: var(--ink);
+    }
+    .modal-field label {
+      display: block;
+      font-size: 0.86rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .modal-field input {
+      width: 100%;
+      min-height: 42px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      font: inherit;
+      font-size: 1rem;
+      background: var(--wash);
+      color: var(--ink);
+    }
+    .modal-field input:focus {
+      outline: 2px solid var(--green);
+      outline-offset: 1px;
+      background: #fff;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .btn-danger {
+      flex: 1;
+      min-height: 42px;
+      padding: 8px 14px;
+      border: 1px solid var(--coral);
+      border-radius: 6px;
+      background: var(--coral);
+      color: #fff;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-danger:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+    .btn-neutral {
+      min-height: 42px;
+      padding: 8px 14px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      cursor: pointer;
+    }
+    .modal-error {
+      min-height: 1.4em;
+      font-size: 0.88rem;
+      color: var(--coral);
+    }
   </style>
 </head>
 <body>
@@ -495,6 +610,23 @@
       <p class="updated" id="updated"></p>
     </div>
   </main>
+
+  <!-- 取消確認モーダル -->
+  <div class="modal-overlay" id="cancelModal" hidden role="dialog" aria-modal="true" aria-labelledby="cancelModalTitle">
+    <div class="modal-box">
+      <h3>提案を取り消す</h3>
+      <p><strong id="cancelModalTitle"></strong> を「終了」に変更します。この操作はスプレッドシートに直接書き込みます。</p>
+      <div class="modal-field">
+        <label for="cancelPwInput">管理者パスワード</label>
+        <input type="password" id="cancelPwInput" autocomplete="off" placeholder="パスワードを入力">
+      </div>
+      <p class="modal-error" id="cancelError" aria-live="polite"></p>
+      <div class="modal-actions">
+        <button class="btn-danger" id="cancelConfirmBtn" type="button">取り消す</button>
+        <button class="btn-neutral" id="cancelAbortBtn" type="button">キャンセル</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     // ★ GAS WebアプリのデプロイURLをここに設定してください
@@ -563,13 +695,20 @@
       var detail = proposal.detail || '詳細はこれから追記されます。';
       var needs = proposal.needs || '必要になったものから相談します。';
       var eligible = proposal.eligibleWeight || state.data.eligibleWeight || 0;
+      var cancelable = proposal.statusKey !== 'closed';
+      var cancelBtn = cancelable
+        ? '<button class="cancel-btn" type="button" data-cancel-id="' + escapeHtml(proposal.id) + '" data-cancel-title="' + escapeHtml(proposal.title) + '">取消</button>'
+        : '';
       return '<article class="proposal-card" data-status="' + escapeHtml(proposal.statusKey) + '">' +
         '<div class="card-head">' +
           '<div class="identity">' +
             '<span class="proposal-id">' + escapeHtml(proposal.id) + '</span>' +
             '<h3 class="proposal-title">' + escapeHtml(proposal.title) + '</h3>' +
           '</div>' +
-          '<span class="status ' + statusClass(proposal.statusKey) + '">' + escapeHtml(proposal.status) + '</span>' +
+          '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">' +
+            '<span class="status ' + statusClass(proposal.statusKey) + '">' + escapeHtml(proposal.status) + '</span>' +
+            cancelBtn +
+          '</div>' +
         '</div>' +
         '<div class="meta">' +
           '<span class="pill">' + escapeHtml(proposal.category) + '</span>' +
@@ -617,6 +756,68 @@
     renderStats();
     renderProposals();
     bindFilters();
+
+    // --- 取消モーダル ---
+    var cancelModal = document.getElementById('cancelModal');
+    var cancelModalTitle = document.getElementById('cancelModalTitle');
+    var cancelPwInput = document.getElementById('cancelPwInput');
+    var cancelError = document.getElementById('cancelError');
+    var cancelConfirmBtn = document.getElementById('cancelConfirmBtn');
+    var cancelAbortBtn = document.getElementById('cancelAbortBtn');
+    var pendingCancelId = null;
+
+    grid.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-cancel-id]');
+      if (!btn) return;
+      pendingCancelId = btn.dataset.cancelId;
+      cancelModalTitle.textContent = btn.dataset.cancelTitle;
+      cancelPwInput.value = '';
+      cancelError.textContent = '';
+      cancelModal.hidden = false;
+      cancelPwInput.focus();
+    });
+
+    cancelAbortBtn.addEventListener('click', function() {
+      cancelModal.hidden = true;
+      pendingCancelId = null;
+    });
+
+    cancelModal.addEventListener('click', function(e) {
+      if (e.target === cancelModal) {
+        cancelModal.hidden = true;
+        pendingCancelId = null;
+      }
+    });
+
+    cancelConfirmBtn.addEventListener('click', function() {
+      if (!pendingCancelId) return;
+      var pw = cancelPwInput.value;
+      if (!pw) { cancelError.textContent = 'パスワードを入力してください'; return; }
+      cancelConfirmBtn.disabled = true;
+      cancelError.textContent = '';
+      fetch(GAS_URL + '?mode=cancel&id=' + encodeURIComponent(pendingCancelId) + '&pw=' + encodeURIComponent(pw))
+        .then(function(r) { return r.ok ? r.json() : Promise.reject(new Error('通信エラー')); })
+        .then(function(result) {
+          cancelConfirmBtn.disabled = false;
+          if (result.ok) {
+            cancelModal.hidden = true;
+            pendingCancelId = null;
+            return fetch(GAS_URL + '?mode=json')
+              .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+              .then(function(data) {
+                state.data = data;
+                renderStats();
+                renderProposals();
+              });
+          } else {
+            cancelError.textContent = result.error || '取り消しに失敗しました';
+          }
+        })
+        .catch(function(err) {
+          cancelConfirmBtn.disabled = false;
+          cancelError.textContent = (err && err.message) ? err.message : '通信エラーが発生しました';
+        });
+    });
 
     fetch(GAS_URL + '?mode=json')
       .then(function(response) { return response.ok ? response.json() : Promise.reject(new Error('load failed')); })
