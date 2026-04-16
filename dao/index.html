@@ -296,6 +296,68 @@
       font-weight: 700;
     }
 
+    .points-band {
+      display: grid;
+      grid-template-columns: minmax(260px, 0.85fr) minmax(0, 1.15fr);
+      gap: 18px;
+      padding: 20px;
+      margin: 0 0 18px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .points-copy {
+      display: grid;
+      align-content: start;
+      gap: 10px;
+    }
+
+    .points-copy h2 {
+      margin: 0;
+      font-size: 1.35rem;
+      line-height: 1.35;
+      letter-spacing: 0;
+    }
+
+    .points-copy p,
+    .points-note {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .points-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .points-list li {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      min-height: 46px;
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdfc;
+    }
+
+    .points-list span:first-child {
+      min-width: 0;
+      font-weight: 700;
+    }
+
+    .points-list strong {
+      color: var(--green-deep);
+      font-size: 1.02rem;
+      white-space: nowrap;
+    }
+
     .toolbar {
       display: flex;
       gap: 10px;
@@ -582,6 +644,7 @@
 
       .top,
       .guide-band,
+      .points-band,
       .grid {
         grid-template-columns: 1fr;
       }
@@ -607,6 +670,7 @@
       .intro,
       .action-panel,
       .guide-band,
+      .points-band,
       .proposal-card {
         padding: 15px;
       }
@@ -646,7 +710,7 @@
 
         <aside class="action-panel" aria-label="フォーム">
           <h2>提案・投票フォーム</h2>
-          <p>思いついたことは提案へ。応援したいものには投票へ。</p>
+          <p>思いついたことは提案へ。応援したいものには投票へ。投票参加もDAOポイントの対象です。</p>
           <div class="actions">
             <a class="button" id="proposalForm" href="https://docs.google.com/forms/d/e/1FAIpQLSdxfz3OyN2FJ6x89viHAyKU57glOMPMuFGdXNjp2O6motziWQ/viewform" target="_blank" rel="noopener">提案する</a>
             <a class="button secondary" id="voteForm" href="https://docs.google.com/forms/d/e/1FAIpQLSc9kOcabaSr8bjhE8pRDzIr1AWDEVodSc2lPWwkMAY029aAIw/viewform" target="_blank" rel="noopener">投票する</a>
@@ -681,6 +745,22 @@
           </ol>
           <a class="movie-link" href="https://drive.google.com/file/d/1aXknQog6qJ_hm5BJBdiOh3r6auPY1tvE/view?usp=sharing" target="_blank" rel="noopener">動画を別画面で開く</a>
         </div>
+      </section>
+
+      <section class="points-band" aria-label="DAOポイントとは">
+        <div class="points-copy">
+          <p class="eyebrow">DAOポイントとは</p>
+          <h2>参加や協力を、みんなで見える形にします。</h2>
+          <p>DAOポイントは、COCoLaでの参加・主催・提案・投票などの活動を見える化するためのものです。報酬や順位づけではなく、誰がどんな形で関わってくれているかを分かりやすくします。</p>
+          <p class="points-note">投票参加ポイントは、賛成・反対の内容に関わらず、1つの提案につき1回まで付与されます。</p>
+        </div>
+        <ul class="points-list" aria-label="ポイント付与基準">
+          <li><span>イベント主催</span><strong>8pt</strong></li>
+          <li><span>イベント参加</span><strong>1pt</strong></li>
+          <li><span>DAO提案</span><strong>3pt</strong></li>
+          <li><span>承認された提案</span><strong>追加5pt</strong></li>
+          <li><span>DAO投票参加</span><strong>1pt</strong></li>
+        </ul>
       </section>
 
       <section aria-label="提案一覧">
