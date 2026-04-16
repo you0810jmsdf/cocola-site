@@ -718,7 +718,7 @@
 <script>
     // ★ GAS WebアプリのデプロイURLをここに設定してください
     // GASエディタ → デプロイ → デプロイを管理 → ウェブアプリのURL (exec で終わるURL)
-    var GAS_URL = 'https://script.google.com/macros/s/AKfycbx3Ko3JX3p-RcF8YdNGlyWb06oFlUYIBvjzWQvoJ2uyUfsh4dzHNCS4JYVleb2imoWXaQ/exec';
+    var GAS_URL = 'https://script.google.com/macros/s/AKfycbwKtygJ1IsfixZGUeidFoFYfPX-t-b7jSP_ebWqC7y9WXY7B6cuabJVVXkLiB3ncoWSqQ/exec';
 
     var state = {
       filter: 'all',
@@ -870,13 +870,13 @@
       modalConfirm.disabled = true;
       modalConfirm.textContent = '処理中…';
       fetch(GAS_URL + '?mode=cancel&id=' + encodeURIComponent(pendingCancelId) + '&pw=' + encodeURIComponent(pw))
-        .then(function(r) { return r.json(); })
+        .then(readJsonResponse)
         .then(function(res) {
           if (res.ok) {
             closeCancelModal();
             // データ再取得して再描画
             return fetch(GAS_URL + '?mode=json')
-              .then(function(r) { return r.json(); })
+              .then(readJsonResponse)
               .then(function(data) {
                 state.data = data;
                 renderStats();
@@ -906,8 +906,19 @@
     renderProposals();
     bindFilters();
 
+    function readJsonResponse(response) {
+      return response.text().then(function(text) {
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        try {
+          return JSON.parse(text);
+        } catch (error) {
+          throw new Error('GASからJSON以外の応答が返りました。ページを再読み込みしてください。');
+        }
+      });
+    }
+
     fetch(GAS_URL + '?mode=json')
-      .then(function(response) { return response.ok ? response.json() : Promise.reject(new Error('load failed')); })
+      .then(readJsonResponse)
       .then(function(data) {
         state.data = data;
         setFormLink(proposalForm, data.proposalFormUrl);
