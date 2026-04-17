@@ -963,7 +963,7 @@
           if (res.ok) {
             closeCancelModal();
             // データ再取得して再描画
-            return fetch(GAS_URL + '?mode=json&t=' + Date.now())
+            return fetch(GAS_URL + '?mode=json&refresh=1&t=' + Date.now())
               .then(readJsonResponse)
               .then(function(data) {
                 state.data = data;
@@ -1006,7 +1006,7 @@
     }
 
     function loadDaoData() {
-      return fetch(GAS_URL + '?mode=json&t=' + Date.now())
+      return fetch(GAS_URL + '?mode=json&refresh=1&t=' + Date.now())
         .then(readJsonResponse)
         .then(function(data) {
           state.data = data;
