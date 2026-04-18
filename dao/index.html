@@ -811,6 +811,7 @@
     var state = {
       filter: 'all',
       data: { stats: {}, proposals: [], eligibleWeight: 0 },
+      loaded: false,
     };
 
     var grid = document.getElementById('proposalGrid');
@@ -847,6 +848,10 @@
     }
 
     function renderStats() {
+      if (!state.loaded) {
+        stats.innerHTML = '<div class="stat"><strong>...</strong><span>Loading</span></div>';
+        return;
+      }
       var s = state.data.stats || {};
       var items = [
         ['公開提案', s.proposals || 0],
@@ -905,6 +910,13 @@
     }
 
     function renderProposals() {
+      if (!state.loaded) {
+        grid.innerHTML = '';
+        empty.hidden = false;
+        empty.textContent = '\u63d0\u6848\u30c7\u30fc\u30bf\u3092\u8aad\u307f\u8fbc\u307f\u4e2d\u3067\u3059\u3002';
+        updated.textContent = '';
+        return;
+      }
       var proposals = state.data.proposals || [];
       var visible = proposals.filter(function(p) { return state.filter === 'all' || p.statusKey === state.filter; });
       grid.innerHTML = visible.map(renderProposal).join('');
@@ -966,9 +978,7 @@
             return fetch(GAS_URL + '?mode=json&refresh=1&t=' + Date.now())
               .then(readJsonResponse)
               .then(function(data) {
-                state.data = data;
-                renderStats();
-                renderProposals();
+                applyDaoData(data);
               });
           } else {
             modalError.textContent = res.error || 'パスワードが違います。';
@@ -990,9 +1000,37 @@
       openCancelModal(btn.dataset.cancelId, btn.dataset.cancelTitle);
     });
 
+    restoreLastDaoData();
     renderStats();
     renderProposals();
     bindFilters();
+
+    function applyDaoData(data) {
+      state.data = data || { stats: {}, proposals: [], eligibleWeight: 0 };
+      state.loaded = true;
+      try {
+        localStorage.setItem('COCOLA_DAO_LAST_DATA', JSON.stringify(state.data));
+      } catch (error) {
+        // Ignore storage limits or private browsing restrictions.
+      }
+      setFormLink(proposalForm, state.data.proposalFormUrl);
+      setFormLink(voteForm, state.data.voteFormUrl);
+      renderStats();
+      renderProposals();
+    }
+
+    function restoreLastDaoData() {
+      try {
+        var cached = localStorage.getItem('COCOLA_DAO_LAST_DATA');
+        if (!cached) return;
+        var data = JSON.parse(cached);
+        if (!data || !Array.isArray(data.proposals) || data.proposals.length === 0) return;
+        state.data = data;
+        state.loaded = true;
+      } catch (error) {
+        // Corrupt local cache should not block a fresh load.
+      }
+    }
 
     function readJsonResponse(response) {
       return response.text().then(function(text) {
@@ -1006,16 +1044,11 @@
     }
 
     function loadDaoData() {
-      return fetch(GAS_URL + '?mode=json&refresh=1&t=' + Date.now())
+      return fetch(GAS_URL + '?mode=json&t=' + Date.now())
         .then(readJsonResponse)
-        .then(function(data) {
-          state.data = data;
-          setFormLink(proposalForm, data.proposalFormUrl);
-          setFormLink(voteForm, data.voteFormUrl);
-          renderStats();
-          renderProposals();
-        })
+        .then(applyDaoData)
         .catch(function() {
+          if (state.loaded) return;
           empty.hidden = false;
           empty.textContent = '提案データの読み込みに時間がかかっています。少し待ってから再読み込みしてください。';
         });
