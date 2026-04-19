@@ -212,6 +212,17 @@
       line-height: 1.55;
     }
 
+    .member-only-note {
+      margin: 0;
+      padding: 10px 12px;
+      border: 1px solid #dbe8e2;
+      border-radius: 8px;
+      background: #fbfdfc;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.55;
+    }
+
     .dao-details {
       margin: 0 0 18px;
       background: var(--paper);
@@ -967,7 +978,7 @@
 <script>
     // ★ GAS WebアプリのデプロイURLをここに設定してください
     // GASエディタ → デプロイ → デプロイを管理 → ウェブアプリのURL (exec で終わるURL)
-    var GAS_URL = 'https://script.google.com/macros/s/AKfycbwgYHEhSx4XF7ePjEK1FicvA5B0X1Ms_8QqZA0xzoKj6LeEv6dC7T8SHYthYDMdObU/exec';
+    var GAS_URL = 'https://script.google.com/macros/s/AKfycbxvwqR4vgPEb0tZYEx37eFfq9T4f7IjxvJoyAzkSXqj9KIAOf9znqHwc6W7ECJo4miV/exec';
 
     var state = {
       filter: 'all',
@@ -983,6 +994,10 @@
     var voteForm = document.getElementById('voteForm');
     var CIVIC_LIKE_CLIENT_KEY = 'COCOLA_DAO_CIVIC_LIKE_CLIENT';
     var CIVIC_LIKED_IDS_KEY = 'COCOLA_DAO_CIVIC_LIKED_IDS';
+    var actionButtons = document.querySelector('.action-panel .actions');
+    if (actionButtons) {
+      actionButtons.insertAdjacentHTML('afterend', '<p class="member-only-note">提案・投票はCOCoLaメンバー向けです。メンバー確認ができない回答は、提案一覧・投票結果・DAOポイントには反映されません。メンバー以外の方は、各提案カードの「市民いいね」で応援や関心をお知らせください。</p>');
+    }
 
     function escapeHtml(value) {
       return String(value ?? '')
