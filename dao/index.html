@@ -212,17 +212,77 @@
       line-height: 1.55;
     }
 
+    .dao-details {
+      margin: 0 0 18px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .dao-details summary {
+      display: flex;
+      min-height: 58px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 18px;
+      color: var(--green-deep);
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .dao-details summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .dao-details summary::after {
+      content: "+";
+      display: inline-flex;
+      width: 30px;
+      height: 30px;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--green-deep);
+      background: #fbfdfc;
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+
+    .dao-details[open] summary::after {
+      content: "-";
+    }
+
+    .summary-text {
+      display: grid;
+      gap: 2px;
+    }
+
+    .summary-text small {
+      color: var(--muted);
+      font-size: 0.84rem;
+      font-weight: 600;
+    }
+
+    .dao-details__content {
+      display: grid;
+      gap: 18px;
+      padding: 0 18px 18px;
+    }
+
     .guide-band {
       display: grid;
       grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr);
       gap: 18px;
       padding: 20px;
-      margin: 0 0 18px;
+      margin: 0;
       align-items: center;
-      background: var(--paper);
+      background: #fbfdfc;
       border: 1px solid var(--line);
       border-radius: 8px;
-      box-shadow: var(--shadow);
     }
 
     .video-frame {
@@ -299,6 +359,32 @@
     }
 
     .movie-link {
+      color: var(--green-deep);
+      font-weight: 700;
+    }
+
+    .practice-band {
+      display: grid;
+      gap: 10px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdfc;
+    }
+
+    .practice-band h2 {
+      margin: 0;
+      font-size: 1.35rem;
+      line-height: 1.35;
+      letter-spacing: 0;
+    }
+
+    .practice-band p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .practice-band a {
       color: var(--green-deep);
       font-weight: 700;
     }
@@ -676,6 +762,7 @@
     @media (max-width: 520px) {
       .intro,
       .action-panel,
+      .dao-details__content,
       .guide-band,
       .points-band,
       .proposal-card {
@@ -710,8 +797,8 @@
       <section class="top" aria-label="提案と投票">
         <div class="intro">
           <p class="eyebrow">COCoLa DAO</p>
-          <h1>みんなの声で、COCoLaの次の動きをつくる。</h1>
-          <p class="lead">ここは、やってみたいことを提案し、みんなで投票して進め方を決めるページです。初めての人は、下の動画と3つの流れから見てください。</p>
+          <h1>提案・投票</h1>
+          <p class="lead">COCoLaは、参加するみんなでつくるDAO型コミュニティです。提案や投票を通じて、活動を一緒に育てていきます。</p>
           <div class="stats" id="stats"></div>
         </div>
 
@@ -726,33 +813,64 @@
         </aside>
       </section>
 
-      <section class="guide-band" aria-label="初めての人へ">
-        <div class="video-frame">
-          <video controls preload="metadata" poster="../assets/COCoLa_Logo_transparent.png">
-            <source src="../assets/video/cocola-dao-intro.mp4" type="video/mp4">
-            お使いのブラウザでは動画を再生できません。
-          </video>
+      <details class="dao-details">
+        <summary>
+          <span class="summary-text">
+            <span>提案と投票の流れを見る</span>
+            <small>COCoLa DAOのしくみと、イルミライマルシェの実践例</small>
+          </span>
+        </summary>
+        <div class="dao-details__content">
+          <section class="guide-band" aria-label="COCoLa DAOのしくみ">
+            <div class="video-frame">
+              <video controls preload="metadata" poster="../assets/COCoLa_Logo_transparent.png">
+                <source src="../assets/video/cocola-dao-intro.mp4" type="video/mp4">
+                お使いのブラウザでは動画を再生できません。
+              </video>
+            </div>
+            <div class="guide-copy">
+              <p class="eyebrow">しくみ</p>
+              <h2>アイデアを、みんなで育てて活動にします。</h2>
+              <p>COCoLaにおけるDAOは、特別な知識がある人だけの仕組みではありません。「やってみたい」「まちにこんな場があったらいい」という声を、参加者同士で話し合い、必要に応じて投票しながら形にしていく運営スタイルです。</p>
+              <ol class="steps">
+                <li>
+                  <span class="step-number">1</span>
+                  <span><strong>提案する</strong><span>イベント、場づくり、広報、学び、制作など、やってみたいことを書きます。</span></span>
+                </li>
+                <li>
+                  <span class="step-number">2</span>
+                  <span><strong>投票する</strong><span>公開された提案を見て、賛成・反対とコメントを送ります。</span></span>
+                </li>
+                <li>
+                  <span class="step-number">3</span>
+                  <span><strong>進める</strong><span>決まった提案は、小さく試しながら実施・改善していきます。</span></span>
+                </li>
+              </ol>
+              <a class="movie-link" href="https://drive.google.com/file/d/1aXknQog6qJ_hm5BJBdiOh3r6auPY1tvE/view?usp=sharing" target="_blank" rel="noopener">動画を別画面で開く</a>
+            </div>
+          </section>
+
+          <section class="practice-band" aria-label="イルミライマルシェの実践例">
+            <p class="eyebrow">実践例</p>
+            <h2>提案から生まれた実践例：イルミライマルシェ</h2>
+            <p>イルミライマルシェは、COCoLaのメンバーの想いや地域のつながりから生まれた実践プロジェクトです。個人の「やってみたい」という声が、仲間との対話を通じて形になり、行政や地域の協力者、イベント運営のプロとも連携しながら、実際のマルシェ開催へとつながりました。</p>
+            <p>COCoLaでは、このように一人のアイデアをみんなで育て、地域に開かれた活動として実装していくことを大切にしています。</p>
+            <a href="https://note.com/you0810jmsdf/n/n4178458fee17?sub_rt=share_pb" target="_blank" rel="noopener">イルミライマルシェの経緯を読む</a>
+          </section>
         </div>
-        <div class="guide-copy">
-          <p class="eyebrow">はじめに</p>
-          <h2>COCoLa DAOは、声を出した人と動いた人が見える仕組みです。</h2>
-          <p>難しい言葉を知らなくても大丈夫です。やりたいことを出す、いいと思ったものに投票する、決まったら一緒に動く。そのための場所です。</p>
-          <ol class="steps">
-            <li>
-              <span class="step-number">1</span>
-              <span><strong>提案する</strong><span>イベント、場づくり、広報、学び、制作など、やってみたいことを書きます。</span></span>
-            </li>
-            <li>
-              <span class="step-number">2</span>
-              <span><strong>投票する</strong><span>公開された提案を見て、賛成・反対とコメントを送ります。</span></span>
-            </li>
-            <li>
-              <span class="step-number">3</span>
-              <span><strong>進める</strong><span>賛成の重みが過半数を超えた提案は、実行に向けて動き出します。</span></span>
-            </li>
-          </ol>
-          <a class="movie-link" href="https://drive.google.com/file/d/1aXknQog6qJ_hm5BJBdiOh3r6auPY1tvE/view?usp=sharing" target="_blank" rel="noopener">動画を別画面で開く</a>
+      </details>
+
+      <section aria-label="提案一覧">
+        <div class="toolbar">
+          <h2>提案一覧</h2>
+          <div class="filters" role="list" aria-label="絞り込み">
+            <button class="filter is-active" type="button" data-filter="all">すべて</button>
+            <button class="filter" type="button" data-filter="voting">投票中</button>
+            <button class="filter" type="button" data-filter="approved">承認</button>
+          </div>
         </div>
+        <div class="grid" id="proposalGrid"></div>
+        <div class="empty" id="empty" hidden>公開中の提案はまだありません。</div>
       </section>
 
       <section class="points-band" aria-label="DAOポイントとは">
@@ -769,19 +887,6 @@
           <li><span>承認された提案</span><strong>追加5pt</strong></li>
           <li><span>DAO投票参加</span><strong>1pt</strong></li>
         </ul>
-      </section>
-
-      <section aria-label="提案一覧">
-        <div class="toolbar">
-          <h2>提案一覧</h2>
-          <div class="filters" role="list" aria-label="絞り込み">
-            <button class="filter is-active" type="button" data-filter="all">すべて</button>
-            <button class="filter" type="button" data-filter="voting">投票中</button>
-            <button class="filter" type="button" data-filter="approved">承認</button>
-          </div>
-        </div>
-        <div class="grid" id="proposalGrid"></div>
-        <div class="empty" id="empty" hidden>公開中の提案はまだありません。</div>
       </section>
 
       <p class="updated" id="updated"></p>
