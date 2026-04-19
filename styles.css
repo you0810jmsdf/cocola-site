@@ -694,6 +694,14 @@ a {
   gap: 12px;
 }
 
+.page-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 4px;
+}
+
 .page-hero__visual {
   overflow: hidden;
   border-radius: var(--radius-lg);
