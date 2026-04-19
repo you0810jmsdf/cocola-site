@@ -980,6 +980,8 @@
     // GASエディタ → デプロイ → デプロイを管理 → ウェブアプリのURL (exec で終わるURL)
     var GAS_URL = 'https://script.google.com/macros/s/AKfycbxvwqR4vgPEb0tZYEx37eFfq9T4f7IjxvJoyAzkSXqj9KIAOf9znqHwc6W7ECJo4miV/exec';
 
+    var CACHE_TTL_MS = 5 * 60 * 1000; // localStorageキャッシュの有効期限（5分）
+
     var state = {
       filter: 'all',
       data: { stats: {}, proposals: [], eligibleWeight: 0 },
@@ -1159,6 +1161,14 @@
       }
     }
 
+    function saveToLocalStorage() {
+      try {
+        localStorage.setItem('COCOLA_DAO_LAST_DATA', JSON.stringify(Object.assign({}, state.data, { _cachedAt: Date.now() })));
+      } catch (error) {
+        // Ignore storage limits or private browsing restrictions.
+      }
+    }
+
     function updateProposalLikeCount(id, count) {
       (state.data.proposals || []).forEach(function(proposal) {
         if (proposal.id === id) proposal.citizenLikeCount = count;
@@ -1168,11 +1178,7 @@
           return total + (Number(proposal.citizenLikeCount) || 0);
         }, 0);
       }
-      try {
-        localStorage.setItem('COCOLA_DAO_LAST_DATA', JSON.stringify(state.data));
-      } catch (error) {
-        // Ignore storage limits or private browsing restrictions.
-      }
+      saveToLocalStorage();
     }
 
     function submitCivicLike(id, button) {
@@ -1278,11 +1284,7 @@
     function applyDaoData(data) {
       state.data = data || { stats: {}, proposals: [], eligibleWeight: 0 };
       state.loaded = true;
-      try {
-        localStorage.setItem('COCOLA_DAO_LAST_DATA', JSON.stringify(state.data));
-      } catch (error) {
-        // Ignore storage limits or private browsing restrictions.
-      }
+      saveToLocalStorage();
       setFormLink(proposalForm, state.data.proposalFormUrl);
       setFormLink(voteForm, state.data.voteFormUrl);
       renderStats();
@@ -1295,6 +1297,8 @@
         if (!cached) return;
         var data = JSON.parse(cached);
         if (!data || !Array.isArray(data.proposals) || data.proposals.length === 0) return;
+        // キャッシュが5分以上古い場合は使わず、新鮮なデータを待つ
+        if (data._cachedAt && Date.now() - data._cachedAt > CACHE_TTL_MS) return;
         state.data = data;
         state.loaded = true;
       } catch (error) {
