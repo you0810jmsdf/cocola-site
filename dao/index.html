@@ -1314,7 +1314,7 @@
     }
 
     function loadDaoData() {
-      return fetch(GAS_URL + '?mode=json&t=' + Date.now())
+      return fetch(GAS_URL + '?mode=json&refresh=1&t=' + Date.now())
         .then(readJsonResponse)
         .then(applyDaoData)
         .catch(function() {
