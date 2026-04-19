@@ -1318,11 +1318,20 @@
     }
 
     function loadDaoData() {
-      return fetch(GAS_URL + '?mode=json&refresh=1&t=' + Date.now())
+      var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      var timeoutId = controller ? setTimeout(function() { controller.abort(); }, 15000) : null;
+      var options = controller ? { signal: controller.signal } : {};
+      return fetch(GAS_URL + '?mode=json&refresh=1&t=' + Date.now(), options)
         .then(readJsonResponse)
-        .then(applyDaoData)
+        .then(function(data) {
+          if (timeoutId) clearTimeout(timeoutId);
+          return applyDaoData(data);
+        })
         .catch(function() {
+          if (timeoutId) clearTimeout(timeoutId);
           if (state.loaded) return;
+          // フェッチ失敗時にLoadingのまま固まらないよう表示を更新する
+          stats.innerHTML = '<div class="stat" style="grid-column:1/-1"><strong>－</strong><span>読み込み失敗</span></div>';
           empty.hidden = false;
           empty.textContent = '提案データの読み込みに時間がかかっています。少し待ってから再読み込みしてください。';
         });
