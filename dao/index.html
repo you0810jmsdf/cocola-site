@@ -976,16 +976,15 @@
 </div>
 
 <script>
-    // ★ GAS WebアプリのデプロイURLをここに設定してください
-    // GASエディタ → デプロイ → デプロイを管理 → ウェブアプリのURL (exec で終わるURL)
     var GAS_URL = 'https://script.google.com/macros/s/AKfycbxvwqR4vgPEb0tZYEx37eFfq9T4f7IjxvJoyAzkSXqj9KIAOf9znqHwc6W7ECJo4miV/exec';
 
-    var CACHE_TTL_MS = 5 * 60 * 1000; // localStorageキャッシュの有効期限（5分）
+    var CACHE_TTL_MS = 5 * 60 * 1000;
 
     var state = {
       filter: 'all',
       data: { stats: {}, proposals: [], eligibleWeight: 0 },
       loaded: false,
+      cacheStale: false,
     };
 
     var grid = document.getElementById('proposalGrid');
@@ -1111,7 +1110,9 @@
       var visible = proposals.filter(function(p) { return state.filter === 'all' || p.statusKey === state.filter; });
       grid.innerHTML = visible.map(renderProposal).join('');
       empty.hidden = visible.length > 0;
-      updated.textContent = state.data.generatedAt ? '更新: ' + state.data.generatedAt : '';
+      updated.textContent = state.data.generatedAt
+        ? '更新: ' + state.data.generatedAt + (state.cacheStale ? ' （最新データ取得中...）' : '')
+        : '';
     }
 
     function bindFilters() {
@@ -1244,7 +1245,6 @@
         .then(function(res) {
           if (res.ok) {
             closeCancelModal();
-            // データ再取得して再描画
             return fetch(GAS_URL + '?mode=json&refresh=1&t=' + Date.now())
               .then(readJsonResponse)
               .then(function(data) {
@@ -1284,6 +1284,7 @@
     function applyDaoData(data) {
       state.data = data || { stats: {}, proposals: [], eligibleWeight: 0 };
       state.loaded = true;
+      state.cacheStale = false;
       saveToLocalStorage();
       setFormLink(proposalForm, state.data.proposalFormUrl);
       setFormLink(voteForm, state.data.voteFormUrl);
@@ -1297,10 +1298,10 @@
         if (!cached) return;
         var data = JSON.parse(cached);
         if (!data || !Array.isArray(data.proposals) || data.proposals.length === 0) return;
-        // キャッシュが5分以上古い場合は使わず、新鮮なデータを待つ
-        if (data._cachedAt && Date.now() - data._cachedAt > CACHE_TTL_MS) return;
+        // 古いキャッシュでも表示する（GAS失敗時のフォールバック）
         state.data = data;
         state.loaded = true;
+        state.cacheStale = data._cachedAt ? (Date.now() - data._cachedAt > CACHE_TTL_MS) : false;
       } catch (error) {
         // Corrupt local cache should not block a fresh load.
       }
@@ -1320,30 +1321,33 @@
     var _retryCount = 0;
 
     function loadDaoData() {
+      var TIMEOUT_MS = 45000;
+      // Promise.race で確実にタイムアウト（AbortController が効かない端末への対策）
+      var timeoutPromise = new Promise(function(_, reject) {
+        setTimeout(function() { reject(new Error('timeout')); }, TIMEOUT_MS);
+      });
       var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-      // GASのコールドスタートは最大30秒かかることがあるため30秒に設定
-      var timeoutId = controller ? setTimeout(function() { controller.abort(); }, 30000) : null;
+      if (controller) setTimeout(function() { controller.abort(); }, TIMEOUT_MS);
       var options = controller ? { signal: controller.signal } : {};
-      return fetch(GAS_URL + '?mode=json&refresh=1&t=' + Date.now(), options)
-        .then(readJsonResponse)
+      var fetchPromise = fetch(GAS_URL + '?mode=json&refresh=1&t=' + Date.now(), options)
+        .then(readJsonResponse);
+      return Promise.race([fetchPromise, timeoutPromise])
         .then(function(data) {
-          if (timeoutId) clearTimeout(timeoutId);
           _retryCount = 0;
+          state.cacheStale = false;
           return applyDaoData(data);
         })
         .catch(function() {
-          if (timeoutId) clearTimeout(timeoutId);
           if (state.loaded) return;
           _retryCount++;
-          // 3回失敗するまでは「接続中」を表示し、自動リトライを待つ
-          if (_retryCount < 3) {
-            stats.innerHTML = '<div class="stat" style="grid-column:1/-1"><strong>...</strong><span>接続中</span></div>';
+          if (_retryCount < 5) {
+            stats.innerHTML = '<div class="stat" style="grid-column:1/-1"><strong>...</strong><span>接続中 (' + _retryCount + '/5)</span></div>';
             empty.hidden = false;
-            empty.textContent = '接続に時間がかかっています。自動で再試行しています...';
+            empty.textContent = '接続に時間がかかっています。自動で再試行中... (' + _retryCount + '回目)';
           } else {
             stats.innerHTML = '<div class="stat" style="grid-column:1/-1"><strong>－</strong><span>読み込み失敗</span></div>';
             empty.hidden = false;
-            empty.textContent = '提案データを読み込めませんでした。ページを再読み込みしてください。';
+            empty.textContent = 'データを読み込めませんでした。Wi-Fiに切り替えてページを再読み込みしてください。';
           }
         });
     }
