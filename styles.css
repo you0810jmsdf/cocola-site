@@ -187,6 +187,19 @@ a {
   color: var(--muted);
 }
 
+.hero__dao-line {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid rgba(29, 158, 117, 0.18);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--green-dark);
+  font-weight: 700;
+  line-height: 1.6;
+}
+
 .hero__actions,
 .cta-card__actions {
   display: flex;
