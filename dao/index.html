@@ -601,6 +601,57 @@
       gap: 9px;
     }
 
+    .civic-like {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 11px;
+      border: 1px solid #dbe8e2;
+      border-radius: 8px;
+      background: #fbfdfc;
+    }
+
+    .civic-like__text {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .civic-like__count {
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .civic-like__note {
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.45;
+    }
+
+    .like-btn {
+      min-height: 38px;
+      padding: 7px 12px;
+      border: 1px solid var(--green);
+      border-radius: 8px;
+      background: #ffffff;
+      color: var(--green-deep);
+      font: inherit;
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .like-btn:hover,
+    .like-btn.is-liked {
+      background: #e7f5f0;
+    }
+
+    .like-btn:disabled {
+      cursor: default;
+      opacity: 0.7;
+    }
+
     .progress-track {
       height: 12px;
       overflow: hidden;
@@ -774,6 +825,10 @@
         grid-template-columns: 1fr;
       }
 
+      .civic-like {
+        grid-template-columns: 1fr;
+      }
+
       .card-head {
         display: grid;
       }
@@ -912,7 +967,7 @@
 <script>
     // ★ GAS WebアプリのデプロイURLをここに設定してください
     // GASエディタ → デプロイ → デプロイを管理 → ウェブアプリのURL (exec で終わるURL)
-    var GAS_URL = 'https://script.google.com/macros/s/AKfycbwRy4TH7Fk7VHqyYOvWcL2lzXXcv0NGuspTyKut6cFH55HGWAKk3BR59Rw38nRzeu3I/exec';
+    var GAS_URL = 'https://script.google.com/macros/s/AKfycbwgYHEhSx4XF7ePjEK1FicvA5B0X1Ms_8QqZA0xzoKj6LeEv6dC7T8SHYthYDMdObU/exec';
 
     var state = {
       filter: 'all',
@@ -926,6 +981,8 @@
     var updated = document.getElementById('updated');
     var proposalForm = document.getElementById('proposalForm');
     var voteForm = document.getElementById('voteForm');
+    var CIVIC_LIKE_CLIENT_KEY = 'COCOLA_DAO_CIVIC_LIKE_CLIENT';
+    var CIVIC_LIKED_IDS_KEY = 'COCOLA_DAO_CIVIC_LIKED_IDS';
 
     function escapeHtml(value) {
       return String(value ?? '')
@@ -964,6 +1021,7 @@
         ['投票中', s.voting || 0],
         ['承認', s.approved || 0],
         ['投票数', s.votes || 0],
+        ['市民いいね', s.citizenLikes || 0],
       ];
       stats.innerHTML = items.map(function(item) {
         return '<div class="stat"><strong>' + escapeHtml(item[1]) + '</strong><span>' + escapeHtml(item[0]) + '</span></div>';
@@ -981,6 +1039,8 @@
       var detail = proposal.detail || '詳細はこれから追記されます。';
       var needs = proposal.needs || '必要になったものから相談します。';
       var eligible = proposal.eligibleWeight || state.data.eligibleWeight || 0;
+      var liked = hasCivicLiked(proposal.id);
+      var likeCount = Number(proposal.citizenLikeCount) || 0;
       return '<article class="proposal-card" data-status="' + escapeHtml(proposal.statusKey) + '">' +
         '<div class="card-head">' +
           '<div class="identity">' +
@@ -1000,6 +1060,13 @@
         '</div>' +
         '<div class="card-foot">' +
           '<button class="cancel-btn" type="button" data-cancel-id="' + escapeHtml(proposal.id) + '" data-cancel-title="' + escapeHtml(proposal.title) + '">取消</button>' +
+        '</div>' +
+        '<div class="civic-like" aria-label="市民いいね">' +
+          '<div class="civic-like__text">' +
+            '<span class="civic-like__count">市民いいね ' + escapeHtml(likeCount) + '</span>' +
+            '<span class="civic-like__note">印西市民からの関心の目安として扱います。</span>' +
+          '</div>' +
+          '<button class="like-btn' + (liked ? ' is-liked' : '') + '" type="button" data-like-id="' + escapeHtml(proposal.id) + '"' + (liked ? ' disabled' : '') + '>' + (liked ? 'いいね済み' : 'いいね') + '</button>' +
         '</div>' +
         '<div class="vote-box" aria-label="投票状況">' +
           '<div class="progress-track" aria-hidden="true">' +
@@ -1040,6 +1107,82 @@
           renderProposals();
         });
       });
+    }
+
+    function getCivicLikeClientKey() {
+      try {
+        var key = localStorage.getItem(CIVIC_LIKE_CLIENT_KEY);
+        if (!key) {
+          key = 'civic-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 12);
+          localStorage.setItem(CIVIC_LIKE_CLIENT_KEY, key);
+        }
+        return key;
+      } catch (error) {
+        return 'session-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 12);
+      }
+    }
+
+    function getCivicLikedIds() {
+      try {
+        return JSON.parse(localStorage.getItem(CIVIC_LIKED_IDS_KEY) || '{}') || {};
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function hasCivicLiked(id) {
+      return Boolean(getCivicLikedIds()[id]);
+    }
+
+    function rememberCivicLiked(id) {
+      try {
+        var liked = getCivicLikedIds();
+        liked[id] = true;
+        localStorage.setItem(CIVIC_LIKED_IDS_KEY, JSON.stringify(liked));
+      } catch (error) {
+        // Private browsing or storage limits should not block server-side recording.
+      }
+    }
+
+    function updateProposalLikeCount(id, count) {
+      (state.data.proposals || []).forEach(function(proposal) {
+        if (proposal.id === id) proposal.citizenLikeCount = count;
+      });
+      if (state.data.stats) {
+        state.data.stats.citizenLikes = (state.data.proposals || []).reduce(function(total, proposal) {
+          return total + (Number(proposal.citizenLikeCount) || 0);
+        }, 0);
+      }
+      try {
+        localStorage.setItem('COCOLA_DAO_LAST_DATA', JSON.stringify(state.data));
+      } catch (error) {
+        // Ignore storage limits or private browsing restrictions.
+      }
+    }
+
+    function submitCivicLike(id, button) {
+      if (!id || !button || button.disabled) return;
+      button.disabled = true;
+      button.textContent = '送信中';
+      var url = GAS_URL
+        + '?mode=like&id=' + encodeURIComponent(id)
+        + '&key=' + encodeURIComponent(getCivicLikeClientKey())
+        + '&ua=' + encodeURIComponent(navigator.userAgent || '')
+        + '&ref=' + encodeURIComponent(location.href);
+      fetch(url)
+        .then(readJsonResponse)
+        .then(function(res) {
+          if (!res.ok) throw new Error(res.error || 'いいねを保存できませんでした');
+          rememberCivicLiked(id);
+          updateProposalLikeCount(id, res.count);
+          renderStats();
+          renderProposals();
+        })
+        .catch(function(error) {
+          button.disabled = false;
+          button.textContent = 'いいね';
+          window.alert(error.message || 'いいねを保存できませんでした。少し待ってからもう一度お試しください。');
+        });
     }
 
     // 取消モーダル
@@ -1101,6 +1244,12 @@
 
     // グリッドへのイベントデリゲーション（動的カードに対応）
     grid.addEventListener('click', function(e) {
+      var likeBtn = e.target.closest('[data-like-id]');
+      if (likeBtn) {
+        submitCivicLike(likeBtn.dataset.likeId, likeBtn);
+        return;
+      }
+
       var btn = e.target.closest('[data-cancel-id]');
       if (!btn) return;
       openCancelModal(btn.dataset.cancelId, btn.dataset.cancelTitle);
