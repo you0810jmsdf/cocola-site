@@ -977,8 +977,10 @@
 
 <script>
     var GAS_URL = 'https://script.google.com/macros/s/AKfycbxvwqR4vgPEb0tZYEx37eFfq9T4f7IjxvJoyAzkSXqj9KIAOf9znqHwc6W7ECJo4miV/exec';
+    var STATIC_JSON_URL = 'https://you0810jmsdf.github.io/cocola-site/dao/data.json';
 
     var CACHE_TTL_MS = 5 * 60 * 1000;
+    var STATIC_MAX_AGE_MS = 30 * 60 * 1000;
 
     var state = {
       filter: 'all',
@@ -1319,10 +1321,21 @@
     }
 
     var _retryCount = 0;
+    var _gasInFlight = false;
 
-    function loadDaoData() {
+    function tryStaticJson() {
+      return fetch(STATIC_JSON_URL + '?t=' + Date.now())
+        .then(function(res) {
+          if (!res.ok) return null;
+          return res.json().catch(function() { return null; });
+        })
+        .catch(function() { return null; });
+    }
+
+    function fetchFromGas() {
+      if (_gasInFlight) return Promise.resolve();
+      _gasInFlight = true;
       var TIMEOUT_MS = 45000;
-      // Promise.race で確実にタイムアウト（AbortController が効かない端末への対策）
       var timeoutPromise = new Promise(function(_, reject) {
         setTimeout(function() { reject(new Error('timeout')); }, TIMEOUT_MS);
       });
@@ -1334,10 +1347,12 @@
       return Promise.race([fetchPromise, timeoutPromise])
         .then(function(data) {
           _retryCount = 0;
+          _gasInFlight = false;
           state.cacheStale = false;
           return applyDaoData(data);
         })
         .catch(function() {
+          _gasInFlight = false;
           if (state.loaded) return;
           _retryCount++;
           if (_retryCount < 5) {
@@ -1352,9 +1367,25 @@
         });
     }
 
+    function loadDaoData() {
+      return tryStaticJson().then(function(data) {
+        if (data && Array.isArray(data.proposals) && data.proposals.length > 0) {
+          applyDaoData(data);
+          var age = data._generatedMs ? Date.now() - data._generatedMs : Infinity;
+          if (age > STATIC_MAX_AGE_MS) {
+            state.cacheStale = true;
+            renderProposals();
+            fetchFromGas();
+          }
+        } else {
+          fetchFromGas();
+        }
+      });
+    }
+
     loadDaoData();
-    window.addEventListener('focus', loadDaoData);
-    setInterval(loadDaoData, 10000);
+    window.addEventListener('focus', function() { _retryCount = 0; loadDaoData(); });
+    setInterval(function() { if (!state.loaded) fetchFromGas(); }, 10000);
   </script>
 </body>
 </html>
