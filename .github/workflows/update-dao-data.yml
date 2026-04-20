@@ -1,0 +1,63 @@
+name: Update DAO data
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'   # 15分ごと
+  workflow_dispatch:           # 手動実行も可
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch DAO data from GAS
+        run: |
+          curl -sL \
+            "https://script.google.com/macros/s/AKfycbxvwqR4vgPEb0tZYEx37eFfq9T4f7IjxvJoyAzkSXqj9KIAOf9znqHwc6W7ECJo4miV/exec?mode=json&t=$(date +%s)" \
+            -o dao/data_new.json \
+            --max-time 30 \
+            --retry 3 \
+            --retry-delay 5
+
+      - name: Validate and stamp timestamp
+        run: |
+          python3 - <<'EOF'
+          import json, time, sys
+
+          with open('dao/data_new.json') as f:
+              text = f.read()
+
+          try:
+              data = json.loads(text)
+          except Exception as e:
+              print(f'JSON parse error: {e}')
+              print(f'Response: {text[:200]}')
+              sys.exit(1)
+
+          if not isinstance(data.get('proposals'), list):
+              print('Invalid data structure (missing proposals array)')
+              sys.exit(1)
+
+          data['_generatedMs'] = int(time.time() * 1000)
+
+          with open('dao/data.json', 'w', encoding='utf-8') as f:
+              json.dump(data, f, ensure_ascii=False)
+
+          print(f"OK: {len(data['proposals'])} proposals")
+          EOF
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add dao/data.json
+          if git diff --staged --quiet; then
+            echo "No changes"
+          else
+            git commit -m 'Auto-update DAO data [skip ci]'
+            git push
+          fi
