@@ -1341,7 +1341,7 @@
       });
       var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
       if (controller) setTimeout(function() { controller.abort(); }, TIMEOUT_MS);
-      var options = controller ? { signal: controller.signal } : {};
+      var options = controller ? { credentials: 'omit', signal: controller.signal } : { credentials: 'omit' };
       var fetchPromise = fetch(GAS_URL + '?mode=json&refresh=1&t=' + Date.now(), options)
         .then(readJsonResponse);
       return Promise.race([fetchPromise, timeoutPromise])
@@ -1353,7 +1353,10 @@
         })
         .catch(function() {
           _gasInFlight = false;
-          if (state.loaded) return;
+          if (state.loaded) {
+            updated.textContent = '⚠️ 更新に失敗しました（表示中のデータは古い可能性があります）';
+            return;
+          }
           _retryCount++;
           if (_retryCount < 5) {
             stats.innerHTML = '<div class="stat" style="grid-column:1/-1"><strong>...</strong><span>接続中 (' + _retryCount + '/5)</span></div>';
