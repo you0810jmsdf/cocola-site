@@ -997,6 +997,7 @@
     var voteForm = document.getElementById('voteForm');
     var CIVIC_LIKE_CLIENT_KEY = 'COCOLA_DAO_CIVIC_LIKE_CLIENT';
     var CIVIC_LIKED_IDS_KEY = 'COCOLA_DAO_CIVIC_LIKED_IDS';
+    var CANCELLED_IDS_KEY = 'COCOLA_DAO_CANCELLED_IDS';
     var actionButtons = document.querySelector('.action-panel .actions');
     if (actionButtons) {
       actionButtons.insertAdjacentHTML('afterend', '<p class="member-only-note">提案・投票はCOCoLaメンバー向けです。メンバー確認ができない回答は、提案一覧・投票結果・DAOポイントには反映されません。メンバー以外の方は、各提案カードの「市民いいね」で応援や関心をお知らせください。</p>');
@@ -1109,7 +1110,10 @@
         return;
       }
       var proposals = state.data.proposals || [];
-      var visible = proposals.filter(function(p) { return state.filter === 'all' || p.statusKey === state.filter; });
+      var cancelled = getCancelledIds();
+      var visible = proposals.filter(function(p) {
+        return !cancelled[p.id] && (state.filter === 'all' || p.statusKey === state.filter);
+      });
       grid.innerHTML = visible.map(renderProposal).join('');
       empty.hidden = visible.length > 0;
       updated.textContent = state.data.generatedAt
@@ -1162,6 +1166,22 @@
       } catch (error) {
         // Private browsing or storage limits should not block server-side recording.
       }
+    }
+
+    function getCancelledIds() {
+      try {
+        return JSON.parse(localStorage.getItem(CANCELLED_IDS_KEY) || '{}') || {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function rememberCancelledId(id) {
+      try {
+        var cancelled = getCancelledIds();
+        cancelled[id] = true;
+        localStorage.setItem(CANCELLED_IDS_KEY, JSON.stringify(cancelled));
+      } catch (e) {}
     }
 
     function saveToLocalStorage() {
@@ -1242,16 +1262,19 @@
       if (!pw) { modalError.textContent = 'パスワードを入力してください。'; return; }
       modalConfirm.disabled = true;
       modalConfirm.textContent = '処理中…';
-      fetch(GAS_URL + '?mode=cancel&id=' + encodeURIComponent(pendingCancelId) + '&pw=' + encodeURIComponent(pw))
+      var cancellingId = pendingCancelId;
+      fetch(GAS_URL + '?mode=cancel&id=' + encodeURIComponent(cancellingId) + '&pw=' + encodeURIComponent(pw))
         .then(readJsonResponse)
         .then(function(res) {
           if (res.ok) {
             closeCancelModal();
-            return fetch(GAS_URL + '?mode=json&refresh=1&t=' + Date.now())
-              .then(readJsonResponse)
-              .then(function(data) {
-                applyDaoData(data);
-              });
+            // 楽観的更新: 即座にカードを非表示にしてlocalStorageに記録
+            rememberCancelledId(cancellingId);
+            state.data.proposals = (state.data.proposals || []).filter(function(p) { return p.id !== cancellingId; });
+            renderProposals();
+            // バックグラウンドでGASから最新データを取得
+            _gasInFlight = false;
+            fetchFromGas();
           } else {
             modalError.textContent = res.error || 'パスワードが違います。';
           }
