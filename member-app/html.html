@@ -660,8 +660,8 @@ a {
       </div>
     </div>
     <div class="header-actions">
-      <a class="header-link" href="<?= HOME_URL ?>" rel="noopener">COCoLaトップへ戻る</a>
-      <a class="header-link" href="<?= FORM_URL ?>" target="_blank" rel="noopener">参加フォームへ</a>
+      <a class="header-link" href="https://you0810jmsdf.github.io/cocola-site/index.html" rel="noopener">COCoLaトップへ戻る</a>
+      <a class="header-link" href="https://docs.google.com/forms/d/1V_0080ht4b7iBG4kpckyWhqYmwNVtQkbSStas7fAeGs/viewform" target="_blank" rel="noopener">参加フォームへ</a>
     </div>
   </header>
 
@@ -706,7 +706,7 @@ a {
   <section class="join-wrap">
     <h3>COCoLaに参加する</h3>
     <p>活動に加わりたい方も、まずは話を聞いてみたい方も、フォームから気軽にご連絡ください。</p>
-    <a class="join-btn" href="<?= FORM_URL ?>" target="_blank" rel="noopener">入会・情報修正フォームへ</a>
+    <a class="join-btn" href="https://docs.google.com/forms/d/1V_0080ht4b7iBG4kpckyWhqYmwNVtQkbSStas7fAeGs/viewform" target="_blank" rel="noopener">入会・情報修正フォームへ</a>
   </section>
 </div>
 
@@ -720,9 +720,9 @@ a {
 <div class="mail-toast" id="mail-toast">コピーしました</div>
 
 <script>
-const APP_URL = <?!= JSON.stringify(APP_URL) ?>;
-const FORM_URL = <?!= JSON.stringify(FORM_URL) ?>;
-const HOME_URL = <?!= JSON.stringify(HOME_URL) ?>;
+const APP_URL = 'https://script.google.com/macros/s/AKfycbxQ7gBHJQFVZEXcyisJdiL7xa64RcKzYjzBZLEGlkelSvxXCfPPHTW5eAVHB09aue1p/exec';
+const STATIC_JSON_URL = '../members/data.json';
+const STATIC_MAX_AGE_MS = 5 * 60 * 1000;
 
 const COL = {
   timestamp: 0,
@@ -1075,11 +1075,24 @@ async function copyMailingList() {
   window.setTimeout(() => toast.classList.remove("show"), 2600);
 }
 
+async function tryStaticJson() {
+  const res = await fetch(STATIC_JSON_URL + "?ts=" + Date.now(), { credentials: "omit" });
+  if (!res.ok) return null;
+  const data = await res.json();
+  if (!Array.isArray(data.rows) || !data._generatedMs) return null;
+  if (Date.now() - data._generatedMs > STATIC_MAX_AGE_MS) return null;
+  return data.rows;
+}
+
 async function loadMembers() {
   try {
-    const response = await fetch(APP_URL + "?mode=json&ts=" + Date.now());
-    if (!response.ok) throw new Error("HTTP " + response.status);
-    const rows = await response.json();
+    let rows = null;
+    try { rows = await tryStaticJson(); } catch (_) {}
+    if (!rows) {
+      const res = await fetch(APP_URL + "?mode=json&ts=" + Date.now(), { credentials: "omit" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      rows = await res.json();
+    }
     allMembers = buildMembers(rows);
     applyFilter();
   } catch (error) {
