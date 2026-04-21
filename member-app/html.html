@@ -1080,7 +1080,6 @@ async function tryStaticJson() {
   if (!res.ok) return null;
   const data = await res.json();
   if (!Array.isArray(data.rows) || !data._generatedMs) return null;
-  if (Date.now() - data._generatedMs > STATIC_MAX_AGE_MS) return null;
   return data.rows;
 }
 
