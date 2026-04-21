@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>千葉ニュータウンイベント一覧 | COCoLa</title>
+<style>
+body{margin:0;padding:12px;font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans-serif;font-size:14px;color:#333;}
+.inzai-wrap{max-width:800px;margin:0 auto;}
+.inzai-page-header{padding:10px 0 12px;margin-bottom:10px;border-bottom:2px solid #c0392b;}
+.inzai-page-kicker{margin:0 0 3px;font-size:11px;color:#999;font-weight:bold;letter-spacing:0.08em;}
+.inzai-page-header h1{margin:0 0 4px;font-size:22px;line-height:1.35;color:#c0392b;}
+.inzai-page-header p{margin:0;font-size:13px;color:#666;}
+.month-group{margin-bottom:6px;border:1px solid #eee;border-radius:6px;overflow:hidden;}
+.month-summary{padding:10px 14px;cursor:pointer;font-weight:bold;font-size:15px;color:#c0392b;background:#fff5f5;display:flex;align-items:center;justify-content:space-between;list-style:none;user-select:none;}
+.month-summary::-webkit-details-marker{display:none;}
+.month-summary::before{content:"▶";font-size:11px;margin-right:8px;display:inline-block;transition:transform 0.2s;}
+details[open]>.month-summary::before{transform:rotate(90deg);}
+.month-count{font-size:12px;color:#999;font-weight:normal;margin-left:auto;}
+.month-group .ev-item{padding:12px 14px;border-bottom:1px solid #eee;}
+.month-group .ev-item:last-child{border-bottom:none;}
+.ev-item{padding:12px 0;border-bottom:1px solid #eee;}
+.ev-item.past{opacity:0.45;}
+.ev-date{margin:0 0 3px;font-size:12px;color:#c0392b;font-weight:bold;}
+.ev-title{margin:0 0 4px;font-size:15px;font-weight:bold;}
+.ev-title a{color:#c0392b;text-decoration:underline;}
+.ev-title a:hover{color:#a93226;}
+.ev-meta{margin:0 0 3px;font-size:13px;color:#555;}
+.ev-desc{margin:0 0 3px;font-size:13px;color:#666;line-height:1.5;}
+.ev-source{margin:0;font-size:11px;color:#bbb;}
+.empty{color:#999;text-align:center;padding:20px;}
+.entry-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start;margin:8px 0 12px;}
+.entry-btn{display:inline-flex;align-items:center;justify-content:center;padding:8px 18px;background:#c0392b;color:#fff;border-radius:4px;text-decoration:none;font-size:13px;font-weight:bold;line-height:1.4;}
+.entry-btn:hover{background:#a93226;}
+.view-tabs{display:flex;gap:0;margin-bottom:12px;border-bottom:2px solid #c0392b;}
+.vbtn{padding:7px 18px;border:1px solid #ddd;border-bottom:none;background:#f5f5f5;cursor:pointer;font-size:13px;color:#666;border-radius:4px 4px 0 0;font-family:inherit;line-height:1.4;}
+.vbtn.active{background:#fff;color:#c0392b;font-weight:bold;border-color:#c0392b;margin-bottom:-2px;}
+.vbtn:hover{background:#fef0f0;}
+.cal-nav{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.cal-title{font-weight:bold;font-size:15px;flex:1;text-align:center;}
+.nav-btn{background:#fff;border:1px solid #ccc;border-radius:4px;padding:5px 12px;cursor:pointer;font-size:14px;color:#555;font-family:inherit;}
+.nav-btn:hover{background:#fef0f0;border-color:#c0392b;color:#c0392b;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:12px;}
+.cal-hd{text-align:center;font-size:11px;color:#999;padding:4px 0;font-weight:bold;}
+.cal-cell{min-height:44px;border:1px solid #e8e8e8;border-radius:4px;padding:4px 2px;cursor:pointer;text-align:center;}
+.cal-cell:hover{background:#fef0f0;border-color:#c0392b;}
+.cal-cell.empty{border:none;background:none;cursor:default;}
+.cal-cell.today{background:#fff5f5;border-color:#c0392b;}
+.cal-dn{font-size:13px;display:block;}
+.cal-dot{display:block;width:7px;height:7px;background:#c0392b;border-radius:50%;margin:3px auto 0;}
+.day-panel{margin-top:12px;padding:10px 0;border-top:2px solid #eee;}
+.dp-title{font-weight:bold;margin:0 0 8px;font-size:14px;color:#555;}
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.week-col{border:1px solid #e8e8e8;border-radius:4px;min-height:100px;}
+.week-col.today{background:#fff5f5;border-color:#c0392b;}
+.week-hd{text-align:center;padding:6px 2px;border-bottom:1px solid #eee;font-size:12px;font-weight:bold;color:#888;}
+.week-col.today .week-hd{color:#c0392b;}
+.wdate{font-size:11px;font-weight:normal;}
+.week-evs{padding:4px 3px;}
+.week-ev{font-size:11px;padding:3px 4px;margin-bottom:3px;background:#fafafa;border-left:3px solid #c0392b;border-radius:0 2px 2px 0;}
+.week-ev.past{opacity:0.5;}
+.wtim{display:block;font-size:10px;color:#c0392b;font-weight:bold;}
+.wtit a{color:#333;text-decoration:none;}
+.wtit a:hover{color:#c0392b;text-decoration:underline;}
+.loading{text-align:center;padding:30px;color:#999;}
+.error-banner{background:#fdecea;border:1px solid #f5c6cb;color:#721c24;padding:10px 14px;border-radius:4px;margin-bottom:12px;font-size:13px;}
+@media(max-width:600px){.vbtn{padding:6px 11px;font-size:12px;}.week-hd{font-size:10px;padding:4px 1px;}.week-ev{font-size:10px;padding:2px 3px;}.cal-cell{min-height:36px;}}
+</style>
+</head>
+<body>
+<div class="inzai-wrap">
+  <header class="inzai-page-header">
+    <p class="inzai-page-kicker">COCoLa EVENT LIST</p>
+    <h1>千葉ニュータウンイベント一覧</h1>
+    <p>千葉ニュータウン周辺のイベント情報をまとめています。</p>
+  </header>
+  <div class="entry-actions">
+    <a class="entry-btn" href="https://docs.google.com/forms/d/1MXr-GdG5Jbu9aQE0xTR3xjWFl5XFkQXdl7asJNChMDQ/viewform" target="_blank" rel="noreferrer noopener">イベントを登録する</a>
+  </div>
+  <div id="error-area"></div>
+  <div class="view-tabs">
+    <button id="btn-list" class="vbtn active" onclick="_setView('list')">リスト</button>
+    <button id="btn-month" class="vbtn" onclick="_setView('month')">月</button>
+    <button id="btn-week" class="vbtn" onclick="_setView('week')">週</button>
+  </div>
+  <div id="view-area"><p class="loading">読み込み中...</p></div>
+</div>
+<script>
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbycw2FBvcm34mS9R8SUNg28KscGqqGjR1zjz3hnLYq8ckgKCZObYaC9kbMs8R2SGXgC/exec';
+var STATIC_JSON_URL = './data.json';
+var STATIC_MAX_AGE_MS = 5 * 60 * 1000;
+
+var EVTS = [];
+var _now = new Date();
+var _view = 'list';
+var _mo = new Date(_now.getFullYear(), _now.getMonth(), 1);
+var _wk = _monOf(_now);
+
+async function tryStaticJson() {
+  var res = await fetch(STATIC_JSON_URL + '?ts=' + Date.now(), { credentials: 'omit' });
+  if (!res.ok) return null;
+  var data = await res.json();
+  if (!Array.isArray(data.rows) || !data._generatedMs) return null;
+  if (Date.now() - data._generatedMs > STATIC_MAX_AGE_MS) return null;
+  return data.rows;
+}
+
+async function loadEvents() {
+  try {
+    var rows = null;
+    try { rows = await tryStaticJson(); } catch (_) {}
+    if (!rows) {
+      var res = await fetch(GAS_URL + '?mode=inzai_json&ts=' + Date.now(), { credentials: 'omit' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      rows = await res.json();
+    }
+    if (!Array.isArray(rows)) throw new Error('invalid data');
+    EVTS = rows;
+    _render();
+  } catch (err) {
+    document.getElementById('error-area').innerHTML =
+      '<div class="error-banner">データの読み込みに失敗しました。時間をおいて再度お試しください。</div>';
+    document.getElementById('view-area').innerHTML = '';
+  }
+}
+
+function _monOf(d) {
+  var r = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  var w = r.getDay();
+  r.setDate(r.getDate() - (w === 0 ? 6 : w - 1));
+  return r;
+}
+function _prevMo() { _mo = new Date(_mo.getFullYear(), _mo.getMonth() - 1, 1); _render(); }
+function _nextMo() { _mo = new Date(_mo.getFullYear(), _mo.getMonth() + 1, 1); _render(); }
+function _prevWk() { _wk = new Date(_wk.getTime() - 7 * 86400000); _render(); }
+function _nextWk() { _wk = new Date(_wk.getTime() + 7 * 86400000); _render(); }
+function _setView(v) {
+  _view = v;
+  ['list','month','week'].forEach(function(x) {
+    var b = document.getElementById('btn-' + x);
+    if (b) b.className = 'vbtn' + (x === v ? ' active' : '');
+  });
+  _render();
+}
+function _esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function _ed(ev) { return ev.ts ? new Date(ev.ts) : null; }
+function _sd(a, b) { return a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
+function _card(ev) {
+  var url = ev.u ? '<a href="' + _esc(ev.u) + '" target="_blank">' + _esc(ev.t) + '</a>' : _esc(ev.t);
+  var s = '<div class="ev-item' + (ev.past ? ' past' : '') + '"><p class="ev-date">' + _esc(ev.d) + '</p><p class="ev-title">' + url + '</p>';
+  if (ev.l) s += '<p class="ev-meta">📍 ' + _esc(ev.l) + '</p>';
+  if (ev.desc) s += '<p class="ev-desc">' + _esc(ev.desc) + '</p>';
+  if (ev.s) s += '<p class="ev-source">情報元: ' + _esc(ev.s) + '</p>';
+  return s + '</div>';
+}
+function _renderList(el) {
+  if (!EVTS.length) { el.innerHTML = '<p class="empty">現在公開中のイベントはありません</p>'; return; }
+  var groups = {}, groupKeys = [];
+  EVTS.forEach(function(ev) {
+    var d = ev.ts ? new Date(ev.ts) : null;
+    var key = d ? (d.getFullYear() + '_' + (d.getMonth() + 1)) : 'nodate';
+    var label = d ? (d.getFullYear() + '年' + (d.getMonth() + 1) + '月') : '日付不明';
+    if (!groups[key]) { groups[key] = { label: label, evts: [], year: d ? d.getFullYear() : 9999, month: d ? d.getMonth() : 0 }; groupKeys.push(key); }
+    groups[key].evts.push(ev);
+  });
+  var nowY = _now.getFullYear(), nowM = _now.getMonth();
+  var html = '';
+  groupKeys.forEach(function(key) {
+    var g = groups[key];
+    var open = (key === 'nodate') || (g.year > nowY) || (g.year === nowY && g.month >= nowM);
+    html += '<details class="month-group"' + (open ? ' open' : '') + '>';
+    html += '<summary class="month-summary">' + g.label + '<span class="month-count">' + g.evts.length + '件</span></summary>';
+    html += g.evts.map(_card).join('');
+    html += '</details>';
+  });
+  el.innerHTML = html;
+}
+function _renderMonth(el) {
+  var y = _mo.getFullYear(), m = _mo.getMonth();
+  var first = new Date(y, m, 1), last = new Date(y, m + 1, 0);
+  var nav = '<div class="cal-nav"><button class="nav-btn" onclick="_prevMo()">◀</button><span class="cal-title">' + y + '年' + (m + 1) + '月</span><button class="nav-btn" onclick="_nextMo()">▶</button></div>';
+  var grid = '<div class="cal-grid">';
+  ['日','月','火','水','木','金','土'].forEach(function(d) { grid += '<div class="cal-hd">' + d + '</div>'; });
+  for (var i = 0; i < first.getDay(); i++) grid += '<div class="cal-cell empty"></div>';
+  for (var d = 1; d <= last.getDate(); d++) {
+    var dt = new Date(y, m, d);
+    var evs = EVTS.filter(function(ev) { return _sd(_ed(ev), dt); });
+    var cls = 'cal-cell' + (_sd(dt, _now) ? ' today' : '');
+    var dot = evs.length ? '<span class="cal-dot"></span>' : '';
+    grid += '<div class="' + cls + '" onclick="_showDay(' + y + ',' + (m + 1) + ',' + d + ')"><span class="cal-dn">' + d + '</span>' + dot + '</div>';
+  }
+  grid += '</div>';
+  el.innerHTML = nav + grid + '<div id="dpanel"></div>';
+}
+function _showDay(y, m, d) {
+  var dt = new Date(y, m - 1, d);
+  var evs = EVTS.filter(function(ev) { return _sd(_ed(ev), dt); });
+  var out = '<div class="day-panel"><p class="dp-title">' + y + '年' + m + '月' + d + '日のイベント</p>';
+  out += evs.length ? evs.map(_card).join('') : '<p class="empty">この日のイベントはありません</p>';
+  out += '</div>';
+  var p = document.getElementById('dpanel');
+  if (p) p.innerHTML = out;
+}
+function _renderWeek(el) {
+  var ms = _wk;
+  var ds = ['月','火','水','木','金','土','日'];
+  var nav = '<div class="cal-nav"><button class="nav-btn" onclick="_prevWk()">◀</button><span class="cal-title">' + ms.getFullYear() + '年' + (ms.getMonth() + 1) + '月' + ms.getDate() + '日〜</span><button class="nav-btn" onclick="_nextWk()">▶</button></div>';
+  var html = nav + '<div class="week-grid">';
+  for (var i = 0; i < 7; i++) {
+    var dt = new Date(ms.getTime() + i * 86400000);
+    var evs = EVTS.filter(function(ev) { return _sd(_ed(ev), dt); });
+    var isT = _sd(dt, _now);
+    html += '<div class="week-col' + (isT ? ' today' : '') + '"><div class="week-hd">' + ds[i] + '<br><span class="wdate">' + (dt.getMonth() + 1) + '/' + dt.getDate() + '</span></div><div class="week-evs">';
+    evs.forEach(function(ev) {
+      var tim = ev.h >= 0 ? ('0' + ev.h).slice(-2) + ':' + ('0' + ev.mi).slice(-2) : '';
+      var ttl = ev.u ? '<a href="' + _esc(ev.u) + '" target="_blank">' + _esc(ev.t) + '</a>' : _esc(ev.t);
+      html += '<div class="week-ev' + (ev.past ? ' past' : '') + '">' + (tim ? '<span class="wtim">' + tim + '</span>' : '') + '<span class="wtit">' + ttl + '</span></div>';
+    });
+    html += '</div></div>';
+  }
+  html += '</div>';
+  el.innerHTML = html;
+}
+function _render() {
+  var el = document.getElementById('view-area');
+  if (!el) return;
+  if (_view === 'list') _renderList(el);
+  else if (_view === 'month') _renderMonth(el);
+  else _renderWeek(el);
+}
+
+window.onload = function() { loadEvents(); };
+</script>
+</body>
+</html>
