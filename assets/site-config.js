@@ -5,5 +5,5 @@ window.COCOLA_APP_LINKS = {
   odekakeMap: 'https://you0810jmsdf.github.io/odekake-map/',
   eventsList: 'https://you0810jmsdf.github.io/cocola-site/events/',
   topicsEntryForm: 'https://docs.google.com/forms/d/1MXr-GdG5Jbu9aQE0xTR3xjWFl5XFkQXdl7asJNChMDQ/viewform',
-  freefree: ''
+  freefree: 'https://script.google.com/macros/s/AKfycbyS_Q1zWJpv5CuogOh5A1sREzdIPARCb8RMijZqSDY8r8bZt8XP11knGkAQG3QImHi3Gw/exec'
 };
