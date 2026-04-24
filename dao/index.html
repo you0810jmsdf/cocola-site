@@ -543,6 +543,16 @@
       letter-spacing: 0;
     }
 
+    .title-vote-link {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .title-vote-link:hover {
+      text-decoration: underline;
+      color: var(--green-deep);
+    }
+
     .status {
       flex: 0 0 auto;
       max-width: 112px;
@@ -1064,7 +1074,7 @@
         '<div class="card-head">' +
           '<div class="identity">' +
             '<span class="proposal-id">' + escapeHtml(proposal.id) + '</span>' +
-            '<h3 class="proposal-title">' + escapeHtml(proposal.title) + '</h3>' +
+            '<h3 class="proposal-title"><a class="title-vote-link" href="' + escapeHtml(state.data.voteFormUrl || 'https://docs.google.com/forms/d/e/1FAIpQLSc9kOcabaSr8bjhE8pRDzIr1AWDEVodSc2lPWwkMAY029aAIw/viewform') + '" target="_blank" rel="noopener">' + escapeHtml(proposal.title) + '</a></h3>' +
           '</div>' +
           '<span class="status ' + statusClass(proposal.statusKey) + '">' + escapeHtml(proposal.status) + '</span>' +
         '</div>' +
@@ -1092,10 +1102,10 @@
             '<div class="progress-bar" style="width: ' + escapeHtml(proposal.progressPercent) + '%"></div>' +
           '</div>' +
           '<div class="vote-numbers">' +
+            '<span><b>' + numberText(proposal.voteCount || 0) + '人</b>投票数</span>' +
             '<span><b>' + numberText(proposal.yesRate, '%') + '</b>賛成率</span>' +
             '<span><b>' + numberText(proposal.yesWeight) + '</b>賛成重み</span>' +
             '<span><b>' + numberText(proposal.noWeight) + '</b>反対重み</span>' +
-            '<span><b>' + numberText(eligible) + '</b>母数</span>' +
           '</div>' +
         '</div>' +
         '</article>';
