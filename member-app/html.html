@@ -174,6 +174,43 @@ a {
   color: var(--muted);
 }
 
+.points-info {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  margin: 18px 0;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-strong);
+}
+
+.points-info h3 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+}
+
+.points-info p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.points-info a {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  border: 1px solid rgba(29, 158, 117, 0.24);
+  border-radius: 8px;
+  color: var(--green-dark);
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
 .toolbar {
   margin-top: 18px;
   padding: 16px 18px;
@@ -390,6 +427,39 @@ a {
   margin-top: 2px;
 }
 
+.dao-points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.dao-point {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 11px;
+  border-radius: 12px;
+  border: 1px solid rgba(29, 158, 117, 0.18);
+  background: rgba(29, 158, 117, 0.09);
+  color: var(--green-dark);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.dao-point__label {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.dao-point--status {
+  background: rgba(31, 167, 201, 0.10);
+  color: #0d738c;
+  border-color: rgba(31, 167, 201, 0.18);
+}
+
 .member-banner {
   display: inline-flex;
   align-items: center;
@@ -435,39 +505,6 @@ a {
   background: rgba(229, 107, 143, 0.12);
   color: #a13f62;
   border-color: rgba(229, 107, 143, 0.18);
-}
-
-.dao-points {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  align-items: center;
-}
-
-.dao-point {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 34px;
-  padding: 0 11px;
-  border-radius: 12px;
-  border: 1px solid rgba(29, 158, 117, 0.18);
-  background: rgba(29, 158, 117, 0.09);
-  color: var(--green-dark);
-  font-size: 0.78rem;
-  font-weight: 800;
-}
-
-.dao-point__label {
-  color: var(--muted);
-  font-size: 0.68rem;
-  font-weight: 700;
-}
-
-.dao-point--status {
-  background: rgba(31, 167, 201, 0.10);
-  color: #0d738c;
-  border-color: rgba(31, 167, 201, 0.18);
 }
 
 .card-bio {
@@ -652,6 +689,11 @@ a {
     align-items: stretch;
   }
 
+  .points-info {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
   .chips,
   .search-box {
     min-width: 0;
@@ -707,6 +749,14 @@ a {
     </p>
   </section>
 
+  <section class="points-info" aria-label="貢献度ポイントとは">
+    <div>
+      <h3>貢献度ポイントとは？</h3>
+      <p>COCoLaでの参加・主催・提案・投票などの活動を見える化したものです。詳しい基準はDAOページで確認できます。</p>
+    </div>
+    <a href="https://you0810jmsdf.github.io/cocola-site/dao/" target="_blank" rel="noopener">DAOポイントの基準を見る</a>
+  </section>
+
   <section class="toolbar">
     <div class="toolbar-row">
       <div class="chips" id="chipList">
@@ -754,8 +804,8 @@ a {
 
 <script>
 const APP_URL = 'https://script.google.com/macros/s/AKfycbxQ7gBHJQFVZEXcyisJdiL7xa64RcKzYjzBZLEGlkelSvxXCfPPHTW5eAVHB09aue1p/exec';
-const STATIC_JSON_URL = '../members/data.json';
-const STATIC_MAX_AGE_MS = 5 * 60 * 1000;
+const FORM_URL = 'https://docs.google.com/forms/d/1V_0080ht4b7iBG4kpckyWhqYmwNVtQkbSStas7fAeGs/viewform';
+const HOME_URL = 'https://you0810jmsdf.github.io/cocola-site/index.html';
 
 const COL = {
   timestamp: 0,
@@ -1132,23 +1182,11 @@ async function copyMailingList() {
   window.setTimeout(() => toast.classList.remove("show"), 2600);
 }
 
-async function tryStaticJson() {
-  const res = await fetch(STATIC_JSON_URL + "?ts=" + Date.now(), { credentials: "omit" });
-  if (!res.ok) return null;
-  const data = await res.json();
-  if (!Array.isArray(data.rows) || !data._generatedMs) return null;
-  return data.rows;
-}
-
 async function loadMembers() {
   try {
-    let rows = null;
-    try { rows = await tryStaticJson(); } catch (_) {}
-    if (!rows) {
-      const res = await fetch(APP_URL + "?mode=json&ts=" + Date.now(), { credentials: "omit" });
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      rows = await res.json();
-    }
+    const response = await fetch(APP_URL + "?mode=json&ts=" + Date.now());
+    if (!response.ok) throw new Error("HTTP " + response.status);
+    const rows = await response.json();
     allMembers = buildMembers(rows);
     applyFilter();
   } catch (error) {
