@@ -437,6 +437,39 @@ a {
   border-color: rgba(229, 107, 143, 0.18);
 }
 
+.dao-points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.dao-point {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 11px;
+  border-radius: 12px;
+  border: 1px solid rgba(29, 158, 117, 0.18);
+  background: rgba(29, 158, 117, 0.09);
+  color: var(--green-dark);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.dao-point__label {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.dao-point--status {
+  background: rgba(31, 167, 201, 0.10);
+  color: #0d738c;
+  border-color: rgba(31, 167, 201, 0.18);
+}
+
 .card-bio {
   margin: 0;
   color: #486057;
@@ -748,6 +781,10 @@ const COL = {
   otherGroup2: 20,
   otherGroupUrl2: 21,
   internalRole: 22,
+  daoTotalPoints: 23,
+  daoRecentPoints: 24,
+  daoStatus: 25,
+  daoVotingWeight: 26,
 };
 
 const TAG_CLASS = {
@@ -835,6 +872,10 @@ function buildMembers(rows) {
       groups: buildGroups(row),
       academyBatch: row[COL.academyBatch] || "",
       internalRole: row[COL.internalRole] || "",
+      daoTotalPoints: Number(row[COL.daoTotalPoints] || 0),
+      daoRecentPoints: Number(row[COL.daoRecentPoints] || 0),
+      daoStatus: row[COL.daoStatus] || "",
+      daoVotingWeight: Number(row[COL.daoVotingWeight] || 0),
       links: linkCandidates.map((url) => ({ label: labelForLink(url), url })),
     };
   });
@@ -868,6 +909,20 @@ function getRoleOrder(role) {
   if (value.includes("代表") || value.includes("会計")) return 0;
   if (value.includes("監査")) return 2;
   return 50;
+}
+
+function daoPointsHTML(member) {
+  if (!member.daoTotalPoints && !member.daoRecentPoints && !member.daoStatus) return "";
+  const items = [
+    '<span class="dao-point"><span class="dao-point__label">貢献度</span>' + esc(member.daoTotalPoints) + 'pt</span>',
+  ];
+  if (member.daoRecentPoints) {
+    items.push('<span class="dao-point"><span class="dao-point__label">直近6ヶ月</span>' + esc(member.daoRecentPoints) + 'pt</span>');
+  }
+  if (member.daoStatus) {
+    items.push('<span class="dao-point dao-point--status"><span class="dao-point__label">ステータス</span>' + esc(member.daoStatus) + '</span>');
+  }
+  return '<div class="dao-points">' + items.join("") + '</div>';
 }
 
 function bannerHTML(member) {
@@ -933,6 +988,7 @@ function cardHTML(member) {
     + '</div>'
     + '</div>'
     + (tags ? '<div class="tags">' + tags + '</div>' : "")
+    + daoPointsHTML(member)
     + bannerHTML(member)
     + (bio ? '<p class="card-bio">' + esc(bio) + '</p>' : "")
     + (links ? '<div class="card-links">' + links + '</div>' : "")
@@ -972,6 +1028,7 @@ function modalHTML(member) {
     + '</div>'
     + '</div>'
     + (tags ? '<div class="modal-tags">' + tags + '</div>' : "")
+    + daoPointsHTML(member)
     + bannerHTML(member)
     + sectionHTML("できること・得意なこと", member.skills)
     + sectionHTML("保有資格", member.license)
