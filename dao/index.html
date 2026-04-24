@@ -553,6 +553,32 @@
       color: var(--green-deep);
     }
 
+    .voted-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--green-deep);
+      background: #e7f5f0;
+      border: 1px solid var(--green);
+      border-radius: 20px;
+      padding: 3px 10px;
+    }
+
+    .voted-badge__clear {
+      font-size: 0.74rem;
+      font-weight: 400;
+      color: var(--muted);
+      cursor: pointer;
+      text-decoration: underline;
+      background: none;
+      border: none;
+      padding: 0;
+      font: inherit;
+    }
+
     .status {
       flex: 0 0 auto;
       max-width: 112px;
@@ -1008,6 +1034,7 @@
     var CIVIC_LIKE_CLIENT_KEY = 'COCOLA_DAO_CIVIC_LIKE_CLIENT';
     var CIVIC_LIKED_IDS_KEY = 'COCOLA_DAO_CIVIC_LIKED_IDS';
     var CANCELLED_IDS_KEY = 'COCOLA_DAO_CANCELLED_IDS';
+    var VOTED_IDS_KEY = 'COCOLA_DAO_VOTED_IDS';
     var actionButtons = document.querySelector('.action-panel .actions');
     if (actionButtons) {
       actionButtons.insertAdjacentHTML('afterend', '<p class="member-only-note">提案・投票はCOCoLaメンバー向けです。メンバー確認ができない回答は、提案一覧・投票結果・DAOポイントには反映されません。メンバー以外の方は、各提案カードの「市民いいね」で応援や関心をお知らせください。</p>');
@@ -1069,12 +1096,15 @@
       var needs = proposal.needs || '必要になったものから相談します。';
       var eligible = proposal.eligibleWeight || state.data.eligibleWeight || 0;
       var liked = hasCivicLiked(proposal.id);
+      var voted = hasVoted(proposal.id);
       var likeCount = Number(proposal.citizenLikeCount) || 0;
+      var voteUrl = escapeHtml(state.data.voteFormUrl || 'https://docs.google.com/forms/d/e/1FAIpQLSc9kOcabaSr8bjhE8pRDzIr1AWDEVodSc2lPWwkMAY029aAIw/viewform');
       return '<article class="proposal-card" data-status="' + escapeHtml(proposal.statusKey) + '">' +
         '<div class="card-head">' +
           '<div class="identity">' +
             '<span class="proposal-id">' + escapeHtml(proposal.id) + '</span>' +
-            '<h3 class="proposal-title"><a class="title-vote-link" href="' + escapeHtml(state.data.voteFormUrl || 'https://docs.google.com/forms/d/e/1FAIpQLSc9kOcabaSr8bjhE8pRDzIr1AWDEVodSc2lPWwkMAY029aAIw/viewform') + '" target="_blank" rel="noopener">' + escapeHtml(proposal.title) + '</a></h3>' +
+            '<h3 class="proposal-title"><a class="title-vote-link" href="' + voteUrl + '" data-vote-id="' + escapeHtml(proposal.id) + '" target="_blank" rel="noopener">' + escapeHtml(proposal.title) + '</a></h3>' +
+            (voted ? '<span class="voted-badge">✓ 投票済み <button class="voted-badge__clear" type="button" data-clear-vote-id="' + escapeHtml(proposal.id) + '">取消</button></span>' : '') +
           '</div>' +
           '<span class="status ' + statusClass(proposal.statusKey) + '">' + escapeHtml(proposal.status) + '</span>' +
         '</div>' +
@@ -1194,6 +1224,34 @@
       } catch (e) {}
     }
 
+    function getVotedIds() {
+      try {
+        return JSON.parse(localStorage.getItem(VOTED_IDS_KEY) || '{}') || {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function hasVoted(id) {
+      return Boolean(getVotedIds()[id]);
+    }
+
+    function rememberVoted(id) {
+      try {
+        var voted = getVotedIds();
+        voted[id] = true;
+        localStorage.setItem(VOTED_IDS_KEY, JSON.stringify(voted));
+      } catch (e) {}
+    }
+
+    function forgetVoted(id) {
+      try {
+        var voted = getVotedIds();
+        delete voted[id];
+        localStorage.setItem(VOTED_IDS_KEY, JSON.stringify(voted));
+      } catch (e) {}
+    }
+
     function saveToLocalStorage() {
       try {
         localStorage.setItem('COCOLA_DAO_LAST_DATA', JSON.stringify(Object.assign({}, state.data, { _cachedAt: Date.now() })));
@@ -1303,6 +1361,20 @@
       var likeBtn = e.target.closest('[data-like-id]');
       if (likeBtn) {
         submitCivicLike(likeBtn.dataset.likeId, likeBtn);
+        return;
+      }
+
+      var voteLink = e.target.closest('[data-vote-id]');
+      if (voteLink) {
+        rememberVoted(voteLink.dataset.voteId);
+        renderProposals();
+        return; // リンクはデフォルト動作（新タブ）のまま
+      }
+
+      var clearBtn = e.target.closest('[data-clear-vote-id]');
+      if (clearBtn) {
+        forgetVoted(clearBtn.dataset.clearVoteId);
+        renderProposals();
         return;
       }
 
