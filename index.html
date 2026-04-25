@@ -18,6 +18,35 @@
   <link rel="icon" type="image/png" href="./assets/COCoLa_Logo_transparent.png">
   <link rel="apple-touch-icon" href="./assets/COCoLa_Logo_BG.png">
   <link rel="stylesheet" href="./styles.css">
+  <style>
+    .admin-trigger-btn{background:none;border:1px solid var(--muted,#888);border-radius:999px;color:var(--muted,#888);cursor:pointer;font-size:.8rem;font-weight:700;padding:4px 12px;white-space:nowrap}
+    .admin-trigger-btn:hover{border-color:var(--green,#1d9e75);color:var(--green,#1d9e75)}
+    .pw-overlay,.admin-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9000;display:flex;align-items:center;justify-content:center}
+    .pw-panel,.admin-panel{background:#fff;border-radius:16px;padding:32px;width:min(90vw,360px);box-shadow:0 8px 40px rgba(0,0,0,.18)}
+    .pw-panel h2,.admin-panel h2{margin:0 0 16px;font-size:1.1rem;font-weight:700}
+    .pw-input{width:100%;border:1px solid #ccc;border-radius:8px;font-size:1rem;padding:10px 12px;box-sizing:border-box}
+    .pw-btn-row{display:flex;gap:8px;margin-top:16px}
+    .pw-submit-btn{flex:1;background:var(--green,#1d9e75);border:none;border-radius:8px;color:#fff;cursor:pointer;font-size:.95rem;font-weight:700;padding:10px}
+    .pw-cancel-btn{background:none;border:1px solid #ccc;border-radius:8px;color:#666;cursor:pointer;font-size:.95rem;padding:10px 16px}
+    .pw-error{color:#e53e3e;font-size:.85rem;margin-top:8px}
+    .admin-panel{width:min(94vw,560px);max-height:85vh;overflow-y:auto}
+    .admin-kpi-row{display:flex;gap:12px;margin-bottom:20px}
+    .admin-kpi{flex:1;background:#f3efe3;border-radius:10px;padding:12px;text-align:center}
+    .admin-kpi__num{font-size:2rem;font-weight:700;color:var(--green,#1d9e75)}
+    .admin-kpi__label{font-size:.75rem;color:#666;margin-top:2px}
+    .admin-bar-wrap{margin-bottom:20px}
+    .admin-bar-title{font-size:.85rem;font-weight:700;margin-bottom:8px;color:#444}
+    .admin-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:.78rem}
+    .admin-bar-date{width:42px;color:#666;flex-shrink:0}
+    .admin-bar-track{flex:1;background:#eee;border-radius:4px;height:14px;overflow:hidden}
+    .admin-bar-fill{height:100%;background:var(--green,#1d9e75);border-radius:4px;transition:width .3s}
+    .admin-bar-count{width:22px;text-align:right;color:#444;flex-shrink:0}
+    .admin-recent-title{font-size:.85rem;font-weight:700;margin-bottom:6px;color:#444}
+    .admin-recent-list{list-style:none;margin:0;padding:0;font-size:.8rem;color:#555;max-height:150px;overflow-y:auto}
+    .admin-recent-list li{border-bottom:1px solid #f0f0f0;padding:3px 0}
+    .admin-close-btn{display:block;margin:20px auto 0;background:none;border:1px solid #ccc;border-radius:8px;color:#666;cursor:pointer;font-size:.9rem;padding:8px 24px}
+    .admin-loading{text-align:center;padding:20px;color:#888;font-size:.9rem}
+  </style>
 </head>
 <body>
   <div class="page-shell">
@@ -37,8 +66,31 @@
         <a href="#join">参加する</a>
         <a href="./dao/">提案／投票</a>
         <a href="./changelog/">更新履歴</a>
+        <button class="admin-trigger-btn" onclick="openPwModal()">🔒 管理</button>
       </nav>
     </header>
+
+    <!-- 管理者パスワードモーダル -->
+    <div class="pw-overlay" id="pwOverlay" style="display:none" onclick="if(event.target===this)closePwModal()">
+      <div class="pw-panel">
+        <h2>管理者ログイン</h2>
+        <input class="pw-input" id="pwInput" type="password" placeholder="パスワードを入力" autocomplete="current-password">
+        <p class="pw-error" id="pwError" style="display:none">パスワードが違います</p>
+        <div class="pw-btn-row">
+          <button class="pw-submit-btn" onclick="submitPw()">ログイン</button>
+          <button class="pw-cancel-btn" onclick="closePwModal()">キャンセル</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 管理者アクセス統計パネル -->
+    <div class="admin-overlay" id="adminOverlay" style="display:none" onclick="if(event.target===this)closeAdminPanel()">
+      <div class="admin-panel">
+        <h2>アクセス統計</h2>
+        <div id="adminContent"><div class="admin-loading">読み込み中...</div></div>
+        <button class="admin-close-btn" onclick="closeAdminPanel()">閉じる</button>
+      </div>
+    </div>
 
     <main id="top">
       <section class="hero">
@@ -302,6 +354,71 @@
       </div>
     </footer>
   </div>
+  <script>
+    const ADMIN_PW = 'cocola2026';
+    const ADMIN_SESSION_KEY = 'cocola_admin_auth';
+    const STATS_URL = 'https://script.google.com/macros/s/AKfycbyzaj8qRO9WdB7o3iYt46p3mK8cbU_fMdVfnJN_udx_9-VIgh2zo0BOL3uif_ZhuWDl/exec?mode=stats&key=cocola2026';
+
+    function openPwModal() {
+      if (sessionStorage.getItem(ADMIN_SESSION_KEY) === '1') { openAdminPanel(); return; }
+      document.getElementById('pwInput').value = '';
+      document.getElementById('pwError').style.display = 'none';
+      document.getElementById('pwOverlay').style.display = 'flex';
+      setTimeout(() => document.getElementById('pwInput').focus(), 50);
+    }
+    function closePwModal() { document.getElementById('pwOverlay').style.display = 'none'; }
+    function submitPw() {
+      if (document.getElementById('pwInput').value === ADMIN_PW) {
+        sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
+        closePwModal();
+        openAdminPanel();
+      } else {
+        document.getElementById('pwError').style.display = 'block';
+        document.getElementById('pwInput').focus();
+      }
+    }
+    document.addEventListener('keydown', e => {
+      if (document.getElementById('pwOverlay').style.display !== 'none') {
+        if (e.key === 'Enter') submitPw();
+        if (e.key === 'Escape') closePwModal();
+      }
+      if (document.getElementById('adminOverlay').style.display !== 'none') {
+        if (e.key === 'Escape') closeAdminPanel();
+      }
+    });
+
+    function openAdminPanel() {
+      document.getElementById('adminContent').innerHTML = '<div class="admin-loading">読み込み中...</div>';
+      document.getElementById('adminOverlay').style.display = 'flex';
+      fetch(STATS_URL, { credentials: 'omit' })
+        .then(r => r.json())
+        .then(renderAdminStats)
+        .catch(() => {
+          document.getElementById('adminContent').innerHTML = '<p style="color:#e53e3e;text-align:center">データの取得に失敗しました</p>';
+        });
+    }
+    function closeAdminPanel() { document.getElementById('adminOverlay').style.display = 'none'; }
+
+    function renderAdminStats(s) {
+      const max = Math.max(...s.last7days.map(d => d.count), 1);
+      const bars = s.last7days.map(d => `
+        <div class="admin-bar-row">
+          <span class="admin-bar-date">${d.date.slice(5)}</span>
+          <div class="admin-bar-track"><div class="admin-bar-fill" style="width:${Math.round(d.count/max*100)}%"></div></div>
+          <span class="admin-bar-count">${d.count}</span>
+        </div>`).join('');
+      const recents = s.recent.map(t => `<li>${t}</li>`).join('');
+      document.getElementById('adminContent').innerHTML = `
+        <div class="admin-kpi-row">
+          <div class="admin-kpi"><div class="admin-kpi__num">${s.today}</div><div class="admin-kpi__label">今日</div></div>
+          <div class="admin-kpi"><div class="admin-kpi__num">${s.yesterday}</div><div class="admin-kpi__label">昨日</div></div>
+          <div class="admin-kpi"><div class="admin-kpi__num">${s.last7days.reduce((a,d)=>a+d.count,0)}</div><div class="admin-kpi__label">直近7日間</div></div>
+        </div>
+        <div class="admin-bar-wrap"><div class="admin-bar-title">日別アクセス（直近7日）</div>${bars}</div>
+        <div class="admin-recent-title">直近アクセス時刻</div>
+        <ul class="admin-recent-list">${recents}</ul>`;
+    }
+  </script>
   <script src="./assets/site-config.js?v=20260424"></script>
   <script src="./assets/page-tracker.js" data-page="top"></script>
   <script src="./assets/category-topics.js"></script>
