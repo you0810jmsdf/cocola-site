@@ -673,6 +673,182 @@ a {
   display: block;
 }
 
+/* --- リスト表示切り替え --- */
+.meta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  background: rgba(29, 158, 117, 0.08);
+}
+
+.vbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 0.84rem;
+  cursor: pointer;
+  transition: background 180ms, color 180ms;
+}
+
+.vbtn.active {
+  background: #fff;
+  color: var(--green-dark);
+  box-shadow: 0 2px 8px rgba(29, 158, 117, 0.12);
+}
+
+.col-selector {
+  display: none;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.col-selector.visible {
+  display: flex;
+}
+
+.col-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(29, 158, 117, 0.14);
+  background: #fff;
+  font-size: 0.82rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.col-check input {
+  cursor: pointer;
+}
+
+.member-table-wrap {
+  display: none;
+  margin-top: 18px;
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.member-table-wrap.visible {
+  display: block;
+}
+
+.member-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.member-table th {
+  padding: 10px 12px;
+  background: rgba(29, 158, 117, 0.06);
+  color: var(--green-dark);
+  font-weight: 700;
+  font-size: 0.76rem;
+  letter-spacing: 0.06em;
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border);
+}
+
+.member-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid rgba(29, 158, 117, 0.06);
+  vertical-align: middle;
+}
+
+.member-table tr:last-child td {
+  border-bottom: none;
+}
+
+.member-table tbody tr {
+  cursor: pointer;
+  transition: background 140ms;
+}
+
+.member-table tbody tr:hover {
+  background: rgba(29, 158, 117, 0.05);
+}
+
+.list-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 110px;
+}
+
+.list-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #edf4f0;
+  border: 1px solid rgba(29, 158, 117, 0.12);
+}
+
+.list-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.list-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.list-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.list-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(29, 158, 117, 0.14);
+  background: #fff;
+  color: var(--muted);
+  font-size: 0.75rem;
+  text-decoration: none;
+}
+
+.list-clip {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
 @media (max-width: 860px) {
   body {
     padding: 16px;
@@ -775,8 +951,15 @@ a {
     </div>
     <div class="meta-row">
       <p class="meta" id="meta">読み込み中...</p>
-      <button class="mail-btn" id="mailBtn" type="button">メーリングリストをコピー</button>
+      <div class="meta-actions">
+        <div class="view-toggle">
+          <button class="vbtn active" id="viewCard" type="button">カード</button>
+          <button class="vbtn" id="viewList" type="button">リスト</button>
+        </div>
+        <button class="mail-btn" id="mailBtn" type="button">メーリングリストをコピー</button>
+      </div>
     </div>
+    <div class="col-selector" id="colSelector"></div>
     <div class="err-banner" id="err-banner"></div>
   </section>
 
@@ -784,6 +967,7 @@ a {
     <div class="grid" id="grid">
       <div class="loading">メンバー情報を読み込んでいます...</div>
     </div>
+    <div class="member-table-wrap" id="tableWrap"></div>
   </main>
 
   <section class="join-wrap">
@@ -1137,7 +1321,12 @@ function applyFilter() {
   document.getElementById("meta").textContent =
     allMembers.length + "人のメンバー中 " + filtered.length + "人を表示";
 
-  renderMembers(filtered);
+  currentFiltered = filtered;
+  if (viewMode === "list") {
+    renderList(filtered);
+  } else {
+    renderMembers(filtered);
+  }
 }
 
 function openModal(index) {
@@ -1212,6 +1401,146 @@ function esc(value) {
     .replace(/"/g, "&quot;");
 }
 
+// --- リスト表示 ---
+const LIST_COLS = [
+  { id: "nickname",       label: "ニックネーム", defaultOn: true,  locked: true },
+  { id: "name",           label: "名前",         defaultOn: true },
+  { id: "job",            label: "職業",         defaultOn: true },
+  { id: "cats",           label: "カテゴリ",     defaultOn: true },
+  { id: "internalRole",   label: "役職",         defaultOn: false },
+  { id: "daoTotalPoints", label: "貢献度Pt",     defaultOn: false },
+  { id: "daoStatus",      label: "DAOステータス", defaultOn: false },
+  { id: "academyBatch",   label: "アカデミー期", defaultOn: false },
+  { id: "skills",         label: "スキル",       defaultOn: true },
+  { id: "goals",          label: "やりたいこと", defaultOn: false },
+  { id: "comment",        label: "コメント",     defaultOn: false },
+  { id: "groups",         label: "所属団体",     defaultOn: false },
+  { id: "links",          label: "リンク",       defaultOn: false },
+];
+
+const COL_PREF_KEY = "COCOLA_LIST_COLS";
+let viewMode = "card";
+let currentFiltered = [];
+let activeListCols = loadListColPref();
+
+function loadListColPref() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(COL_PREF_KEY) || "null");
+    if (saved && Array.isArray(saved)) return saved;
+  } catch (_) {}
+  return LIST_COLS.filter((c) => c.defaultOn).map((c) => c.id);
+}
+
+function saveListColPref() {
+  localStorage.setItem(COL_PREF_KEY, JSON.stringify(activeListCols));
+}
+
+function buildColSelector() {
+  const sel = document.getElementById("colSelector");
+  sel.innerHTML = LIST_COLS.map((col) => {
+    const checked = activeListCols.includes(col.id) ? "checked" : "";
+    const disabled = col.locked ? "disabled" : "";
+    return '<label class="col-check">'
+      + '<input type="checkbox" value="' + col.id + '" ' + checked + " " + disabled + ">"
+      + esc(col.label)
+      + "</label>";
+  }).join("");
+  sel.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
+    cb.addEventListener("change", () => {
+      activeListCols = Array.from(sel.querySelectorAll("input:checked")).map((i) => i.value);
+      saveListColPref();
+      renderList(currentFiltered);
+    });
+  });
+}
+
+function listCellHTML(member, colId) {
+  switch (colId) {
+    case "nickname": {
+      const url = toImgUrl(member.photo);
+      const avatarInner = url
+        ? '<div class="list-avatar"><img src="' + esc(url) + '" alt="" loading="lazy" onerror="this.parentNode.innerHTML=\'\'"></div>'
+        : "";
+      return "<td><div class=\"list-name-cell\">" + avatarInner + "<strong>" + esc(member.nickname || "未設定") + "</strong></div></td>";
+    }
+    case "name":
+      return "<td><span class=\"list-clip\">" + esc(member.name) + "</span></td>";
+    case "job":
+      return "<td><span class=\"list-clip\">" + esc(member.job) + "</span></td>";
+    case "cats":
+      return "<td><div class=\"list-tags\">"
+        + member.cats.map((cat) => "<span class=\"tag " + (TAG_CLASS[cat] || "") + "\" style=\"min-height:24px;font-size:0.7rem;\">" + esc(cat) + "</span>").join("")
+        + "</div></td>";
+    case "internalRole":
+      return "<td>" + esc(member.internalRole) + "</td>";
+    case "daoTotalPoints":
+      return "<td>" + (member.daoTotalPoints ? esc(member.daoTotalPoints) + "pt" : "") + "</td>";
+    case "daoStatus":
+      return "<td>" + esc(member.daoStatus) + "</td>";
+    case "academyBatch":
+      return "<td>" + (member.academyBatch ? esc(member.academyBatch) + "期" : "") + "</td>";
+    case "skills":
+      return "<td><span class=\"list-clip\">" + esc(member.skills) + "</span></td>";
+    case "goals":
+      return "<td><span class=\"list-clip\">" + esc(member.goals) + "</span></td>";
+    case "comment":
+      return "<td><span class=\"list-clip\">" + esc(member.comment) + "</span></td>";
+    case "groups":
+      return "<td><span class=\"list-clip\">" + esc((member.groups || []).map((g) => g.name).join("、")) + "</span></td>";
+    case "links":
+      return "<td><div class=\"list-links\">"
+        + member.links.slice(0, 3).map((link) =>
+          "<a href=\"" + esc(link.url) + "\" target=\"_blank\" rel=\"noopener\" onclick=\"event.stopPropagation()\">" + esc(link.label) + "</a>"
+        ).join("")
+        + "</div></td>";
+    default:
+      return "<td></td>";
+  }
+}
+
+function renderList(list) {
+  const wrap = document.getElementById("tableWrap");
+  if (!list.length) {
+    wrap.innerHTML = "<div class=\"empty\" style=\"border:none;\">該当するメンバーが見つかりませんでした。</div>";
+    return;
+  }
+  const theadCols = activeListCols.map((colId) => {
+    const col = LIST_COLS.find((c) => c.id === colId);
+    return "<th>" + esc(col ? col.label : colId) + "</th>";
+  }).join("");
+  const tbody = list.map((member) =>
+    "<tr data-idx=\"" + member.idx + "\">"
+    + activeListCols.map((colId) => listCellHTML(member, colId)).join("")
+    + "</tr>"
+  ).join("");
+  wrap.innerHTML = "<table class=\"member-table\"><thead><tr>" + theadCols + "</tr></thead><tbody>" + tbody + "</tbody></table>";
+  wrap.querySelectorAll("tbody tr").forEach((row) => {
+    row.addEventListener("click", () => openModal(Number(row.dataset.idx)));
+  });
+}
+
+function setViewMode(mode) {
+  viewMode = mode;
+  const grid = document.getElementById("grid");
+  const tableWrap = document.getElementById("tableWrap");
+  const colSel = document.getElementById("colSelector");
+  if (mode === "list") {
+    grid.style.display = "none";
+    tableWrap.classList.add("visible");
+    colSel.classList.add("visible");
+    document.getElementById("viewList").classList.add("active");
+    document.getElementById("viewCard").classList.remove("active");
+    renderList(currentFiltered);
+  } else {
+    grid.style.display = "";
+    tableWrap.classList.remove("visible");
+    colSel.classList.remove("visible");
+    document.getElementById("viewCard").classList.add("active");
+    document.getElementById("viewList").classList.remove("active");
+    renderMembers(currentFiltered);
+  }
+}
+
 document.querySelectorAll(".chip").forEach((chip) => {
   chip.addEventListener("click", () => {
     document.querySelectorAll(".chip").forEach((item) => item.classList.remove("active"));
@@ -1231,6 +1560,9 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") closeModal();
 });
 
+buildColSelector();
+document.getElementById("viewCard").addEventListener("click", () => setViewMode("card"));
+document.getElementById("viewList").addEventListener("click", () => setViewMode("list"));
 loadMembers();
 </script>
 </body>
