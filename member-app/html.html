@@ -757,10 +757,10 @@ a {
 }
 
 .member-table {
-  min-width: 100%;
-  width: max-content;
+  width: 100%;
   border-collapse: collapse;
   font-size: 0.88rem;
+  table-layout: auto;
 }
 
 .member-table th {
@@ -776,17 +776,20 @@ a {
 }
 
 .member-table td {
-  padding: 9px 12px;
+  padding: 10px 12px;
   border-bottom: 1px solid rgba(29, 158, 117, 0.06);
-  vertical-align: middle;
+  vertical-align: top;
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.list-short-cell {
   white-space: nowrap;
+  width: 1%;
 }
 
 .list-long-cell {
-  white-space: normal;
-  min-width: 150px;
-  max-width: 260px;
-  word-break: break-all;
+  min-width: 180px;
 }
 
 @media (max-width: 600px) {
@@ -1481,21 +1484,21 @@ function listCellHTML(member, colId) {
       return "<td><div class=\"list-name-cell\">" + avatarInner + "<strong>" + esc(member.nickname || "未設定") + "</strong></div></td>";
     }
     case "name":
-      return "<td><span class=\"list-clip\">" + esc(member.name) + "</span></td>";
+      return "<td class=\"list-short-cell\">" + esc(member.name) + "</td>";
     case "job":
-      return "<td><span class=\"list-clip\">" + esc(member.job) + "</span></td>";
+      return "<td class=\"list-short-cell\">" + esc(member.job) + "</td>";
     case "cats":
       return "<td><div class=\"list-tags\">"
         + member.cats.map((cat) => "<span class=\"tag " + (TAG_CLASS[cat] || "") + "\" style=\"min-height:24px;font-size:0.7rem;\">" + esc(cat) + "</span>").join("")
         + "</div></td>";
     case "internalRole":
-      return "<td>" + esc(member.internalRole) + "</td>";
+      return "<td class=\"list-short-cell\">" + esc(member.internalRole) + "</td>";
     case "daoTotalPoints":
-      return "<td>" + (member.daoTotalPoints ? esc(member.daoTotalPoints) + "pt" : "") + "</td>";
+      return "<td class=\"list-short-cell\">" + (member.daoTotalPoints ? esc(member.daoTotalPoints) + "pt" : "") + "</td>";
     case "daoStatus":
-      return "<td>" + esc(member.daoStatus) + "</td>";
+      return "<td class=\"list-short-cell\">" + esc(member.daoStatus) + "</td>";
     case "academyBatch":
-      return "<td>" + (member.academyBatch ? esc(member.academyBatch) + "期" : "") + "</td>";
+      return "<td class=\"list-short-cell\">" + (member.academyBatch ? esc(member.academyBatch) + "期" : "") + "</td>";
     case "skills":
       return "<td class=\"list-long-cell\">" + esc(member.skills) + "</td>";
     case "goals":
