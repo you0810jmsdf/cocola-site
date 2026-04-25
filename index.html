@@ -357,7 +357,8 @@
   <script>
     const ADMIN_PW = 'cocola2026';
     const ADMIN_SESSION_KEY = 'cocola_admin_auth';
-    const STATS_URL = 'https://script.google.com/macros/s/AKfycbyzaj8qRO9WdB7o3iYt46p3mK8cbU_fMdVfnJN_udx_9-VIgh2zo0BOL3uif_ZhuWDl/exec?mode=stats&key=cocola2026';
+    const STATS_URL = 'https://script.google.com/macros/s/AKfycbycw2FBvcm34mS9R8SUNg28KscGqqGjR1zjz3hnLYq8ckgKCZObYaC9kbMs8R2SGXgC/exec?mode=admin_stats&key=cocola2026';
+    const ADMIN_FULL_URL = 'https://script.google.com/macros/s/AKfycbycw2FBvcm34mS9R8SUNg28KscGqqGjR1zjz3hnLYq8ckgKCZObYaC9kbMs8R2SGXgC/exec?page=admin';
 
     function openPwModal() {
       if (sessionStorage.getItem(ADMIN_SESSION_KEY) === '1') { openAdminPanel(); return; }
@@ -394,29 +395,40 @@
         .then(r => r.json())
         .then(renderAdminStats)
         .catch(() => {
-          document.getElementById('adminContent').innerHTML = '<p style="color:#e53e3e;text-align:center">データの取得に失敗しました</p>';
+          document.getElementById('adminContent').innerHTML = '<p style="color:#e53e3e;text-align:center">データの取得に失敗しました。<br><a href="' + ADMIN_FULL_URL + '" target="_blank" style="color:#1d9e75">管理ページを直接開く</a></p>';
         });
     }
     function closeAdminPanel() { document.getElementById('adminOverlay').style.display = 'none'; }
 
     function renderAdminStats(s) {
-      const max = Math.max(...s.last7days.map(d => d.count), 1);
-      const bars = s.last7days.map(d => `
-        <div class="admin-bar-row">
-          <span class="admin-bar-date">${d.date.slice(5)}</span>
-          <div class="admin-bar-track"><div class="admin-bar-fill" style="width:${Math.round(d.count/max*100)}%"></div></div>
-          <span class="admin-bar-count">${d.count}</span>
-        </div>`).join('');
-      const recents = s.recent.map(t => `<li>${t}</li>`).join('');
+      const tbl = (rows) => `<table style="width:100%;border-collapse:collapse;font-size:.82rem">${rows}</table>`;
+      const th = (cells) => `<tr>${cells.map(c=>`<th style="text-align:left;border-bottom:2px solid #ddd;padding:4px 8px;color:#555;font-weight:700">${c}</th>`).join('')}</tr>`;
+      const tr = (cells) => `<tr>${cells.map(c=>`<td style="border-bottom:1px solid #f0f0f0;padding:4px 8px">${c}</td>`).join('')}</tr>`;
+
+      const summaryRows = th(['期間','PV','VV']) +
+        tr(['今日', s.today.pv, s.today.vv]) +
+        tr(['直近7日間', s.last7days.pv, s.last7days.vv]) +
+        tr(['累計', s.total.pv, s.total.vv]);
+
+      const pageRows = th(['ページ','PV','VV']) +
+        s.byPage.map(p => tr([p.page, p.pv, p.vv])).join('');
+
+      const visitorRows = s.topVisitors.map((v, i) =>
+        tr([`#${i+1}`, `<span style="color:#1d9e75;font-size:.78rem">${v.vid}</span>`, `${v.pv} PV`])
+      ).join('');
+      const visitorSection = s.topVisitors.length
+        ? `<div class="admin-bar-title" style="margin-top:16px">訪問者別PV（上位5件）</div>${tbl(th(['#','訪問者ID','PV']) + visitorRows)}`
+        : '';
+
       document.getElementById('adminContent').innerHTML = `
-        <div class="admin-kpi-row">
-          <div class="admin-kpi"><div class="admin-kpi__num">${s.today}</div><div class="admin-kpi__label">今日</div></div>
-          <div class="admin-kpi"><div class="admin-kpi__num">${s.yesterday}</div><div class="admin-kpi__label">昨日</div></div>
-          <div class="admin-kpi"><div class="admin-kpi__num">${s.last7days.reduce((a,d)=>a+d.count,0)}</div><div class="admin-kpi__label">直近7日間</div></div>
-        </div>
-        <div class="admin-bar-wrap"><div class="admin-bar-title">日別アクセス（直近7日）</div>${bars}</div>
-        <div class="admin-recent-title">直近アクセス時刻</div>
-        <ul class="admin-recent-list">${recents}</ul>`;
+        <div class="admin-bar-title">サイトアクセス状況（GitHub Pages）</div>
+        ${tbl(summaryRows)}
+        <div class="admin-bar-title" style="margin-top:16px">ページ別（累計）</div>
+        ${tbl(pageRows)}
+        ${visitorSection}
+        <div style="margin-top:16px;text-align:center">
+          <a href="${ADMIN_FULL_URL}" target="_blank" style="font-size:.8rem;color:#1d9e75;text-decoration:none">▶ 詳細管理ページを開く</a>
+        </div>`;
     }
   </script>
   <script src="./assets/site-config.js?v=20260424"></script>
