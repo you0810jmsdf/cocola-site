@@ -745,6 +745,7 @@ a {
   display: none;
   margin-top: 18px;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   background: var(--surface);
@@ -756,7 +757,8 @@ a {
 }
 
 .member-table {
-  width: 100%;
+  min-width: 100%;
+  width: max-content;
   border-collapse: collapse;
   font-size: 0.88rem;
 }
@@ -777,6 +779,21 @@ a {
   padding: 9px 12px;
   border-bottom: 1px solid rgba(29, 158, 117, 0.06);
   vertical-align: middle;
+  white-space: nowrap;
+}
+
+.list-long-cell {
+  white-space: normal;
+  min-width: 150px;
+  max-width: 260px;
+  word-break: break-all;
+}
+
+@media (max-width: 600px) {
+  .member-table th, .member-table td {
+    padding: 7px 8px;
+    font-size: 0.8rem;
+  }
 }
 
 .member-table tr:last-child td {
@@ -1480,13 +1497,13 @@ function listCellHTML(member, colId) {
     case "academyBatch":
       return "<td>" + (member.academyBatch ? esc(member.academyBatch) + "期" : "") + "</td>";
     case "skills":
-      return "<td><span class=\"list-clip\">" + esc(member.skills) + "</span></td>";
+      return "<td class=\"list-long-cell\">" + esc(member.skills) + "</td>";
     case "goals":
-      return "<td><span class=\"list-clip\">" + esc(member.goals) + "</span></td>";
+      return "<td class=\"list-long-cell\">" + esc(member.goals) + "</td>";
     case "comment":
-      return "<td><span class=\"list-clip\">" + esc(member.comment) + "</span></td>";
+      return "<td class=\"list-long-cell\">" + esc(member.comment) + "</td>";
     case "groups":
-      return "<td><span class=\"list-clip\">" + esc((member.groups || []).map((g) => g.name).join("、")) + "</span></td>";
+      return "<td class=\"list-long-cell\">" + esc((member.groups || []).map((g) => g.name).join("、")) + "</td>";
     case "links":
       return "<td><div class=\"list-links\">"
         + member.links.slice(0, 3).map((link) =>
