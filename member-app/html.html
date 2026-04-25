@@ -918,6 +918,238 @@ a {
     grid-template-columns: 1fr;
   }
 }
+
+/* === Admin Trigger Button === */
+.admin-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid rgba(0,0,0,0.1);
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-family: inherit;
+  gap: 5px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.admin-trigger-btn:hover {
+  color: var(--green-dark);
+  border-color: rgba(29,158,117,0.3);
+}
+
+/* === Password Modal === */
+.pw-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 9100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.pw-panel {
+  background: var(--surface-strong);
+  border-radius: var(--radius-xl);
+  padding: 32px 28px;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+}
+.pw-panel h3 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+  color: var(--green-dark);
+}
+.pw-panel p {
+  margin: 0 0 18px;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.pw-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid rgba(29,158,117,0.25);
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+.pw-input:focus {
+  border-color: var(--green);
+}
+.pw-btn-row {
+  display: flex;
+  gap: 8px;
+}
+.pw-submit-btn {
+  flex: 1;
+  padding: 10px;
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+.pw-submit-btn:hover { background: var(--green-dark); }
+.pw-cancel-btn {
+  padding: 10px 16px;
+  background: #f0f0f0;
+  color: var(--muted);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+.pw-error {
+  font-size: 0.8rem;
+  color: #e05;
+  margin-top: 4px;
+  min-height: 18px;
+}
+
+/* === Admin Panel === */
+.admin-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.admin-panel {
+  background: var(--surface-strong);
+  border-radius: var(--radius-xl);
+  padding: 32px 28px 28px;
+  max-width: 560px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+}
+.admin-panel h2 {
+  margin: 0 0 20px;
+  font-size: 1.15rem;
+  color: var(--green-dark);
+}
+.admin-kpi-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.admin-kpi {
+  background: #f0faf5;
+  border-radius: var(--radius-md);
+  padding: 16px;
+  text-align: center;
+}
+.admin-kpi .kpi-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.admin-kpi .kpi-val {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--green);
+  line-height: 1.1;
+}
+.admin-kpi .kpi-unit {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.admin-section-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 10px;
+}
+.admin-bar-list {
+  list-style: none;
+  margin: 0 0 24px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.admin-bar-item {
+  display: grid;
+  grid-template-columns: 80px 1fr 36px;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+}
+.admin-bar-item .bar-date {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.admin-bar-item .bar-track {
+  background: #e8f5ef;
+  border-radius: 999px;
+  height: 10px;
+  overflow: hidden;
+}
+.admin-bar-item .bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green), var(--blue));
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+.admin-bar-item .bar-count {
+  font-weight: 700;
+  color: var(--text);
+  text-align: right;
+}
+.admin-recent-list {
+  list-style: none;
+  margin: 0 0 24px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.admin-recent-list li {
+  font-size: 0.82rem;
+  color: var(--muted);
+  background: #f7faf8;
+  padding: 5px 12px;
+  border-radius: 8px;
+}
+.admin-close-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+.admin-close-btn:hover {
+  background: var(--green-dark);
+}
+.admin-loading {
+  text-align: center;
+  color: var(--muted);
+  padding: 32px 0;
+}
 </style>
 </head>
 <body>
@@ -933,6 +1165,7 @@ a {
     <div class="header-actions">
       <a class="header-link" href="https://you0810jmsdf.github.io/cocola-site/index.html" rel="noopener">COCoLaトップへ戻る</a>
       <a class="header-link" href="https://docs.google.com/forms/d/1V_0080ht4b7iBG4kpckyWhqYmwNVtQkbSStas7fAeGs/viewform" target="_blank" rel="noopener">参加フォームへ</a>
+      <button class="admin-trigger-btn" id="adminTriggerBtn" type="button">🔒 管理</button>
     </div>
   </header>
 
@@ -1006,9 +1239,33 @@ a {
 
 <div class="mail-toast" id="mail-toast">コピーしました</div>
 
+<div class="pw-overlay" id="pw-overlay">
+  <div class="pw-panel">
+    <h3>🔒 管理者ログイン</h3>
+    <p>パスワードを入力してください</p>
+    <input class="pw-input" id="pw-input" type="password" placeholder="パスワード" autocomplete="off">
+    <div class="pw-error" id="pw-error"></div>
+    <div class="pw-btn-row">
+      <button class="pw-submit-btn" id="pw-submit" type="button">ログイン</button>
+      <button class="pw-cancel-btn" id="pw-cancel" type="button">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<div class="admin-overlay" id="admin-overlay" style="display:none">
+  <div class="admin-panel">
+    <h2>📊 メンバーページ アクセス状況</h2>
+    <div id="admin-body">
+      <p class="admin-loading">読み込み中...</p>
+    </div>
+    <button class="admin-close-btn" onclick="closeAdminPanel()">閉じる</button>
+  </div>
+</div>
+
 <script>
 const APP_URL = 'https://script.google.com/macros/s/AKfycbxQ7gBHJQFVZEXcyisJdiL7xa64RcKzYjzBZLEGlkelSvxXCfPPHTW5eAVHB09aue1p/exec';
 const FORM_URL = 'https://docs.google.com/forms/d/1V_0080ht4b7iBG4kpckyWhqYmwNVtQkbSStas7fAeGs/viewform';
+const PAGE = <?!= JSON.stringify(PAGE) ?>;
 const HOME_URL = 'https://you0810jmsdf.github.io/cocola-site/index.html';
 
 const COL = {
@@ -1584,6 +1841,113 @@ buildColSelector();
 document.getElementById("viewCard").addEventListener("click", () => setViewMode("card"));
 document.getElementById("viewList").addEventListener("click", () => setViewMode("list"));
 loadMembers();
+
+// === Admin Panel ===
+const ADMIN_PW = 'cocola2026';
+const ADMIN_SESSION_KEY = 'cocola_admin_auth';
+
+document.getElementById('adminTriggerBtn').addEventListener('click', () => {
+  if (sessionStorage.getItem(ADMIN_SESSION_KEY) === '1') {
+    openAdminPanel();
+  } else {
+    openPwModal();
+  }
+});
+
+function openPwModal() {
+  const overlay = document.getElementById('pw-overlay');
+  overlay.style.display = 'flex';
+  document.getElementById('pw-input').value = '';
+  document.getElementById('pw-error').textContent = '';
+  setTimeout(() => document.getElementById('pw-input').focus(), 50);
+}
+
+function closePwModal() {
+  document.getElementById('pw-overlay').style.display = 'none';
+}
+
+function openAdminPanel() {
+  const overlay = document.getElementById('admin-overlay');
+  overlay.style.display = 'flex';
+  document.getElementById('admin-body').innerHTML = '<p class="admin-loading">読み込み中...</p>';
+  google.script.run
+    .withSuccessHandler(renderAdminStats)
+    .withFailureHandler((err) => {
+      document.getElementById('admin-body').innerHTML =
+        '<p style="color:#e05">読み込みエラー: ' + err.message + '</p>';
+    })
+    .getAccessStats();
+}
+
+function closeAdminPanel() {
+  document.getElementById('admin-overlay').style.display = 'none';
+}
+
+document.getElementById('pw-submit').addEventListener('click', () => {
+  const val = document.getElementById('pw-input').value;
+  if (val === ADMIN_PW) {
+    sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
+    closePwModal();
+    openAdminPanel();
+  } else {
+    document.getElementById('pw-error').textContent = 'パスワードが違います';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').focus();
+  }
+});
+
+document.getElementById('pw-cancel').addEventListener('click', closePwModal);
+
+document.getElementById('pw-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('pw-submit').click();
+  if (e.key === 'Escape') closePwModal();
+});
+
+function renderAdminStats(stats) {
+  const max = Math.max(...stats.last7days.map(d => d.count), 1);
+
+  const bars = stats.last7days.map(({ date, count }, i) => {
+    const label = i === 0 ? '今日' : i === 1 ? '昨日' : date.slice(5);
+    const pct = Math.round((count / max) * 100);
+    return `<li class="admin-bar-item">
+      <span class="bar-date">${label}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+      <span class="bar-count">${count}</span>
+    </li>`;
+  }).join('');
+
+  const recentItems = stats.recent.length
+    ? stats.recent.map(t => `<li>${t}</li>`).join('')
+    : '<li>データなし</li>';
+
+  document.getElementById('admin-body').innerHTML = `
+    <div class="admin-kpi-row">
+      <div class="admin-kpi">
+        <div class="kpi-label">今日</div>
+        <div class="kpi-val">${stats.today}</div>
+        <div class="kpi-unit">アクセス</div>
+      </div>
+      <div class="admin-kpi">
+        <div class="kpi-label">昨日</div>
+        <div class="kpi-val">${stats.yesterday}</div>
+        <div class="kpi-unit">アクセス</div>
+      </div>
+    </div>
+    <p class="admin-section-title">直近7日間</p>
+    <ul class="admin-bar-list">${bars}</ul>
+    <p class="admin-section-title">直近のアクセス時刻（新しい順）</p>
+    <ul class="admin-recent-list">${recentItems}</ul>
+  `;
+}
+</script>
+<script>
+(function(){
+  var base='https://script.google.com/macros/s/AKfycbycw2FBvcm34mS9R8SUNg28KscGqqGjR1zjz3hnLYq8ckgKCZObYaC9kbMs8R2SGXgC/exec';
+  var VID_KEY='cocola_vid';
+  var vid=localStorage.getItem(VID_KEY);
+  if(!vid){vid='v'+Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,10);localStorage.setItem(VID_KEY,vid);}
+  fetch(base+'?mode=pageview&p=member&vid='+encodeURIComponent(vid),{mode:'no-cors',cache:'no-store'}).catch(function(){});
+})();
 </script>
 </body>
 </html>
