@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>更新履歴 | COCoLa</title>
+  <meta name="description" content="COCoLaサイトの機能追加・不具合修正の更新履歴です。">
+  <meta name="theme-color" content="#f3efe3">
+  <link rel="icon" type="image/png" href="../assets/COCoLa_Logo_transparent.png">
+  <link rel="apple-touch-icon" href="../assets/COCoLa_Logo_BG.png">
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    .changelog-list {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0;
+      list-style: none;
+    }
+    .cl-entry {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+      border-left: 3px solid var(--border);
+      padding: 0 0 2.4rem 1.4rem;
+      margin-bottom: 0;
+      position: relative;
+    }
+    .cl-entry::before {
+      content: '';
+      position: absolute;
+      left: -7px;
+      top: 6px;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+    .cl-entry:last-child {
+      padding-bottom: 0;
+    }
+    .cl-date {
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.2rem;
+    }
+    .cl-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0 0 0.4rem;
+      line-height: 1.5;
+    }
+    .cl-desc {
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin: 0;
+      line-height: 1.75;
+    }
+    .cl-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.5rem;
+    }
+    .tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 2px 9px;
+      border-radius: var(--radius-pill);
+      letter-spacing: 0.03em;
+    }
+    .tag--fix    { background: #fde8ec; color: #b52b4b; }
+    .tag--new    { background: #e0f5ee; color: #0f6e56; }
+    .tag--improve{ background: #e8eeff; color: #3a4cb5; }
+    .tag--infra  { background: #f3efe3; color: #7a6330; }
+
+    .section-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin: 2.4rem 0 1.2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="site-header">
+      <a class="brand" href="../index.html" aria-label="COCoLa トップへ">
+        <img class="brand__logo" src="../assets/COCoLa_Logo_transparent.png" alt="COCoLa ロゴ">
+      </a>
+      <nav class="site-nav" aria-label="サイトナビゲーション">
+        <a href="../index.html">トップ</a>
+        <a href="../apps/">APP/LINKS</a>
+        <a href="../dao/">提案／投票</a>
+        <a href="../changelog/" aria-current="page">更新履歴</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="page-hero page-hero--green">
+        <div class="page-hero__copy">
+          <p class="eyebrow">CHANGELOG</p>
+          <p class="breadcrumb"><a href="../index.html">トップ</a> / 更新履歴</p>
+          <h1>サイト更新履歴</h1>
+          <p class="page-hero__lead">
+            COCoLaサイトの機能追加・改善・不具合修正の記録です。
+          </p>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <p class="section-label">2026年4月</p>
+        <ul class="changelog-list">
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-04-26</p>
+            <h2 class="cl-title">データ自動更新ワークフローの競合エラーを修正</h2>
+            <p class="cl-desc">
+              DAO・イベント・メンバーの3つの自動更新ジョブが同時実行されると、先に完了した方が push した直後にもう一方が「更新を拒否された」エラーで失敗する問題を修正しました。push 前に最新状態を取り込む処理を追加し、競合を防ぎます。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">バグ修正</span>
+              <span class="tag tag--infra">インフラ</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-04-25</p>
+            <h2 class="cl-title">メンバーページ：リスト表示の行折り返しを改善</h2>
+            <p class="cl-desc">
+              リスト表示で複数の列が重なって見づらい問題を改善しました。スキル・コメントなど長いテキスト列は折り返し表示、名前・役職など短い列はコンパクトに固定し、読みやすさを向上させました。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--improve">改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-04-25</p>
+            <h2 class="cl-title">印西市イベント：当日イベントがグレーアウトされるバグを修正</h2>
+            <p class="cl-desc">
+              当日開催のイベントが「過去のイベント」として薄表示になってしまう不具合を修正しました。日本時間の深夜0時を過ぎた日を「過去」と判定するよう変更し、当日のイベントは終日、通常の色で表示されます。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">バグ修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-04-25</p>
+            <h2 class="cl-title">メンバーページ：リスト表示を追加・スマホ対応</h2>
+            <p class="cl-desc">
+              メンバー一覧にカード表示に加えてリスト（表）表示を追加しました。表示する列はチェックボックスで選択でき、選択状態はブラウザに記憶されます。横スクロールや iOS でのスムーズなスワイプにも対応しました。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+              <span class="tag tag--improve">改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-04-24</p>
+            <h2 class="cl-title">メンバーページ：GAS版とGitHub Pages版の表示差異を解消</h2>
+            <p class="cl-desc">
+              GAS版に追加したDAOポイント表示などがGitHub Pages版に反映されない二重管理問題を解消しました。GAS版を唯一の正とし、ビルドスクリプトで自動的にGitHub Pages版を生成する仕組みを導入しました。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">バグ修正</span>
+              <span class="tag tag--infra">インフラ</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-04-23</p>
+            <h2 class="cl-title">印西市イベント：画像から登録したイベントが表示されない問題を修正</h2>
+            <p class="cl-desc">
+              チラシ画像をスキャンして登録したイベントが一覧に表示されないことがある問題を修正しました。AIが画像から日付を誤って解析した場合に、その値を日付フォールバックとして使わないよう変更しました。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">バグ修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-04-23</p>
+            <h2 class="cl-title">印西市イベント：コスモスパレットのイベントを自動収集</h2>
+            <p class="cl-desc">
+              印西市文化ホール コスモスパレットのイベント情報を、毎週月曜日に自動で取得して一覧に追加するようにしました。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-04-20</p>
+            <h2 class="cl-title">DAO：Instagramなどアプリ内ブラウザで提案が表示されない問題を修正</h2>
+            <p class="cl-desc">
+              InstagramのWebViewなど一部の環境でDAO提案一覧が表示されない問題を修正しました。GitHub Actionsによる5分ごとの自動データ更新を導入し、静的ファイルから確実に読み込めるようにしました。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">バグ修正</span>
+              <span class="tag tag--infra">インフラ</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-04-20</p>
+            <h2 class="cl-title">DAO：提案を取り消した後もカードが残るバグを修正</h2>
+            <p class="cl-desc">
+              提案の取り消し操作後も画面にカードが残り続けたり、再読み込みで復活してしまう不具合を修正しました。取り消し直後に即座に非表示にし、ブラウザに取り消し済みIDを記録して再表示を防ぎます。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">バグ修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-04-20</p>
+            <h2 class="cl-title">DAO：スマホで最新情報が更新されない問題を修正</h2>
+            <p class="cl-desc">
+              スマホで提案の取り消しや変更が反映されないことがある問題を修正しました。通信エラー時に画面へ警告を表示するようにし、データの取得方法も改善しました。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">バグ修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-04-20</p>
+            <h2 class="cl-title">トピックス：1件の投稿が2行登録されるバグを修正</h2>
+            <p class="cl-desc">
+              フォームから1件投稿すると、まれにシートに2行登録されてしまう重複バグを修正しました。フォーム送信時のトリガー設定を見直し、重複が起きない構成に変更しました。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">バグ修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-04-20</p>
+            <h2 class="cl-title">メンバーページ：退会機能を追加</h2>
+            <p class="cl-desc">
+              更新フォームから退会申請ができるようになりました。退会するとメンバー一覧から非表示になり、管理者にメール通知が届きます。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-04-20</p>
+            <h2 class="cl-title">印西市イベント一覧ページを公開</h2>
+            <p class="cl-desc">
+              千葉ニュータウン周辺で開催されるイベントを月別・週別カレンダー形式で閲覧できるページを公開しました。印西市公式・観光協会・文化ホールなど複数ソースから毎週自動収集します。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+            </div>
+          </li>
+
+        </ul>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p class="footer-copy">&copy; 2024 COCoLa</p>
+    </footer>
+  </div>
+</body>
+</html>
