@@ -46,6 +46,10 @@
     .admin-recent-list li{border-bottom:1px solid #f0f0f0;padding:3px 0}
     .admin-close-btn{display:block;margin:20px auto 0;background:none;border:1px solid #ccc;border-radius:8px;color:#666;cursor:pointer;font-size:.9rem;padding:8px 24px}
     .admin-loading{text-align:center;padding:20px;color:#888;font-size:.9rem}
+    .new-member-bar{background:#fff8f8;border-bottom:1px solid #fdd;padding:6px 16px;font-size:.82rem;color:#c00;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .new-member-bar__label{font-weight:700;white-space:nowrap}
+    .new-member-bar__item{display:inline-flex;align-items:center;gap:4px}
+    .new-member-bar__item a{color:#c00;text-decoration:underline}
   </style>
 </head>
 <body>
@@ -70,6 +74,10 @@
         <button class="admin-trigger-btn" onclick="openPwModal()">🔒 管理</button>
       </nav>
     </header>
+    <div class="new-member-bar" id="newMemberBar" style="display:none">
+      <span class="new-member-bar__label">🎉 新規入会</span>
+      <span id="newMemberList"></span>
+    </div>
 
     <!-- 管理者パスワードモーダル -->
     <div class="pw-overlay" id="pwOverlay" style="display:none" onclick="if(event.target===this)closePwModal()">
@@ -436,5 +444,29 @@
   <script src="./assets/page-tracker.js" data-page="COCoLaトップ"></script>
   <script src="./assets/category-topics.js"></script>
   <script src="./assets/app-links.js?v=20260424"></script>
+  <script>
+  (function () {
+    const MEMBERS_JSON = './members/data.json';
+    const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+    const COL_TS = 0, COL_NICKNAME = 3;
+    fetch(MEMBERS_JSON).then(r => r.json()).then(data => {
+      const now = Date.now();
+      const newOnes = (data.rows || []).filter(row => {
+        const ts = row[COL_TS];
+        if (!ts) return false;
+        const d = new Date(ts.replace(/\//g, '-'));
+        return !isNaN(d) && (now - d.getTime()) < SEVEN_DAYS;
+      });
+      if (!newOnes.length) return;
+      const list = document.getElementById('newMemberList');
+      list.innerHTML = newOnes.map(row => {
+        const nick = row[COL_NICKNAME] || '新メンバー';
+        const ts = row[COL_TS].slice(0, 10).replace(/-/g, '/');
+        return '<span class="new-member-bar__item"><a href="./member-app/html.html">' + nick + 'さん</a>（' + ts + ' 入会）</span>';
+      }).join('<span style="margin:0 4px">·</span>');
+      document.getElementById('newMemberBar').style.display = '';
+    }).catch(() => {});
+  })();
+  </script>
 </body>
 </html>
