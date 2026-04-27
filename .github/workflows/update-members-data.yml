@@ -32,25 +32,22 @@ jobs:
               text = f.read()
 
           try:
-              rows = json.loads(text)
+              data = json.loads(text)
           except Exception as e:
               print(f'JSON parse error: {e}')
               print(f'Response: {text[:200]}')
               sys.exit(1)
 
-          if not isinstance(rows, list):
-              print('Invalid data structure (expected array)')
+          if not isinstance(data, dict) or not isinstance(data.get('rows'), list):
+              print('Invalid data structure (expected {rows: [...], recentWithdrawals: [...]})')
               sys.exit(1)
 
-          data = {
-              'rows': rows,
-              '_generatedMs': int(time.time() * 1000)
-          }
+          data['_generatedMs'] = int(time.time() * 1000)
 
           with open('members/data.json', 'w', encoding='utf-8') as f:
               json.dump(data, f, ensure_ascii=False)
 
-          print(f"OK: {len(rows)} members")
+          print(f"OK: {len(data['rows'])} members, {len(data.get('recentWithdrawals', []))} recent withdrawals")
           EOF
 
       - name: Cleanup temp file

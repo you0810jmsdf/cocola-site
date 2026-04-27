@@ -1682,7 +1682,7 @@ async function loadMembers() {
     try {
       const response = await fetch(APP_URL + "?mode=json&ts=" + Date.now(), { credentials: 'omit' });
       if (!response.ok) throw new Error("HTTP " + response.status);
-      rows = await response.json();
+      rows = (await response.json()).rows || [];
     } catch (error) {
       const banner = document.getElementById("err-banner");
       banner.style.display = "block";

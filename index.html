@@ -50,6 +50,9 @@
     .new-member-bar__label{font-weight:700;white-space:nowrap}
     .new-member-bar__item{display:inline-flex;align-items:center;gap:4px}
     .new-member-bar__item a{color:#c00;text-decoration:underline}
+    .withdraw-bar{background:#f5f5f5;border-bottom:1px solid #ddd;padding:6px 16px;font-size:.82rem;color:#555;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .withdraw-bar__label{font-weight:700;white-space:nowrap}
+    .withdraw-bar__item{display:inline-flex;align-items:center;gap:4px}
   </style>
 </head>
 <body>
@@ -77,6 +80,10 @@
     <div class="new-member-bar" id="newMemberBar" style="display:none">
       <span class="new-member-bar__label">🎉 新規入会</span>
       <span id="newMemberList"></span>
+    </div>
+    <div class="withdraw-bar" id="withdrawBar" style="display:none">
+      <span class="withdraw-bar__label">退会のお知らせ</span>
+      <span id="withdrawList"></span>
     </div>
 
     <!-- 管理者パスワードモーダル -->
@@ -457,14 +464,25 @@
         const d = new Date(ts.replace(/\//g, '-'));
         return !isNaN(d) && (now - d.getTime()) < SEVEN_DAYS;
       });
-      if (!newOnes.length) return;
-      const list = document.getElementById('newMemberList');
-      list.innerHTML = newOnes.map(row => {
-        const nick = row[COL_NICKNAME] || '新メンバー';
-        const ts = row[COL_TS].slice(0, 10).replace(/-/g, '/');
-        return '<span class="new-member-bar__item"><a href="./member-app/html.html">' + nick + 'さん</a>（' + ts + ' 入会）</span>';
-      }).join('<span style="margin:0 4px">·</span>');
-      document.getElementById('newMemberBar').style.display = '';
+      if (newOnes.length) {
+        const list = document.getElementById('newMemberList');
+        list.innerHTML = newOnes.map(row => {
+          const nick = row[COL_NICKNAME] || '新メンバー';
+          const ts = row[COL_TS].slice(0, 10).replace(/-/g, '/');
+          return '<span class="new-member-bar__item"><a href="./member-app/html.html">' + nick + 'さん</a>（' + ts + ' 入会）</span>';
+        }).join('<span style="margin:0 4px">·</span>');
+        document.getElementById('newMemberBar').style.display = '';
+      }
+      const withdrawn = (data.recentWithdrawals || []);
+      if (withdrawn.length) {
+        const list = document.getElementById('withdrawList');
+        list.innerHTML = withdrawn.map(w => {
+          const nick = w.nickname || 'メンバー';
+          const ts = (w.withdrawnAt || '').slice(0, 10).replace(/-/g, '/');
+          return '<span class="withdraw-bar__item">' + nick + 'さん（' + ts + ' 退会）</span>';
+        }).join('<span style="margin:0 4px">·</span>');
+        document.getElementById('withdrawBar').style.display = '';
+      }
     }).catch(() => {});
   })();
   </script>
