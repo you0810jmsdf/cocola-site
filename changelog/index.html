@@ -117,6 +117,30 @@
         <ul class="changelog-list">
 
           <li class="cl-entry">
+            <p class="cl-date">2026-04-28</p>
+            <h2 class="cl-title">DAO：市民いいね数が0になっていた問題を修正</h2>
+            <p class="cl-desc">
+              2026-04-27 の投票方式変更（P0020）に伴うGAS書き換えにより、市民いいね数の集計処理が欠落し、すべての提案で0件と表示されていた問題を修正しました。いいねの記録は「DAO市民いいね」専用シートに蓄積されており、そこから集計する処理を復元しました。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">バグ修正</span>
+              <span class="tag tag--dao">DAO</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-04-27</p>
+            <h2 class="cl-title">DAO：投票方式を「協力できる/協力は難しい/検討中/わからない」に変更（P0020）</h2>
+            <p class="cl-desc">
+              投票の選択肢を「賛成/反対」から4択形式に変更しました。承認条件は「協力率60%かつ参加率20%以上」に変わります。投票ポイント・入会初期ポイントの付与も追加しました。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--feature">機能追加</span>
+              <span class="tag tag--dao">DAO</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
             <p class="cl-date">2026-04-26</p>
             <h2 class="cl-title">データ自動更新ワークフローの競合エラーを修正</h2>
             <p class="cl-desc">
