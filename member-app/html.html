@@ -372,6 +372,15 @@ a {
   font-weight: 700;
 }
 
+.new-badge {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: .7rem;
+  font-weight: 700;
+  color: #e00;
+  vertical-align: middle;
+}
+
 .card-sub {
   margin-top: 3px;
   color: var(--muted);
@@ -1365,6 +1374,7 @@ function buildMembers(rows) {
 
     return {
       idx: index,
+      timestamp: row[COL.timestamp] || "",
       nickname: row[COL.nickname] || "",
       name: row[COL.name] || "",
       job: row[COL.job] || "",
@@ -1477,6 +1487,12 @@ function bannerHTML(member) {
   return items.length ? '<div class="member-banners">' + items.join("") + '</div>' : "";
 }
 
+function isNewMember(ts) {
+  if (!ts) return false;
+  const d = new Date(ts.replace(/\//g, "-"));
+  return !isNaN(d) && (Date.now() - d.getTime()) < 7 * 24 * 60 * 60 * 1000;
+}
+
 function cardHTML(member) {
   const tags = member.cats.map((cat) => {
     return '<span class="tag ' + (TAG_CLASS[cat] || "") + '">' + esc(cat) + '</span>';
@@ -1494,7 +1510,7 @@ function cardHTML(member) {
     + '<div class="card-top">'
     + avatarHTML(member.photo, "avatar")
     + '<div>'
-    + '<div class="card-name">' + esc(member.nickname || "名前未設定") + '</div>'
+    + '<div class="card-name">' + esc(member.nickname || "名前未設定") + (isNewMember(member.timestamp) ? '<span class="new-badge">New!</span>' : '') + '</div>'
     + (subtitle ? '<div class="card-sub">' + esc(subtitle) + '</div>' : "")
     + '</div>'
     + '</div>'
@@ -1962,7 +1978,7 @@ function renderAdminStats(stats) {
   var VID_KEY='cocola_vid';
   var vid=localStorage.getItem(VID_KEY);
   if(!vid){vid='v'+Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,10);localStorage.setItem(VID_KEY,vid);}
-  fetch(base+'?mode=pageview&p=member&vid='+encodeURIComponent(vid),{mode:'no-cors',cache:'no-store'}).catch(function(){});
+  fetch(base+'?mode=pageview&p='+encodeURIComponent('メンバー一覧')+'&vid='+encodeURIComponent(vid),{mode:'no-cors',cache:'no-store'}).catch(function(){});
 })();
 </script>
 </body>
