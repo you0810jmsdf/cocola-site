@@ -1648,20 +1648,39 @@ async function copyMailingList() {
   window.setTimeout(() => toast.classList.remove("show"), 2600);
 }
 
+const STATIC_MEMBERS_URL = 'https://you0810jmsdf.github.io/cocola-site/members/data.json';
+const STATIC_MEMBERS_MAX_AGE_MS = 10 * 60 * 1000; // 10分
+
+async function tryStaticMembers() {
+  const res = await fetch(STATIC_MEMBERS_URL + '?t=' + Math.floor(Date.now() / 60000), { credentials: 'omit' });
+  if (!res.ok) throw new Error('static HTTP ' + res.status);
+  const data = await res.json();
+  if (!Array.isArray(data.rows) || data.rows.length === 0) throw new Error('empty static');
+  const age = Date.now() - (data._generatedMs || 0);
+  if (age > STATIC_MEMBERS_MAX_AGE_MS) throw new Error('stale static (' + Math.round(age / 60000) + 'min)');
+  return data.rows;
+}
+
 async function loadMembers() {
+  let rows = null;
   try {
-    const response = await fetch(APP_URL + "?mode=json&ts=" + Date.now());
-    if (!response.ok) throw new Error("HTTP " + response.status);
-    const rows = await response.json();
-    allMembers = buildMembers(rows);
-    applyFilter();
-  } catch (error) {
-    const banner = document.getElementById("err-banner");
-    banner.style.display = "block";
-    banner.textContent = "メンバー情報の読み込みに失敗しました。時間をおいて再読み込みしてください。(" + error.message + ")";
-    document.getElementById("grid").innerHTML = '<div class="empty">データを読み込めませんでした。</div>';
-    document.getElementById("meta").textContent = "読み込みエラー";
+    rows = await tryStaticMembers();
+  } catch (_) {
+    try {
+      const response = await fetch(APP_URL + "?mode=json&ts=" + Date.now(), { credentials: 'omit' });
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      rows = await response.json();
+    } catch (error) {
+      const banner = document.getElementById("err-banner");
+      banner.style.display = "block";
+      banner.textContent = "メンバー情報の読み込みに失敗しました。時間をおいて再読み込みしてください。(" + error.message + ")";
+      document.getElementById("grid").innerHTML = '<div class="empty">データを読み込めませんでした。</div>';
+      document.getElementById("meta").textContent = "読み込みエラー";
+      return;
+    }
   }
+  allMembers = buildMembers(rows);
+  applyFilter();
 }
 
 function cleanUrl(value) {
