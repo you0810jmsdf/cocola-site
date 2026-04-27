@@ -464,7 +464,7 @@
     const MEMBERS_JSON = './members/data.json';
     const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
     const COL_TS = 0, COL_NICKNAME = 3;
-    fetch(MEMBERS_JSON).then(r => r.json()).then(data => {
+    fetch(MEMBERS_JSON + '?t=' + Math.floor(Date.now() / 60000), { credentials: 'omit' }).then(r => r.json()).then(data => {
       const now = Date.now();
       const newOnes = (data.rows || []).filter(row => {
         const ts = row[COL_TS];
