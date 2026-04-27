@@ -53,6 +53,10 @@
     .withdraw-bar{background:#f5f5f5;border-bottom:1px solid #ddd;padding:6px 16px;font-size:.82rem;color:#555;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
     .withdraw-bar__label{font-weight:700;white-space:nowrap}
     .withdraw-bar__item{display:inline-flex;align-items:center;gap:4px}
+    .update-bar{background:#f0f4ff;border-bottom:1px solid #ccd;padding:6px 16px;font-size:.82rem;color:#0070c0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .update-bar__label{font-weight:700;white-space:nowrap}
+    .update-bar__item{display:inline-flex;align-items:center;gap:4px}
+    .update-bar__item a{color:#0070c0;text-decoration:underline}
   </style>
 </head>
 <body>
@@ -84,6 +88,10 @@
     <div class="withdraw-bar" id="withdrawBar" style="display:none">
       <span class="withdraw-bar__label">退会のお知らせ</span>
       <span id="withdrawList"></span>
+    </div>
+    <div class="update-bar" id="updateBar" style="display:none">
+      <span class="update-bar__label">情報更新</span>
+      <span id="updateList"></span>
     </div>
 
     <!-- 管理者パスワードモーダル -->
@@ -482,6 +490,16 @@
           return '<span class="withdraw-bar__item">' + nick + 'さん（' + ts + ' 退会）</span>';
         }).join('<span style="margin:0 4px">·</span>');
         document.getElementById('withdrawBar').style.display = '';
+      }
+      const updated = (data.recentUpdates || []);
+      if (updated.length) {
+        const list = document.getElementById('updateList');
+        list.innerHTML = updated.map(u => {
+          const nick = u.nickname || 'メンバー';
+          const ts = (u.updatedAt || '').slice(0, 10).replace(/-/g, '/');
+          return '<span class="update-bar__item"><a href="./member-app/html.html">' + nick + 'さん</a>（' + ts + ' 情報更新）</span>';
+        }).join('<span style="margin:0 4px">·</span>');
+        document.getElementById('updateBar').style.display = '';
       }
     }).catch(() => {});
   })();

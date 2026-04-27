@@ -380,6 +380,14 @@ a {
   color: #e00;
   vertical-align: middle;
 }
+.updated-badge {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: .7rem;
+  font-weight: 700;
+  color: #0070c0;
+  vertical-align: middle;
+}
 
 .card-sub {
   margin-top: 3px;
@@ -1326,6 +1334,7 @@ const SIL = `
 
 let allMembers = [];
 let activeCat = "all";
+let recentUpdatedNicknames = new Set();
 
 function toImgUrl(raw) {
   if (!raw) return "";
@@ -1493,6 +1502,10 @@ function isNewMember(ts) {
   return !isNaN(d) && (Date.now() - d.getTime()) < 7 * 24 * 60 * 60 * 1000;
 }
 
+function isRecentlyUpdated(nickname) {
+  return recentUpdatedNicknames.has(nickname);
+}
+
 function cardHTML(member) {
   const tags = member.cats.map((cat) => {
     return '<span class="tag ' + (TAG_CLASS[cat] || "") + '">' + esc(cat) + '</span>';
@@ -1510,7 +1523,7 @@ function cardHTML(member) {
     + '<div class="card-top">'
     + avatarHTML(member.photo, "avatar")
     + '<div>'
-    + '<div class="card-name">' + esc(member.nickname || "名前未設定") + (isNewMember(member.timestamp) ? '<span class="new-badge">New!</span>' : '') + '</div>'
+    + '<div class="card-name">' + esc(member.nickname || "名前未設定") + (isNewMember(member.timestamp) ? '<span class="new-badge">New!</span>' : '') + (isRecentlyUpdated(member.nickname) ? '<span class="updated-badge">更新</span>' : '') + '</div>'
     + (subtitle ? '<div class="card-sub">' + esc(subtitle) + '</div>' : "")
     + '</div>'
     + '</div>'
@@ -1671,18 +1684,23 @@ async function tryStaticMembers() {
   if (!res.ok) throw new Error('static HTTP ' + res.status);
   const data = await res.json();
   if (!Array.isArray(data.rows) || data.rows.length === 0) throw new Error('empty static');
-  return data.rows;
+  return data;
 }
 
 async function loadMembers() {
   let rows = null;
+  let updatedList = [];
   try {
-    rows = await tryStaticMembers();
+    const data = await tryStaticMembers();
+    rows = data.rows;
+    updatedList = data.recentUpdates || [];
   } catch (_) {
     try {
       const response = await fetch(APP_URL + "?mode=json&ts=" + Date.now(), { credentials: 'omit' });
       if (!response.ok) throw new Error("HTTP " + response.status);
-      rows = (await response.json()).rows || [];
+      const data = await response.json();
+      rows = data.rows || [];
+      updatedList = data.recentUpdates || [];
     } catch (error) {
       const banner = document.getElementById("err-banner");
       banner.style.display = "block";
@@ -1692,6 +1710,7 @@ async function loadMembers() {
       return;
     }
   }
+  recentUpdatedNicknames = new Set(updatedList.map(u => u.nickname));
   allMembers = buildMembers(rows);
   applyFilter();
 }
