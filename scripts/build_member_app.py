@@ -30,6 +30,7 @@ REPLACEMENTS = [
     (f'<?!= JSON.stringify(APP_URL) ?>',  f"'{APP_URL}'"),
     (f'<?!= JSON.stringify(FORM_URL) ?>', f"'{FORM_URL}'"),
     (f'<?!= JSON.stringify(HOME_URL) ?>', f"'{HOME_URL}'"),
+    (f'<?!= JSON.stringify(PAGE) ?>',    f"'member'"),
 ]
 
 def build():
