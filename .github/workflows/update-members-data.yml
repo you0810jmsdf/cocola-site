@@ -17,7 +17,7 @@ jobs:
       - name: Fetch members data from GAS
         run: |
           curl -sL \
-            "https://script.google.com/macros/s/AKfycbxQ7gBHJQFVZEXcyisJdiL7xa64RcKzYjzBZLEGlkelSvxXCfPPHTW5eAVHB09aue1p/exec?mode=json&t=$(date +%s)" \
+            "https://script.google.com/macros/s/AKfycbyRVO7fLJx62HS6W3M2_bmPIP9y6stpiVJFM429NMKXzlV24_wGx97xms22QLb1VHsX/exec?mode=json&t=$(date +%s)" \
             -o members/rows_new.json \
             --max-time 30 \
             --retry 3 \
