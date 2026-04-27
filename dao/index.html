@@ -942,7 +942,7 @@
                 </li>
                 <li>
                   <span class="step-number">2</span>
-                  <span><strong>投票する</strong><span>公開された提案を見て、賛成・反対とコメントを送ります。</span></span>
+                  <span><strong>投票する</strong><span>公開された提案を見て、協力できるか・難しいかなどの意思を送ります。</span></span>
                 </li>
                 <li>
                   <span class="step-number">3</span>
@@ -981,7 +981,7 @@
           <p class="eyebrow">DAOポイントとは</p>
           <h2>参加や協力を、みんなで見える形にします。</h2>
           <p>DAOポイントは、COCoLaでの参加・主催・提案・投票などの活動を見える化するためのものです。報酬や順位づけではなく、誰がどんな形で関わってくれているかを分かりやすくします。</p>
-          <p class="points-note">投票参加ポイントは、賛成・反対の内容に関わらず、1つの提案につき1回まで付与されます。</p>
+          <p class="points-note">投票参加ポイントは、回答内容に関わらず、1つの提案につき1回まで付与されます。</p>
         </div>
         <ul class="points-list" aria-label="ポイント付与基準">
           <li><span>イベント主催</span><strong>8pt</strong></li>
@@ -1133,9 +1133,9 @@
           '</div>' +
           '<div class="vote-numbers">' +
             '<span><b>' + numberText(proposal.voteCount || 0) + '人</b>投票数</span>' +
-            '<span><b>' + numberText(proposal.yesRate, '%') + '</b>賛成率</span>' +
-            '<span><b>' + numberText(proposal.yesWeight) + '</b>賛成重み</span>' +
-            '<span><b>' + numberText(proposal.noWeight) + '</b>反対重み</span>' +
+            '<span><b>' + numberText(proposal.yesRate, '%') + '</b>協力率</span>' +
+            '<span><b>' + numberText(proposal.yesWeight) + '</b>協力重み</span>' +
+            '<span><b>' + numberText(proposal.noWeight) + '</b>非協力重み</span>' +
           '</div>' +
         '</div>' +
         '</article>';
