@@ -1649,15 +1649,12 @@ async function copyMailingList() {
 }
 
 const STATIC_MEMBERS_URL = 'https://you0810jmsdf.github.io/cocola-site/members/data.json';
-const STATIC_MEMBERS_MAX_AGE_MS = 10 * 60 * 1000; // 10分
 
 async function tryStaticMembers() {
   const res = await fetch(STATIC_MEMBERS_URL + '?t=' + Math.floor(Date.now() / 60000), { credentials: 'omit' });
   if (!res.ok) throw new Error('static HTTP ' + res.status);
   const data = await res.json();
   if (!Array.isArray(data.rows) || data.rows.length === 0) throw new Error('empty static');
-  const age = Date.now() - (data._generatedMs || 0);
-  if (age > STATIC_MEMBERS_MAX_AGE_MS) throw new Error('stale static (' + Math.round(age / 60000) + 'min)');
   return data.rows;
 }
 
