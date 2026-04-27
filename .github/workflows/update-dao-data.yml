@@ -17,7 +17,7 @@ jobs:
       - name: Fetch DAO data from GAS
         run: |
           curl -sL \
-            "https://script.google.com/macros/s/AKfycbxvwqR4vgPEb0tZYEx37eFfq9T4f7IjxvJoyAzkSXqj9KIAOf9znqHwc6W7ECJo4miV/exec?mode=json&t=$(date +%s)" \
+            "https://script.google.com/macros/s/AKfycbxM2ybpJqfWLL-MPnOwZqeBdHjN6IQh5QB-_LubZAG-bD0x8jLkgbUn7NYRzYLFOPfj7g/exec?mode=json&t=$(date +%s)" \
             -o dao/data_new.json \
             --max-time 30 \
             --retry 3 \
