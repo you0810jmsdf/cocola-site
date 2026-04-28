@@ -181,6 +181,35 @@ function _setView(v) {
 function _esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function _ed(ev) { return ev.ts ? new Date(ev.ts) : null; }
 function _sd(a, b) { return a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
+function _evDates(ev) {
+  if (ev._dates) return ev._dates;
+  var dates = [], seen = {};
+  var primary = ev.ts ? new Date(ev.ts) : null;
+  var dStr = String(ev.d || '').replace(/<[^>]*>/g, '');
+  var refYear;
+  if (primary) {
+    refYear = primary.getFullYear();
+  } else {
+    var ym = dStr.match(/(\d{4})年/);
+    refYear = ym ? parseInt(ym[1]) : (new Date()).getFullYear();
+  }
+  var re = /(?:(\d{4})年)?(\d{1,2})月(\d{1,2})日/g;
+  var m;
+  while ((m = re.exec(dStr)) !== null) {
+    var y = m[1] ? parseInt(m[1]) : refYear;
+    var mo = parseInt(m[2]), dy = parseInt(m[3]);
+    var key = y + '-' + mo + '-' + dy;
+    if (!seen[key]) { seen[key] = true; dates.push(new Date(y, mo - 1, dy)); }
+  }
+  if (!dates.length && primary) dates.push(primary);
+  ev._dates = dates;
+  return dates;
+}
+function _evOnDate(ev, dt) {
+  var ds = _evDates(ev);
+  for (var i = 0; i < ds.length; i++) if (_sd(ds[i], dt)) return true;
+  return false;
+}
 function _card(ev) {
   var url = ev.u ? '<a href="' + _esc(ev.u) + '" target="_blank">' + _esc(ev.t) + '</a>' : _esc(ev.t);
   var s = '<div class="ev-item' + (ev.past ? ' past' : '') + '"><p class="ev-date">' + _esc(ev.d) + '</p><p class="ev-title">' + url + '</p>';
@@ -220,7 +249,7 @@ function _renderMonth(el) {
   for (var i = 0; i < first.getDay(); i++) grid += '<div class="cal-cell empty"></div>';
   for (var d = 1; d <= last.getDate(); d++) {
     var dt = new Date(y, m, d);
-    var evs = EVTS.filter(function(ev) { return _sd(_ed(ev), dt); });
+    var evs = EVTS.filter(function(ev) { return _evOnDate(ev, dt); });
     var cls = 'cal-cell' + (_sd(dt, _now) ? ' today' : '');
     var dot = evs.length ? '<span class="cal-dot"></span>' : '';
     grid += '<div class="' + cls + '" onclick="_showDay(' + y + ',' + (m + 1) + ',' + d + ')"><span class="cal-dn">' + d + '</span>' + dot + '</div>';
@@ -230,7 +259,7 @@ function _renderMonth(el) {
 }
 function _showDay(y, m, d) {
   var dt = new Date(y, m - 1, d);
-  var evs = EVTS.filter(function(ev) { return _sd(_ed(ev), dt); });
+  var evs = EVTS.filter(function(ev) { return _evOnDate(ev, dt); });
   var out = '<div class="day-panel"><p class="dp-title">' + y + '年' + m + '月' + d + '日のイベント</p>';
   out += evs.length ? evs.map(_card).join('') : '<p class="empty">この日のイベントはありません</p>';
   out += '</div>';
@@ -244,7 +273,7 @@ function _renderWeek(el) {
   var html = nav + '<div class="week-grid">';
   for (var i = 0; i < 7; i++) {
     var dt = new Date(ms.getTime() + i * 86400000);
-    var evs = EVTS.filter(function(ev) { return _sd(_ed(ev), dt); });
+    var evs = EVTS.filter(function(ev) { return _evOnDate(ev, dt); });
     var isT = _sd(dt, _now);
     html += '<div class="week-col' + (isT ? ' today' : '') + '"><div class="week-hd">' + ds[i] + '<br><span class="wdate">' + (dt.getMonth() + 1) + '/' + dt.getDate() + '</span></div><div class="week-evs">';
     evs.forEach(function(ev) {
