@@ -1,2 +1,6 @@
 preview/
 作業記録_*.md
+
+# Node / clasp
+node_modules/
+.clasprc.json
