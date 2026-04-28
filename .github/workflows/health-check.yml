@@ -1,0 +1,75 @@
+name: Health check
+
+on:
+  schedule:
+    - cron: '0 1 * * *'    # 毎日 JST 10:00
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fetch health endpoint
+        run: |
+          curl -sL \
+            "https://script.google.com/macros/s/AKfycbycw2FBvcm34mS9R8SUNg28KscGqqGjR1zjz3hnLYq8ckgKCZObYaC9kbMs8R2SGXgC/exec?mode=health" \
+            -o health.json \
+            --max-time 30 \
+            --retry 3 \
+            --retry-delay 5
+
+      - name: Validate health response
+        run: |
+          python3 - <<'EOF'
+          import json, sys
+
+          with open('health.json') as f:
+              text = f.read()
+
+          try:
+              data = json.loads(text)
+          except Exception as e:
+              print(f'❌ JSON parse error: {e}')
+              print(f'Response: {text[:300]}')
+              sys.exit(1)
+
+          checks = data.get('checks', {})
+          ok = data.get('ok', False)
+
+          print(f"総合ステータス: {'✅ 正常' if ok else '❌ 異常'}")
+          for name, result in checks.items():
+              status = '✅' if result.get('ok') else '❌'
+              detail = {k: v for k, v in result.items() if k != 'ok'}
+              print(f"  {status} {name}: {detail}")
+
+          if not ok:
+              failed = [k for k, v in checks.items() if not v.get('ok')]
+              print(f'\n❌ 異常項目: {failed}')
+              sys.exit(1)
+          EOF
+
+      - name: Fetch sources endpoint
+        run: |
+          curl -sL \
+            "https://script.google.com/macros/s/AKfycbycw2FBvcm34mS9R8SUNg28KscGqqGjR1zjz3hnLYq8ckgKCZObYaC9kbMs8R2SGXgC/exec?mode=sources" \
+            -o sources.json \
+            --max-time 30
+
+      - name: Validate sources response
+        run: |
+          python3 - <<'EOF'
+          import json, sys
+
+          with open('sources.json') as f:
+              text = f.read()
+
+          try:
+              data = json.loads(text)
+              sources = data['sources']
+              assert len(sources) > 0
+              print(f'✅ sources: {len(sources)}件')
+          except Exception as e:
+              print(f'❌ sources チェック失敗: {e}\nResponse: {text[:300]}')
+              sys.exit(1)
+          EOF
