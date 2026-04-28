@@ -3469,7 +3469,7 @@ function scanDriveEventImages() {
     var payload = {
       contents: [{
         parts: [
-          { text: 'このイベントポスター画像から以下をJSON形式で抽出してください。\n{"title":"イベント名","datetime":"開催日時（例: 2026年5月3日 10:00〜12:00）","place":"会場名","summary":"概要（100文字以内）"}\nわからない項目は空文字にしてください。' },
+          { text: 'このイベントポスター画像から以下をJSON形式で抽出してください。\n{"title":"イベント名","datetime":"開催日時","place":"会場名","summary":"概要（100文字以内）"}\n\ndatetime の書式ルール:\n- 単一日: "2026年5月3日 10:00〜12:00"\n- 複数日: "2026年4月29日, 2026年5月4日, 2026年5月23日 10:00〜15:00"（カンマ区切り）\n- 画像に西暦が書かれていない場合は西暦を省略（例: "5月3日 10:00〜12:00"）。推測で年を補わないこと\n- 曜日や祝日表記（例: "(水祝)" "(土)"）は除外する\n- 読み取れない場合は空文字\n\nわからない項目は空文字にしてください。' },
           { inline_data: { mime_type: mime, data: base64 } }
         ]
       }]
@@ -3530,15 +3530,15 @@ function scanDriveEventImages() {
 
     var parsedDate = (function(dt) {
       if (!dt) return null;
+      // 括弧書き（曜日・祝日など）を除去
       var s = dt.replace(/[（(][^)）]*[)）]/g, '').trim();
-      // 年なし「4月29日」→ 今年を補完
-      if (!/\d{4}年|令和\d+年|\d{4}\//.test(s)) {
-        var currentYear = new Date().getFullYear();
-        s = currentYear + '年' + s;
+      // 複数日付（,、・／で区切り）の場合は最初の日付のみカレンダー表示用に採用
+      var firstChunk = s.split(/[,、・／]/)[0].trim();
+      // 西暦未記載なら今年を補完
+      if (!/\d{4}年|令和\d+年|\d{4}\//.test(firstChunk)) {
+        firstChunk = new Date().getFullYear() + '年' + firstChunk;
       }
-      var normalized = s.replace(/年|月/g, '/').replace(/日/g, '').trim();
-      var d = new Date(normalized);
-      return isNaN(d.getTime()) ? null : d;
+      return parseEventDate(firstChunk);
     })(datetime);
 
     sheet.appendRow([
