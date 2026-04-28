@@ -1,0 +1,87 @@
+name: Sync event sources list
+
+on:
+  schedule:
+    - cron: '0 0 * * *'    # 毎日0時（UTC）= JST 9時
+  workflow_dispatch:         # 手動実行も可
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch sources from GAS
+        run: |
+          curl -sL \
+            "https://script.google.com/macros/s/AKfycbycw2FBvcm34mS9R8SUNg28KscGqqGjR1zjz3hnLYq8ckgKCZObYaC9kbMs8R2SGXgC/exec?mode=sources" \
+            -o sources_new.json \
+            --max-time 30 \
+            --retry 3 \
+            --retry-delay 5
+
+      - name: Update sources list in events/index.html
+        run: |
+          python3 - <<'EOF'
+          import json, sys, re
+
+          with open('sources_new.json') as f:
+              text = f.read()
+
+          try:
+              data = json.loads(text)
+              sources = data['sources']
+          except Exception as e:
+              print(f'Parse error: {e}\nResponse: {text[:300]}')
+              sys.exit(0)
+
+          lines = []
+          for s in sources:
+              lines.append(
+                  f'      ✅ <a href="{s["url"]}" target="_blank" style="color:#c0392b;">{s["name"]}</a>'
+              )
+
+          new_block = (
+              '    <!-- SOURCES_START -->\n'
+              '    <div style="font-size:11px;color:#666;line-height:2;">\n'
+              + '\n'.join(lines) + '\n'
+              '    </div>\n'
+              '    <!-- SOURCES_END -->'
+          )
+
+          with open('events/index.html', encoding='utf-8') as f:
+              html = f.read()
+
+          new_html = re.sub(
+              r'<!-- SOURCES_START -->.*?<!-- SOURCES_END -->',
+              new_block,
+              html,
+              flags=re.DOTALL
+          )
+
+          if new_html == html:
+              print('No changes to sources list')
+          else:
+              with open('events/index.html', 'w', encoding='utf-8') as f:
+                  f.write(new_html)
+              print(f'Updated: {len(sources)} sources')
+          EOF
+
+      - name: Cleanup temp file
+        run: rm -f sources_new.json
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add events/index.html
+          if git diff --staged --quiet; then
+            echo "No changes"
+          else
+            git commit -m 'Auto-sync event sources list [skip ci]'
+            git pull --rebase origin main
+            git push
+          fi
