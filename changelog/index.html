@@ -118,6 +118,29 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-04-28</p>
+            <h2 class="cl-title">イベント一覧：複数日付チラシをカレンダーの全日に表示・「今すぐ反映」を即時反映に</h2>
+            <p class="cl-desc">
+              「アヤナイ プレーパーク」のように1イベントで複数日程（4/29・5/4・5/23 など）が記載されているチラシが、最初の日付のセルにしか表示されない問題を修正しました。日付文字列から月日パターンを抽出し、月ビュー・週ビューのすべての該当セルに表示します。あわせて「今すぐ反映」ボタンを GAS への直接問い合わせに変更し、スプレッドシート編集後にボタンを押すと即時に反映されるようにしました（従来は GitHub Actions による data.json 更新を待つ必要があった）。GAS 側でも画像スキャン時の Gemini プロンプトを複数日付対応に改善し、曜日・祝日表記の括弧書きを除外するようにしました。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">バグ修正</span>
+              <span class="tag tag--improve">改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-04-28</p>
+            <h2 class="cl-title">GAS ソースコードをリポジトリで管理（clasp 連携）</h2>
+            <p class="cl-desc">
+              これまで Google Apps Script の Web エディタ上にしか存在しなかった GAS コードを、@google/clasp を使って本リポジトリの <code>gas/</code> 配下で版管理できるようにしました。<code>npm run gas:pull</code> で取り込み、<code>npm run gas:push</code> で反映します。これによりコードレビュー・ロールバック・差分追跡が可能になりました。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--infra">基盤整備</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-04-28</p>
             <h2 class="cl-title">イベント一覧：「今すぐ反映」ボタンを追加・年なし日付の自動補完を修正</h2>
             <p class="cl-desc">
               画像登録したイベントを即時スキャンする「今すぐ反映」ボタンをイベント一覧ページに追加しました。また、Geminiが「4月29日」のように西暦なしで抽出した日付を今年の西暦に自動補完するよう修正しました（GAS v217）。補完は新規登録時・既存シート読み込み時の両方に適用されます。サイトへの反映は最大5分後となります。
