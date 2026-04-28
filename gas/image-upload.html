@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>イベント画像アップロード</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background: #f5f5f5;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+  }
+  h1 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #2c6e49;
+  }
+  .subtitle {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.1);
+    padding: 24px;
+    width: 100%;
+    max-width: 480px;
+  }
+  .drop-zone {
+    border: 2px dashed #a0cfb8;
+    border-radius: 10px;
+    padding: 36px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    position: relative;
+    background: #f9fdf9;
+  }
+  .drop-zone.dragover { background: #e8f5ee; border-color: #2c6e49; }
+  .drop-zone input[type=file] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  .drop-icon { font-size: 2.5rem; margin-bottom: 10px; }
+  .drop-text { font-size: 0.9rem; color: #555; line-height: 1.5; }
+  .drop-text strong { color: #2c6e49; }
+  .paste-hint {
+    margin-top: 12px;
+    font-size: 0.78rem;
+    color: #888;
+  }
+  .preview-area {
+    margin-top: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .preview-item {
+    position: relative;
+    width: 90px;
+    height: 90px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #ddd;
+    background: #f0f0f0;
+  }
+  .preview-item img {
+    width: 100%; height: 100%; object-fit: cover;
+  }
+  .preview-item .remove-btn {
+    position: absolute; top: 2px; right: 2px;
+    background: rgba(0,0,0,.55); color: #fff;
+    border: none; border-radius: 50%;
+    width: 20px; height: 20px;
+    font-size: 12px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    line-height: 1;
+  }
+  .btn {
+    display: block;
+    width: 100%;
+    margin-top: 18px;
+    padding: 14px;
+    background: #2c6e49;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn:hover:not(:disabled) { background: #245a3c; }
+  .btn:disabled { background: #aaa; cursor: not-allowed; }
+  #status {
+    margin-top: 14px;
+    font-size: 0.88rem;
+    text-align: center;
+    min-height: 1.4em;
+    line-height: 1.4;
+  }
+  .ok { color: #2c6e49; }
+  .err { color: #c0392b; }
+  .info { color: #555; }
+  .progress-bar-wrap {
+    margin-top: 10px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    height: 6px;
+    overflow: hidden;
+    display: none;
+  }
+  .progress-bar { height: 100%; background: #2c6e49; width: 0; transition: width 0.3s; }
+</style>
+</head>
+<body>
+<h1>📷 イベント画像アップロード</h1>
+<p class="subtitle">スキャンフォルダに写真を送信します。<br>処理は数分以内に自動実行されます。</p>
+
+<div class="card">
+  <div class="drop-zone" id="dropZone">
+    <input type="file" id="fileInput" accept="image/*" multiple>
+    <div class="drop-icon">🖼️</div>
+    <div class="drop-text">
+      <strong>クリックして画像を選択</strong><br>
+      またはここにドラッグ＆ドロップ
+    </div>
+    <div class="paste-hint">スクリーンショットは Ctrl+V（⌘V）で貼り付け可能</div>
+  </div>
+
+  <div class="preview-area" id="previewArea"></div>
+
+  <div class="progress-bar-wrap" id="progressWrap">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <button class="btn" id="uploadBtn" disabled>送信する</button>
+  <div id="status"></div>
+</div>
+
+<script>
+  var pendingFiles = [];
+
+  var dropZone = document.getElementById('dropZone');
+  var fileInput = document.getElementById('fileInput');
+  var previewArea = document.getElementById('previewArea');
+  var uploadBtn = document.getElementById('uploadBtn');
+  var status = document.getElementById('status');
+  var progressWrap = document.getElementById('progressWrap');
+  var progressBar = document.getElementById('progressBar');
+
+  function addFiles(files) {
+    Array.prototype.forEach.call(files, function(f) {
+      if (!f.type.startsWith('image/')) return;
+      pendingFiles.push(f);
+      addPreview(f, pendingFiles.length - 1);
+    });
+    uploadBtn.disabled = pendingFiles.length === 0;
+  }
+
+  function addPreview(file, idx) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var item = document.createElement('div');
+      item.className = 'preview-item';
+      item.dataset.idx = idx;
+      var img = document.createElement('img');
+      img.src = e.target.result;
+      var btn = document.createElement('button');
+      btn.className = 'remove-btn';
+      btn.textContent = '×';
+      btn.onclick = function(ev) {
+        ev.stopPropagation();
+        pendingFiles[idx] = null;
+        item.remove();
+        uploadBtn.disabled = pendingFiles.filter(Boolean).length === 0;
+      };
+      item.appendChild(img);
+      item.appendChild(btn);
+      previewArea.appendChild(item);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  fileInput.addEventListener('change', function() { addFiles(this.files); });
+
+  dropZone.addEventListener('dragover', function(e) { e.preventDefault(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragleave', function() { dropZone.classList.remove('dragover'); });
+  dropZone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    addFiles(e.dataTransfer.files);
+  });
+
+  document.addEventListener('paste', function(e) {
+    var items = e.clipboardData && e.clipboardData.items;
+    if (!items) return;
+    var imgs = [];
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].type.startsWith('image/')) imgs.push(items[i].getAsFile());
+    }
+    if (imgs.length) addFiles(imgs);
+  });
+
+  uploadBtn.addEventListener('click', function() {
+    var files = pendingFiles.filter(Boolean);
+    if (!files.length) return;
+
+    uploadBtn.disabled = true;
+    status.textContent = '';
+    progressWrap.style.display = 'block';
+    progressBar.style.width = '0';
+
+    var done = 0;
+    var errors = 0;
+    var total = files.length;
+
+    function next(i) {
+      if (i >= files.length) {
+        progressBar.style.width = '100%';
+        if (errors === 0) {
+          status.className = 'ok';
+          status.textContent = '✅ ' + total + '件アップロード完了！処理は数分以内に自動実行されます。';
+        } else {
+          status.className = 'err';
+          status.textContent = '⚠️ ' + done + '件成功 / ' + errors + '件失敗';
+        }
+        pendingFiles = [];
+        previewArea.innerHTML = '';
+        uploadBtn.disabled = false;
+        return;
+      }
+
+      var f = files[i];
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var dataUrl = e.target.result;
+        var base64 = dataUrl.split(',')[1];
+        var mime = f.type;
+        var name = f.name || ('paste_' + Date.now() + '.png');
+
+        status.className = 'info';
+        status.textContent = (i + 1) + ' / ' + total + ' 件 送信中…';
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            if (res && res.ok) { done++; } else { errors++; }
+            progressBar.style.width = Math.round(((i + 1) / total) * 100) + '%';
+            next(i + 1);
+          })
+          .withFailureHandler(function(err) {
+            errors++;
+            progressBar.style.width = Math.round(((i + 1) / total) * 100) + '%';
+            next(i + 1);
+          })
+          .uploadImageToScanFolder(base64, mime, name);
+      };
+      reader.readAsDataURL(f);
+    }
+
+    next(0);
+  });
+</script>
+</body>
+</html>

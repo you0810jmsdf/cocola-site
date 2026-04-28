@@ -1,0 +1,14 @@
+{
+  "name": "cocola-site",
+  "private": true,
+  "scripts": {
+    "gas:login": "clasp login",
+    "gas:pull": "clasp pull",
+    "gas:push": "clasp push",
+    "gas:status": "clasp status",
+    "gas:open": "clasp open"
+  },
+  "devDependencies": {
+    "@google/clasp": "^2.4.2"
+  }
+}
