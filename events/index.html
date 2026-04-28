@@ -134,13 +134,17 @@ async function tryStaticJson() {
   if (!res.ok) return null;
   var data = await res.json();
   if (!Array.isArray(data.rows) || !data._generatedMs) return null;
+  if (Date.now() - data._generatedMs > STATIC_MAX_AGE_MS) return null;
   return data.rows;
 }
 
-async function loadEvents() {
+async function loadEvents(opts) {
+  opts = opts || {};
   try {
     var rows = null;
-    try { rows = await tryStaticJson(); } catch (_) {}
+    if (!opts.skipStatic) {
+      try { rows = await tryStaticJson(); } catch (_) {}
+    }
     if (!rows) {
       var res = await fetch(GAS_URL + '?mode=inzai_json&ts=' + Date.now(), { credentials: 'omit' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -276,8 +280,8 @@ async function forceRefresh() {
     if (sec <= 0) {
       clearInterval(iv);
       st.textContent = '最新データを取得中…';
-      loadEvents().then(function() {
-        st.textContent = '✅ 反映しました（画像登録分は最大5分後に反映）';
+      loadEvents({ skipStatic: true }).then(function() {
+        st.textContent = '✅ 反映しました';
         btn.disabled = false;
         setTimeout(function() { st.textContent = ''; }, 5000);
       });
