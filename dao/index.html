@@ -886,6 +886,60 @@
       }
     }
 
+    /* 提案インデックス */
+    .proposal-index {
+      margin: 0 0 14px;
+      padding: 14px 16px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .proposal-index__label {
+      margin: 0 0 10px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .proposal-index__list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .proposal-index__item a {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: #f5f8f6;
+      color: var(--ink);
+      font-size: 0.84rem;
+      text-decoration: none;
+      transition: background 120ms, border-color 120ms;
+    }
+
+    .proposal-index__item a:hover {
+      background: #e7f5f0;
+      border-color: var(--green);
+      color: var(--green-deep);
+    }
+
+    .proposal-index__id {
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+
   </style>
 </head>
 <body>
@@ -972,6 +1026,10 @@
             <button class="filter" type="button" data-filter="approved">承認</button>
           </div>
         </div>
+        <div class="proposal-index" id="proposalIndex" hidden>
+          <p class="proposal-index__label">提案インデックス</p>
+          <ul class="proposal-index__list" id="proposalIndexList"></ul>
+        </div>
         <div class="grid" id="proposalGrid"></div>
         <div class="empty" id="empty" hidden>公開中の提案はまだありません。</div>
       </section>
@@ -1027,6 +1085,8 @@
 
     var grid = document.getElementById('proposalGrid');
     var empty = document.getElementById('empty');
+    var proposalIndex = document.getElementById('proposalIndex');
+    var proposalIndexList = document.getElementById('proposalIndexList');
     var stats = document.getElementById('stats');
     var updated = document.getElementById('updated');
     var proposalForm = document.getElementById('proposalForm');
@@ -1099,7 +1159,7 @@
       var voted = hasVoted(proposal.id);
       var likeCount = Number(proposal.citizenLikeCount) || 0;
       var voteUrl = escapeHtml(state.data.voteFormUrl || 'https://docs.google.com/forms/d/e/1FAIpQLSc9kOcabaSr8bjhE8pRDzIr1AWDEVodSc2lPWwkMAY029aAIw/viewform');
-      return '<article class="proposal-card" data-status="' + escapeHtml(proposal.statusKey) + '">' +
+      return '<article class="proposal-card" id="proposal-' + escapeHtml(proposal.id) + '" data-status="' + escapeHtml(proposal.statusKey) + '">' +
         '<div class="card-head">' +
           '<div class="identity">' +
             '<span class="proposal-id">' + escapeHtml(proposal.id) + '</span>' +
@@ -1159,6 +1219,15 @@
       updated.textContent = state.data.generatedAt
         ? '更新: ' + state.data.generatedAt + (state.cacheStale ? ' （最新データ取得中...）' : '')
         : '';
+
+      proposalIndexList.innerHTML = visible.map(function(p) {
+        return '<li class="proposal-index__item">' +
+          '<a href="#proposal-' + escapeHtml(p.id) + '">' +
+            '<span class="proposal-index__id">' + escapeHtml(p.id) + '</span> ' +
+            escapeHtml(p.title) +
+          '</a></li>';
+      }).join('');
+      proposalIndex.hidden = visible.length === 0;
     }
 
     function bindFilters() {
