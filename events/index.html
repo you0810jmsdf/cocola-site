@@ -34,6 +34,9 @@ details[open]>.month-summary::before{transform:rotate(90deg);}
 .entry-btn:hover{background:#a93226;}
 .entry-btn-img{display:inline-flex;align-items:center;justify-content:center;padding:8px 18px;background:#2c6e49;color:#fff;border-radius:4px;text-decoration:none;font-size:13px;font-weight:bold;line-height:1.4;}
 .entry-btn-img:hover{background:#245a3c;}
+.refresh-btn{display:inline-flex;align-items:center;justify-content:center;padding:8px 18px;background:#fff;color:#2c6e49;border:2px solid #2c6e49;border-radius:4px;font-size:13px;font-weight:bold;cursor:pointer;line-height:1.4;}
+.refresh-btn:hover:not(:disabled){background:#f0faf4;}
+.refresh-btn:disabled{color:#aaa;border-color:#ccc;cursor:not-allowed;}
 .entry-methods{font-size:12px;color:#555;margin:0 0 8px;line-height:1.7;}
 .entry-methods b{color:#333;}
 .view-tabs{display:flex;gap:0;margin-bottom:12px;border-bottom:2px solid #c0392b;}
@@ -104,7 +107,9 @@ details[open]>.month-summary::before{transform:rotate(90deg);}
   <div class="entry-actions">
     <a class="entry-btn" href="https://docs.google.com/forms/d/1MXr-GdG5Jbu9aQE0xTR3xjWFl5XFkQXdl7asJNChMDQ/viewform" target="_blank" rel="noreferrer noopener">📝 フォームで登録する</a>
     <a class="entry-btn-img" href="https://script.google.com/macros/s/AKfycbycw2FBvcm34mS9R8SUNg28KscGqqGjR1zjz3hnLYq8ckgKCZObYaC9kbMs8R2SGXgC/exec?page=image-upload" target="_blank" rel="noreferrer noopener">📷 画像で登録する</a>
+    <button class="refresh-btn" id="refreshBtn" onclick="forceRefresh()">🔄 今すぐ反映</button>
   </div>
+  <div id="refresh-status" style="font-size:12px;color:#555;margin-bottom:4px;min-height:1.4em;"></div>
   <div id="error-area"></div>
   <div class="view-tabs">
     <button id="btn-list" class="vbtn active" onclick="_setView('list')">リスト</button>
@@ -254,6 +259,30 @@ function _render() {
   if (_view === 'list') _renderList(el);
   else if (_view === 'month') _renderMonth(el);
   else _renderWeek(el);
+}
+
+async function forceRefresh() {
+  var btn = document.getElementById('refreshBtn');
+  var st = document.getElementById('refresh-status');
+  btn.disabled = true;
+  st.textContent = 'スキャン実行中…';
+  try {
+    fetch(GAS_URL + '?mode=scan', { mode: 'no-cors', credentials: 'omit' }).catch(function(){});
+  } catch(_) {}
+  var sec = 10;
+  var iv = setInterval(function() {
+    sec--;
+    st.textContent = 'データ取得まで ' + sec + ' 秒…';
+    if (sec <= 0) {
+      clearInterval(iv);
+      st.textContent = '最新データを取得中…';
+      loadEvents().then(function() {
+        st.textContent = '✅ 反映しました（画像登録分は最大5分後に反映）';
+        btn.disabled = false;
+        setTimeout(function() { st.textContent = ''; }, 5000);
+      });
+    }
+  }, 1000);
 }
 
 window.onload = function() { loadEvents(); };
