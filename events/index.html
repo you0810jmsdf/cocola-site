@@ -32,6 +32,10 @@ details[open]>.month-summary::before{transform:rotate(90deg);}
 .entry-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start;margin:8px 0 12px;}
 .entry-btn{display:inline-flex;align-items:center;justify-content:center;padding:8px 18px;background:#c0392b;color:#fff;border-radius:4px;text-decoration:none;font-size:13px;font-weight:bold;line-height:1.4;}
 .entry-btn:hover{background:#a93226;}
+.entry-btn-img{display:inline-flex;align-items:center;justify-content:center;padding:8px 18px;background:#2c6e49;color:#fff;border-radius:4px;text-decoration:none;font-size:13px;font-weight:bold;line-height:1.4;}
+.entry-btn-img:hover{background:#245a3c;}
+.entry-methods{font-size:12px;color:#555;margin:0 0 8px;line-height:1.7;}
+.entry-methods b{color:#333;}
 .view-tabs{display:flex;gap:0;margin-bottom:12px;border-bottom:2px solid #c0392b;}
 .vbtn{padding:7px 18px;border:1px solid #ddd;border-bottom:none;background:#f5f5f5;cursor:pointer;font-size:13px;color:#666;border-radius:4px 4px 0 0;font-family:inherit;line-height:1.4;}
 .vbtn.active{background:#fff;color:#c0392b;font-weight:bold;border-color:#c0392b;margin-bottom:-2px;}
@@ -76,7 +80,7 @@ details[open]>.month-summary::before{transform:rotate(90deg);}
   </header>
   <div style="padding:6px 0 10px;border-bottom:1px solid #eee;margin-bottom:8px;">
     <p style="font-size:11px;color:#aaa;margin:0 0 4px;">📡 情報収集元</p>
-    <p style="font-size:12px;color:#666;line-height:1.6;margin:0 0 6px;">情報収集元は、定期的な自動WEB巡回で情報を取得している公開サイトです。SNS、チラシ、個人・団体からのお知らせなど、自動巡回対象外の情報は「イベントを登録する」から個別に登録してください。</p>
+    <p style="font-size:12px;color:#666;line-height:1.6;margin:0 0 6px;">情報収集元は、定期的な自動WEB巡回で情報を取得している公開サイトです。SNS・チラシ・個人／団体からのお知らせなど、自動巡回対象外の情報は下記2つの方法で登録できます。</p>
     <!-- SOURCES_START -->
     <div style="font-size:11px;color:#666;line-height:2;">
       ✅ <a href="https://www.city.inzai.lg.jp/event2/0curr_1.html" target="_blank" style="color:#c0392b;">印西市公式（今月）</a>
@@ -92,8 +96,13 @@ details[open]>.month-summary::before{transform:rotate(90deg);}
     </div>
     <!-- SOURCES_END -->
   </div>
+  <p class="entry-methods">
+    <b>📝 フォーム登録</b>　タイトル・日時・場所などを入力して登録<br>
+    <b>📷 画像登録</b>　チラシやスクリーンショットを貼り付けるだけで自動登録
+  </p>
   <div class="entry-actions">
-    <a class="entry-btn" href="https://docs.google.com/forms/d/1MXr-GdG5Jbu9aQE0xTR3xjWFl5XFkQXdl7asJNChMDQ/viewform" target="_blank" rel="noreferrer noopener">イベントを登録する</a>
+    <a class="entry-btn" href="https://docs.google.com/forms/d/1MXr-GdG5Jbu9aQE0xTR3xjWFl5XFkQXdl7asJNChMDQ/viewform" target="_blank" rel="noreferrer noopener">📝 フォームで登録する</a>
+    <a class="entry-btn-img" href="https://script.google.com/macros/s/AKfycbycw2FBvcm34mS9R8SUNg28KscGqqGjR1zjz3hnLYq8ckgKCZObYaC9kbMs8R2SGXgC/exec?page=image-upload" target="_blank" rel="noreferrer noopener">📷 画像で登録する</a>
   </div>
   <div id="error-area"></div>
   <div class="view-tabs">
