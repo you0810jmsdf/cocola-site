@@ -1294,9 +1294,10 @@
       });
       grid.innerHTML = visible.map(renderProposal).join('');
       empty.hidden = visible.length > 0;
-      updated.textContent = state.data.generatedAt
-        ? '更新: ' + state.data.generatedAt + (state.cacheStale ? ' （最新データ取得中...）' : '')
-        : '';
+      var updatedParts = [];
+      if (state.data.generatedAt) updatedParts.push('更新: ' + state.data.generatedAt);
+      if (state.data.actionsUpdatedAt) updatedParts.push('データ取得: ' + state.data.actionsUpdatedAt);
+      updated.textContent = updatedParts.join('　') + (state.cacheStale ? ' （最新データ取得中...）' : '');
 
       proposalIndexList.innerHTML = visible.map(function(p) {
         return '<li class="proposal-index__item">' +
@@ -1618,8 +1619,15 @@
     renderProposals();
     bindFilters();
 
+    function msToJst(ms) {
+      if (!ms) return null;
+      var d = new Date(ms);
+      return d.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+    }
+
     function applyDaoData(data) {
       state.data = data || { stats: {}, proposals: [], eligibleWeight: 0 };
+      state.data.actionsUpdatedAt = msToJst(data && data._generatedMs);
       state.loaded = true;
       state.cacheStale = false;
       saveToLocalStorage();
