@@ -1012,9 +1012,8 @@
           <p>思いついたことは提案へ。応援したいものには投票へ。投票参加もDAOポイントの対象です。</p>
           <div class="actions">
             <a class="button" id="proposalForm" href="https://docs.google.com/forms/d/e/1FAIpQLSdxfz3OyN2FJ6x89viHAyKU57glOMPMuFGdXNjp2O6motziWQ/viewform" target="_blank" rel="noopener">提案する</a>
-            <a class="button secondary" id="voteForm" href="https://docs.google.com/forms/d/e/1FAIpQLSc9kOcabaSr8bjhE8pRDzIr1AWDEVodSc2lPWwkMAY029aAIw/viewform" target="_blank" rel="noopener">投票する</a>
           </div>
-          <p class="sync-note">送信後、投票率やDAOポイントの反映に30秒から数分かかることがあります。</p>
+          <p class="sync-note">投票は各提案カードの「投票する」ボタンから行えます。投票後、数値への反映に最大5分かかります（自動更新）。</p>
         </aside>
       </section>
 
@@ -1575,6 +1574,13 @@
             rememberVoted(id, nick);
             closeVoteModal();
             renderProposals();
+            if (res.ok && !res.alreadyVoted) {
+              var notice = document.createElement('div');
+              notice.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#2d7a2d;color:#fff;padding:.75rem 1.5rem;border-radius:8px;font-size:.95rem;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,.3)';
+              notice.textContent = '投票しました！投票数への反映には最大5分かかります。';
+              document.body.appendChild(notice);
+              setTimeout(function() { notice.remove(); }, 5000);
+            }
           } else {
             voteModalError.textContent = res.error || '投票に失敗しました。';
             btn.disabled = false;
