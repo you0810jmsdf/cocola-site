@@ -8,68 +8,153 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+
+    env:
+      GAS_TOPICS:  "https://script.google.com/macros/s/AKfycbycw2FBvcm34mS9R8SUNg28KscGqqGjR1zjz3hnLYq8ckgKCZObYaC9kbMs8R2SGXgC/exec"
+      GAS_DAO:     "https://script.google.com/macros/s/AKfycbxM2ybpJqfWLL-MPnOwZqeBdHjN6IQh5QB-_LubZAG-bD0x8jLkgbUn7NYRzYLFOPfj7g/exec"
+      GAS_MEMBERS: "https://script.google.com/macros/s/AKfycbyRVO7fLJx62HS6W3M2_bmPIP9y6stpiVJFM429NMKXzlV24_wGx97xms22QLb1VHsX/exec"
+      PAGES_BASE:  "https://you0810jmsdf.github.io/cocola-site"
 
     steps:
-      - name: Fetch health endpoint
+      # ── GAS エンドポイント疎通確認 ──────────────────────────────────────
+      - name: Fetch topics GAS (health mode)
         run: |
-          curl -sL \
-            "https://script.google.com/macros/s/AKfycbycw2FBvcm34mS9R8SUNg28KscGqqGjR1zjz3hnLYq8ckgKCZObYaC9kbMs8R2SGXgC/exec?mode=health" \
-            -o health.json \
-            --max-time 30 \
-            --retry 3 \
-            --retry-delay 5
+          curl -sL "$GAS_TOPICS?mode=health" \
+            -o topics_health.json --max-time 30 --retry 2 --retry-delay 5 || echo '{}' > topics_health.json
 
-      - name: Validate health response
+      - name: Fetch DAO GAS (json mode)
         run: |
-          python3 - <<'EOF'
-          import json, sys
+          curl -sL "$GAS_DAO?mode=json&t=$(date +%s)" \
+            -o dao_gas.json --max-time 30 --retry 2 --retry-delay 5 || echo '{}' > dao_gas.json
 
-          with open('health.json') as f:
-              text = f.read()
-
-          try:
-              data = json.loads(text)
-          except Exception as e:
-              print(f'❌ JSON parse error: {e}')
-              print(f'Response: {text[:300]}')
-              sys.exit(1)
-
-          checks = data.get('checks', {})
-          ok = data.get('ok', False)
-
-          print(f"総合ステータス: {'✅ 正常' if ok else '❌ 異常'}")
-          for name, result in checks.items():
-              status = '✅' if result.get('ok') else '❌'
-              detail = {k: v for k, v in result.items() if k != 'ok'}
-              print(f"  {status} {name}: {detail}")
-
-          if not ok:
-              failed = [k for k, v in checks.items() if not v.get('ok')]
-              print(f'\n❌ 異常項目: {failed}')
-              sys.exit(1)
-          EOF
-
-      - name: Fetch sources endpoint
+      - name: Fetch members GAS (json mode)
         run: |
-          curl -sL \
-            "https://script.google.com/macros/s/AKfycbycw2FBvcm34mS9R8SUNg28KscGqqGjR1zjz3hnLYq8ckgKCZObYaC9kbMs8R2SGXgC/exec?mode=sources" \
-            -o sources.json \
-            --max-time 30
+          curl -sL "$GAS_MEMBERS?mode=json&t=$(date +%s)" \
+            -o members_gas.json --max-time 30 --retry 2 --retry-delay 5 || echo '{}' > members_gas.json
 
-      - name: Validate sources response
+      # ── GitHub Pages data.json 鮮度確認 ─────────────────────────────────
+      - name: Fetch published data.json files
+        run: |
+          curl -sL "$PAGES_BASE/dao/data.json"     -o dao_pages.json     --max-time 15 || echo '{}' > dao_pages.json
+          curl -sL "$PAGES_BASE/members/data.json" -o members_pages.json --max-time 15 || echo '{}' > members_pages.json
+          curl -sL "$PAGES_BASE/events/data.json"  -o events_pages.json  --max-time 15 || echo '{}' > events_pages.json
+
+      # ── 集計・判定 ───────────────────────────────────────────────────────
+      - name: Aggregate and judge
+        id: aggregate
         run: |
           python3 - <<'EOF'
-          import json, sys
+          import json, time, os, sys
 
-          with open('sources.json') as f:
-              text = f.read()
+          now_ms   = int(time.time() * 1000)
+          FRESH_MS = 30 * 60 * 1000   # 30分
+          results  = {}
 
+          # ── topics GAS: health エンドポイントの ok フラグを見る ──────────
           try:
-              data = json.loads(text)
-              sources = data['sources']
-              assert len(sources) > 0
-              print(f'✅ sources: {len(sources)}件')
+              th = json.loads(open('topics_health.json').read())
+              if not th.get('ok', False):
+                  failed = [k for k, v in th.get('checks', {}).items() if not v.get('ok')]
+                  results['GAS[topics]'] = (False, f"異常項目: {failed}")
+              else:
+                  results['GAS[topics]'] = (True, 'OK')
           except Exception as e:
-              print(f'❌ sources チェック失敗: {e}\nResponse: {text[:300]}')
-              sys.exit(1)
+              results['GAS[topics]'] = (False, f"parse error: {e}")
+
+          # ── DAO GAS: proposals 配列が存在するか ──────────────────────────
+          try:
+              d = json.loads(open('dao_gas.json').read())
+              if not isinstance(d.get('proposals'), list):
+                  results['GAS[dao]'] = (False, 'proposals キーなし or 配列でない')
+              else:
+                  results['GAS[dao]'] = (True, f"{len(d['proposals'])}件")
+          except Exception as e:
+              results['GAS[dao]'] = (False, f"parse error: {e}")
+
+          # ── members GAS: rows 配列が存在するか ───────────────────────────
+          try:
+              d = json.loads(open('members_gas.json').read())
+              if not isinstance(d.get('rows'), list):
+                  results['GAS[members]'] = (False, 'rows キーなし or 配列でない')
+              else:
+                  results['GAS[members]'] = (True, f"{len(d['rows'])}名")
+          except Exception as e:
+              results['GAS[members]'] = (False, f"parse error: {e}")
+
+          # ── data.json 鮮度チェック ────────────────────────────────────────
+          for label, fname in [
+              ('data.json[dao]',     'dao_pages.json'),
+              ('data.json[members]', 'members_pages.json'),
+              ('data.json[events]',  'events_pages.json'),
+          ]:
+              try:
+                  d = json.loads(open(fname).read())
+                  ms = d.get('_generatedMs', 0)
+                  age = now_ms - ms
+                  age_min = age / 60000
+                  if age > FRESH_MS:
+                      results[label] = (False, f"{age_min:.0f}分前が最新（30分超過）")
+                  else:
+                      results[label] = (True, f"{age_min:.0f}分前に更新済み")
+              except Exception as e:
+                  results[label] = (False, f"取得失敗: {e}")
+
+          # ── 結果出力 ─────────────────────────────────────────────────────
+          all_ok = all(ok for ok, _ in results.values())
+          lines  = []
+          for name, (ok, msg) in results.items():
+              mark = '✅' if ok else '❌'
+              lines.append(f"{mark} **{name}**: {msg}")
+              print(f"{mark} {name}: {msg}")
+
+          jst = time.strftime('%Y-%m-%d %H:%M UTC', time.gmtime())
+          body = '\n'.join(lines) + f'\n\n_チェック日時: {jst}_'
+
+          open('health_body.txt', 'w').write(body)
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f"all_ok={'true' if all_ok else 'false'}\n")
+
+          if not all_ok:
+              failed = [n for n, (ok, _) in results.items() if not ok]
+              print(f"\n❌ 異常あり: {failed}")
+          else:
+              print('\n✅ 全項目正常')
           EOF
+
+      # ── 異常時: Issue 作成 or 既存 Issue にコメント追加 ──────────────────
+      - name: Report failure via GitHub Issue
+        if: steps.aggregate.outputs.all_ok == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LABEL="auto-monitor"
+          TITLE="[自動監視] COCoLa サイト異常検知"
+          BODY=$(cat health_body.txt)
+
+          gh label create "$LABEL" --color "d93f0b" --description "自動監視アラート" --force 2>/dev/null || true
+
+          EXISTING=$(gh issue list --label "$LABEL" --state open --json number --jq '.[0].number // ""')
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --body "$BODY"
+            echo "Issue #$EXISTING に追記しました"
+          else
+            gh issue create --title "$TITLE" --body "$BODY" --label "$LABEL"
+            echo "新規 Issue を作成しました"
+          fi
+
+      # ── 正常時: 未解決 Issue があれば自動クローズ ────────────────────────
+      - name: Auto-close resolved Issue
+        if: steps.aggregate.outputs.all_ok == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LABEL="auto-monitor"
+          EXISTING=$(gh issue list --label "$LABEL" --state open --json number --jq '.[0].number // ""')
+          if [ -n "$EXISTING" ]; then
+            gh issue close "$EXISTING" --comment "✅ 全項目正常に復旧しました（自動クローズ）"
+            echo "Issue #$EXISTING をクローズしました"
+          fi
