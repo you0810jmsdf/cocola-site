@@ -34,13 +34,13 @@ jobs:
           try:
               data = json.loads(text)
           except Exception as e:
-              print(f'JSON parse error: {e}')
+              print(f'JSON parse error (GAS may be down): {e}')
               print(f'Response: {text[:200]}')
-              sys.exit(1)
+              sys.exit(0)   # GAS側エラーはワークフロー失敗にしない
 
           if not isinstance(data, dict) or not isinstance(data.get('rows'), list):
               print('Invalid data structure (expected {rows: [...], recentWithdrawals: [...]})')
-              sys.exit(1)
+              sys.exit(0)   # 同上
 
           data['_generatedMs'] = int(time.time() * 1000)
 
