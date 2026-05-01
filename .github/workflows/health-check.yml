@@ -11,6 +11,7 @@ jobs:
     permissions:
       contents: read
       issues: write
+      actions: read
 
     env:
       GAS_TOPICS:  "https://script.google.com/macros/s/AKfycbycw2FBvcm34mS9R8SUNg28KscGqqGjR1zjz3hnLYq8ckgKCZObYaC9kbMs8R2SGXgC/exec"
@@ -42,16 +43,28 @@ jobs:
           curl -sL "$PAGES_BASE/members/data.json" -o members_pages.json --max-time 15 || echo '{}' > members_pages.json
           curl -sL "$PAGES_BASE/events/data.json"  -o events_pages.json  --max-time 15 || echo '{}' > events_pages.json
 
+      # ── GitHub Actions 実行履歴取得 ─────────────────────────────────────
+      - name: Fetch workflow run history
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh run list --workflow=update-dao-data.yml     --limit=10 --json createdAt,conclusion,status > runs_dao.json
+          gh run list --workflow=update-members-data.yml --limit=10 --json createdAt,conclusion,status > runs_members.json
+          gh run list --workflow=update-events-data.yml  --limit=10 --json createdAt,conclusion,status > runs_events.json
+
       # ── 集計・判定 ───────────────────────────────────────────────────────
       - name: Aggregate and judge
         id: aggregate
         run: |
           python3 - <<'EOF'
           import json, time, os, sys
+          from datetime import datetime, timezone
 
-          now_ms   = int(time.time() * 1000)
-          FRESH_MS = 30 * 60 * 1000   # 30分
-          results  = {}
+          now_ms      = int(time.time() * 1000)
+          now_dt      = datetime.now(timezone.utc)
+          FRESH_MS    = 30 * 60 * 1000   # 30分
+          RUNS_MAX_MIN = 30              # ワークフロー最終成功が30分超 → 異常
+          results     = {}
 
           # ── topics GAS: health エンドポイントの ok フラグを見る ──────────
           try:
@@ -83,6 +96,30 @@ jobs:
                   results['GAS[members]'] = (True, f"{len(d['rows'])}名")
           except Exception as e:
               results['GAS[members]'] = (False, f"parse error: {e}")
+
+          # ── GitHub Actions 実行履歴チェック ─────────────────────────────────
+          workflow_runs = [
+              ('Actions[update-dao]',     'runs_dao.json'),
+              ('Actions[update-members]', 'runs_members.json'),
+              ('Actions[update-events]',  'runs_events.json'),
+          ]
+          for label, fname in workflow_runs:
+              try:
+                  runs = json.loads(open(fname).read())
+                  success_runs = [r for r in runs if r.get('conclusion') == 'success']
+                  if not success_runs:
+                      results[label] = (False, '直近10件に成功実行なし（ワークフロー停止の可能性）')
+                  else:
+                      last_ok = success_runs[0]
+                      created = last_ok['createdAt']  # ISO 8601 例: "2026-05-01T10:00:00Z"
+                      last_dt = datetime.fromisoformat(created.replace('Z', '+00:00'))
+                      age_min = (now_dt - last_dt).total_seconds() / 60
+                      if age_min > RUNS_MAX_MIN:
+                          results[label] = (False, f"最終成功: {age_min:.0f}分前（{RUNS_MAX_MIN}分超過）")
+                      else:
+                          results[label] = (True, f"最終成功: {age_min:.0f}分前")
+              except Exception as e:
+                  results[label] = (False, f"実行履歴取得失敗: {e}")
 
           # ── data.json 鮮度チェック ────────────────────────────────────────
           for label, fname in [
