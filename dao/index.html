@@ -767,6 +767,51 @@
       background: #fdf1f0;
     }
 
+    /* 投票ボタン（カード内） */
+    .vote-btn {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 4px 14px;
+      border: 1px solid var(--green);
+      border-radius: 6px;
+      background: var(--green);
+      color: #fff;
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 120ms, border-color 120ms;
+    }
+    .vote-btn:hover {
+      background: var(--green-deep);
+      border-color: var(--green-deep);
+    }
+    .vote-btn.is-voted {
+      background: #e7f5f0;
+      border-color: var(--green);
+      color: var(--green-deep);
+      cursor: default;
+    }
+    .vote-btn:disabled { cursor: default; }
+    /* 投票ニックネームモーダル */
+    .modal-label {
+      display: grid;
+      gap: 6px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .modal-select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ccd6d2;
+      border-radius: 8px;
+      font: inherit;
+      font-size: 0.95rem;
+      background: #fff;
+    }
+
     .card-foot {
       display: flex;
       justify-content: flex-end;
@@ -1070,6 +1115,25 @@
   </div>
 </div>
 
+<!-- 投票モーダル -->
+<div class="modal-overlay" id="voteModal" hidden aria-modal="true" role="dialog">
+  <div class="modal-box">
+    <h3>投票する</h3>
+    <p>提案: <strong id="voteModalTitle"></strong></p>
+    <label class="modal-label">
+      ニックネームを選択
+      <select class="modal-select" id="voteNicknameSelect">
+        <option value="">-- 選択してください --</option>
+      </select>
+    </label>
+    <p class="modal-error" id="voteModalError"></p>
+    <div class="modal-actions">
+      <button class="button secondary" type="button" id="voteModalCancel">キャンセル</button>
+      <button class="button" type="button" id="voteModalConfirm">投票フォームを開く</button>
+    </div>
+  </div>
+</div>
+
 <script>
     var GAS_URL = 'https://script.google.com/macros/s/AKfycbxvwqR4vgPEb0tZYEx37eFfq9T4f7IjxvJoyAzkSXqj9KIAOf9znqHwc6W7ECJo4miV/exec';
     var STATIC_JSON_URL = 'https://you0810jmsdf.github.io/cocola-site/dao/data.json';
@@ -1158,14 +1222,15 @@
       var eligible = proposal.eligibleWeight || state.data.eligibleWeight || 0;
       var liked = hasCivicLiked(proposal.id);
       var voted = hasVoted(proposal.id);
+      var votedNickname = getVotedNickname(proposal.id);
       var likeCount = Number(proposal.citizenLikeCount) || 0;
-      var voteUrl = escapeHtml(state.data.voteFormUrl || 'https://docs.google.com/forms/d/e/1FAIpQLSc9kOcabaSr8bjhE8pRDzIr1AWDEVodSc2lPWwkMAY029aAIw/viewform');
+      var isVoting = proposal.statusKey === 'voting';
       return '<article class="proposal-card" id="proposal-' + escapeHtml(proposal.id) + '" data-status="' + escapeHtml(proposal.statusKey) + '">' +
         '<div class="card-head">' +
           '<div class="identity">' +
             '<span class="proposal-id">' + escapeHtml(proposal.id) + '</span>' +
-            '<h3 class="proposal-title"><a class="title-vote-link" href="' + voteUrl + '" data-vote-id="' + escapeHtml(proposal.id) + '" target="_blank" rel="noopener">' + escapeHtml(proposal.title) + '</a></h3>' +
-            (voted ? '<span class="voted-badge">✓ 投票済み <button class="voted-badge__clear" type="button" data-clear-vote-id="' + escapeHtml(proposal.id) + '">取消</button></span>' : '') +
+            '<h3 class="proposal-title"><span class="proposal-title-text">' + escapeHtml(proposal.title) + '</span></h3>' +
+            (voted ? '<span class="voted-badge">✓ ' + escapeHtml(votedNickname || '') + 'さん 投票済み</span>' : '') +
           '</div>' +
           '<span class="status ' + statusClass(proposal.statusKey) + '">' + escapeHtml(proposal.status) + '</span>' +
         '</div>' +
@@ -1180,6 +1245,7 @@
         '</div>' +
         '<div class="card-foot">' +
           '<button class="cancel-btn" type="button" data-cancel-id="' + escapeHtml(proposal.id) + '" data-cancel-title="' + escapeHtml(proposal.title) + '">取消</button>' +
+          (isVoting ? '<button class="vote-btn' + (voted ? ' is-voted' : '') + '" type="button" data-vote-id="' + escapeHtml(proposal.id) + '" data-vote-title="' + escapeHtml(proposal.title) + '"' + (voted ? ' disabled' : '') + '>' + (voted ? '✓ ' + escapeHtml(votedNickname || '') + 'さん 投票済み' : '投票する') + '</button>' : '') +
         '</div>' +
         '<div class="civic-like" aria-label="市民いいね">' +
           '<div class="civic-like__text">' +
@@ -1306,18 +1372,15 @@
       return Boolean(getVotedIds()[id]);
     }
 
-    function rememberVoted(id) {
-      try {
-        var voted = getVotedIds();
-        voted[id] = true;
-        localStorage.setItem(VOTED_IDS_KEY, JSON.stringify(voted));
-      } catch (e) {}
+    function getVotedNickname(id) {
+      var val = getVotedIds()[id];
+      return (typeof val === 'string') ? val : '';
     }
 
-    function forgetVoted(id) {
+    function rememberVoted(id, nickname) {
       try {
         var voted = getVotedIds();
-        delete voted[id];
+        voted[id] = nickname || true;
         localStorage.setItem(VOTED_IDS_KEY, JSON.stringify(voted));
       } catch (e) {}
     }
@@ -1426,6 +1489,73 @@
         });
     });
 
+    // ---- 投票モーダル ----
+    var voteModal = document.getElementById('voteModal');
+    var voteModalTitle = document.getElementById('voteModalTitle');
+    var voteNicknameSelect = document.getElementById('voteNicknameSelect');
+    var voteModalError = document.getElementById('voteModalError');
+    var voteModalCancel = document.getElementById('voteModalCancel');
+    var voteModalConfirm = document.getElementById('voteModalConfirm');
+    var pendingVoteId = null;
+    var pendingVoteTitle = null;
+    var MEMBERS_JSON_URL = 'https://you0810jmsdf.github.io/cocola-site/members/data.json';
+
+    function loadMemberNicknames() {
+      fetch(MEMBERS_JSON_URL)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var rows = (data && data.rows) ? data.rows : [];
+          var existing = Array.from(voteNicknameSelect.options).map(function(o) { return o.value; });
+          rows.forEach(function(row) {
+            var nick = row[3] || '';
+            if (nick && existing.indexOf(nick) === -1) {
+              var opt = document.createElement('option');
+              opt.value = nick;
+              opt.textContent = nick;
+              voteNicknameSelect.appendChild(opt);
+              existing.push(nick);
+            }
+          });
+        })
+        .catch(function() {});
+    }
+
+    function openVoteModal(id, title) {
+      pendingVoteId = id;
+      pendingVoteTitle = title;
+      voteModalTitle.textContent = title;
+      voteNicknameSelect.value = '';
+      voteModalError.textContent = '';
+      voteModal.hidden = false;
+    }
+
+    function closeVoteModal() {
+      voteModal.hidden = true;
+      pendingVoteId = null;
+      pendingVoteTitle = null;
+    }
+
+    voteModalCancel.addEventListener('click', closeVoteModal);
+
+    voteModal.addEventListener('click', function(e) {
+      if (e.target === voteModal) closeVoteModal();
+    });
+
+    voteModalConfirm.addEventListener('click', function() {
+      var nick = voteNicknameSelect.value;
+      if (!nick) { voteModalError.textContent = 'ニックネームを選択してください。'; return; }
+      var id = pendingVoteId;
+      var title = pendingVoteTitle;
+      var baseUrl = state.data.voteFormUrl || 'https://docs.google.com/forms/d/e/1FAIpQLSc9kOcabaSr8bjhE8pRDzIr1AWDEVodSc2lPWwkMAY029aAIw/viewform';
+      var url = baseUrl + '?entry.1937795225=' + encodeURIComponent(id + ': ' + title) + '&entry.1318807043=' + encodeURIComponent(nick);
+      rememberVoted(id, nick);
+      closeVoteModal();
+      renderProposals();
+      window.open(url, '_blank', 'noopener');
+    });
+
+    loadMemberNicknames();
+
     // グリッドへのイベントデリゲーション（動的カードに対応）
     grid.addEventListener('click', function(e) {
       var likeBtn = e.target.closest('[data-like-id]');
@@ -1434,17 +1564,9 @@
         return;
       }
 
-      var voteLink = e.target.closest('[data-vote-id]');
-      if (voteLink) {
-        rememberVoted(voteLink.dataset.voteId);
-        renderProposals();
-        return; // リンクはデフォルト動作（新タブ）のまま
-      }
-
-      var clearBtn = e.target.closest('[data-clear-vote-id]');
-      if (clearBtn) {
-        forgetVoted(clearBtn.dataset.clearVoteId);
-        renderProposals();
+      var voteBtn = e.target.closest('.vote-btn:not(:disabled)');
+      if (voteBtn) {
+        openVoteModal(voteBtn.dataset.voteId, voteBtn.dataset.voteTitle);
         return;
       }
 
