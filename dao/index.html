@@ -867,6 +867,10 @@
       grid-template-columns: 1fr 1fr;
       gap: 10px;
     }
+    .vote-choice-btns { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+    .vote-choice-btn { padding: 10px 16px; border: 2px solid #6c63ff; border-radius: 8px; background: #fff; color: #6c63ff; font-size: 0.95rem; cursor: pointer; text-align: left; transition: background 0.15s, color 0.15s; }
+    .vote-choice-btn:hover:not(:disabled) { background: #6c63ff; color: #fff; }
+    .vote-choice-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .modal-error {
       color: var(--coral);
       font-size: 0.9rem;
@@ -1126,16 +1130,24 @@
         <option value="">-- 選択してください --</option>
       </select>
     </label>
+    <div class="vote-choices" id="voteChoices">
+      <p class="modal-label">投票内容</p>
+      <div class="vote-choice-btns">
+        <button type="button" class="vote-choice-btn" data-vote="協力できる">協力できる</button>
+        <button type="button" class="vote-choice-btn" data-vote="協力は難しい">協力は難しい</button>
+        <button type="button" class="vote-choice-btn" data-vote="検討中">検討中</button>
+        <button type="button" class="vote-choice-btn" data-vote="わからない／もう少し聞きたい">わからない／もう少し聞きたい</button>
+      </div>
+    </div>
     <p class="modal-error" id="voteModalError"></p>
     <div class="modal-actions">
       <button class="button secondary" type="button" id="voteModalCancel">キャンセル</button>
-      <button class="button" type="button" id="voteModalConfirm">投票フォームを開く</button>
     </div>
   </div>
 </div>
 
 <script>
-    var GAS_URL = 'https://script.google.com/macros/s/AKfycbxvwqR4vgPEb0tZYEx37eFfq9T4f7IjxvJoyAzkSXqj9KIAOf9znqHwc6W7ECJo4miV/exec';
+    var GAS_URL = 'https://script.google.com/macros/s/AKfycbxM2ybpJqfWLL-MPnOwZqeBdHjN6IQh5QB-_LubZAG-bD0x8jLkgbUn7NYRzYLFOPfj7g/exec';
     var STATIC_JSON_URL = 'https://you0810jmsdf.github.io/cocola-site/dao/data.json';
 
     var CACHE_TTL_MS = 5 * 60 * 1000;
@@ -1495,7 +1507,6 @@
     var voteNicknameSelect = document.getElementById('voteNicknameSelect');
     var voteModalError = document.getElementById('voteModalError');
     var voteModalCancel = document.getElementById('voteModalCancel');
-    var voteModalConfirm = document.getElementById('voteModalConfirm');
     var pendingVoteId = null;
     var pendingVoteTitle = null;
     var MEMBERS_JSON_URL = 'https://you0810jmsdf.github.io/cocola-site/members/data.json';
@@ -1541,17 +1552,37 @@
       if (e.target === voteModal) closeVoteModal();
     });
 
-    voteModalConfirm.addEventListener('click', function() {
+    document.getElementById('voteChoices').addEventListener('click', function(e) {
+      var btn = e.target.closest('.vote-choice-btn');
+      if (!btn) return;
       var nick = voteNicknameSelect.value;
       if (!nick) { voteModalError.textContent = 'ニックネームを選択してください。'; return; }
+      var vote = btn.dataset.vote;
       var id = pendingVoteId;
       var title = pendingVoteTitle;
-      var baseUrl = state.data.voteFormUrl || 'https://docs.google.com/forms/d/e/1FAIpQLSc9kOcabaSr8bjhE8pRDzIr1AWDEVodSc2lPWwkMAY029aAIw/viewform';
-      var url = baseUrl + '?entry.1937795225=' + encodeURIComponent(id + ': ' + title) + '&entry.1318807043=' + encodeURIComponent(nick);
-      rememberVoted(id, nick);
-      closeVoteModal();
-      renderProposals();
-      window.open(url, '_blank', 'noopener');
+      voteModalError.textContent = '';
+      btn.disabled = true;
+      var url = GAS_URL + '?mode=vote'
+        + '&id=' + encodeURIComponent(id)
+        + '&title=' + encodeURIComponent(title)
+        + '&voter=' + encodeURIComponent(nick)
+        + '&vote=' + encodeURIComponent(vote);
+      fetch(url)
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+          if (res.ok || res.alreadyVoted) {
+            rememberVoted(id, nick);
+            closeVoteModal();
+            renderProposals();
+          } else {
+            voteModalError.textContent = res.error || '投票に失敗しました。';
+            btn.disabled = false;
+          }
+        })
+        .catch(function() {
+          voteModalError.textContent = '通信エラーが発生しました。';
+          btn.disabled = false;
+        });
     });
 
     loadMemberNicknames();
