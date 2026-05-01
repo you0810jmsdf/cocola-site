@@ -1537,6 +1537,7 @@
       voteModalTitle.textContent = title;
       voteNicknameSelect.value = '';
       voteModalError.textContent = '';
+      document.querySelectorAll('.vote-choice-btn').forEach(function(b) { b.disabled = false; });
       voteModal.hidden = false;
     }
 
