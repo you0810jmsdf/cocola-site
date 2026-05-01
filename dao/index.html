@@ -1294,10 +1294,7 @@
       });
       grid.innerHTML = visible.map(renderProposal).join('');
       empty.hidden = visible.length > 0;
-      var updatedParts = [];
-      if (state.data.generatedAt) updatedParts.push('更新: ' + state.data.generatedAt);
-      if (state.data.actionsUpdatedAt) updatedParts.push('データ取得: ' + state.data.actionsUpdatedAt);
-      updated.textContent = updatedParts.join('　') + (state.cacheStale ? ' （最新データ取得中...）' : '');
+      renderUpdated();
 
       proposalIndexList.innerHTML = visible.map(function(p) {
         return '<li class="proposal-index__item">' +
@@ -1619,15 +1616,8 @@
     renderProposals();
     bindFilters();
 
-    function msToJst(ms) {
-      if (!ms) return null;
-      var d = new Date(ms);
-      return d.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-    }
-
     function applyDaoData(data) {
       state.data = data || { stats: {}, proposals: [], eligibleWeight: 0 };
-      state.data.actionsUpdatedAt = msToJst(data && data._generatedMs);
       state.loaded = true;
       state.cacheStale = false;
       saveToLocalStorage();
@@ -1729,8 +1719,38 @@
       });
     }
 
+    var actionsLastRun = null;
+
+    function fetchActionsStatus() {
+      var apiUrl = 'https://api.github.com/repos/you0810jmsdf/cocola-site/actions/workflows/update-dao-data.yml/runs?per_page=10';
+      fetch(apiUrl, { headers: { 'Accept': 'application/vnd.github+json' } })
+        .then(function(r) { return r.ok ? r.json() : null; })
+        .then(function(json) {
+          if (!json || !Array.isArray(json.workflow_runs)) return;
+          var last = json.workflow_runs.find(function(r) { return r.conclusion === 'success'; });
+          if (!last) return;
+          var dt = new Date(last.run_started_at);
+          var ageMin = Math.round((Date.now() - dt.getTime()) / 60000);
+          var label = ageMin < 60
+            ? ageMin + '分前'
+            : Math.floor(ageMin / 60) + '時間' + (ageMin % 60 ? (ageMin % 60) + '分' : '') + '前';
+          actionsLastRun = 'Actions最終実行: ' + label + (ageMin > 30 ? ' ⚠️' : '');
+          renderUpdated();
+        })
+        .catch(function() {});
+    }
+
+    function renderUpdated() {
+      var parts = [];
+      if (state.data && state.data.generatedAt) parts.push('更新: ' + state.data.generatedAt);
+      if (actionsLastRun) parts.push(actionsLastRun);
+      updated.textContent = parts.join('　') + (state.cacheStale ? ' （最新データ取得中...）' : '');
+    }
+
     loadDaoData();
-    window.addEventListener('focus', function() { _retryCount = 0; loadDaoData(); });
+    fetchActionsStatus();
+    setInterval(fetchActionsStatus, 5 * 60 * 1000);
+    window.addEventListener('focus', function() { _retryCount = 0; loadDaoData(); fetchActionsStatus(); });
     setInterval(function() { if (!state.loaded) fetchFromGas(); }, 10000);
   </script>
   <script src="../assets/site-config.js?v=20260424"></script>
