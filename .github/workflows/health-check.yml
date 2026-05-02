@@ -2,7 +2,7 @@ name: Health check
 
 on:
   schedule:
-    - cron: '0 1 * * *'    # 毎日 JST 10:00
+    - cron: '0 * * * *'    # 毎時 0 分
   workflow_dispatch:
 
 jobs:
@@ -42,6 +42,28 @@ jobs:
           curl -sL "$PAGES_BASE/dao/data.json"     -o dao_pages.json     --max-time 15 || echo '{}' > dao_pages.json
           curl -sL "$PAGES_BASE/members/data.json" -o members_pages.json --max-time 15 || echo '{}' > members_pages.json
           curl -sL "$PAGES_BASE/events/data.json"  -o events_pages.json  --max-time 15 || echo '{}' > events_pages.json
+
+      # ── HTML ページ到達性確認 ───────────────────────────────────────────
+      - name: Check HTML pages reachability
+        run: |
+          : > pages_status.txt
+          for path in \
+            "/" \
+            "/categories/mono/" \
+            "/categories/machi/" \
+            "/categories/tsunagari/" \
+            "/categories/shoku/" \
+            "/categories/jibun/" \
+            "/categories/tomoni/" \
+            "/apps/" \
+            "/events/" \
+            "/dao/" \
+            "/changelog/" \
+          ; do
+            CODE=$(curl -sL -o /dev/null -w "%{http_code}" --max-time 15 "${PAGES_BASE}${path}" || echo "000")
+            echo "${path} ${CODE}" >> pages_status.txt
+          done
+          cat pages_status.txt
 
       # ── GitHub Actions 実行履歴取得 ─────────────────────────────────────
       - name: Fetch workflow run history
@@ -138,6 +160,22 @@ jobs:
                       results[label] = (True, f"{age_min:.0f}分前に更新済み")
               except Exception as e:
                   results[label] = (False, f"取得失敗: {e}")
+
+          # ── HTML ページ到達性チェック ───────────────────────────────────
+          try:
+              with open('pages_status.txt') as f:
+                  for line in f:
+                      parts = line.strip().split()
+                      if len(parts) != 2:
+                          continue
+                      path, code = parts
+                      label = f"Pages[{path}]"
+                      if code == '200':
+                          results[label] = (True, 'HTTP 200')
+                      else:
+                          results[label] = (False, f"HTTP {code}")
+          except Exception as e:
+              results['Pages[all]'] = (False, f"check failed: {e}")
 
           # ── 結果出力 ─────────────────────────────────────────────────────
           all_ok = all(ok for ok, _ in results.values())
