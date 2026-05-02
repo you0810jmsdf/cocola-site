@@ -114,12 +114,28 @@
         <div id="adminContent"><div class="admin-loading">読み込み中...</div></div>
         <hr style="margin:20px 0;border:none;border-top:1px solid #eee">
         <h2 style="margin-bottom:12px">データ手動更新</h2>
-        <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;flex-direction:column;gap:8px">
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-            <button class="admin-trigger-btn" id="triggerMembersBtn" onclick="triggerMembersUpdate()">メンバーデータを今すぐ更新</button>
-            <span id="triggerMembersStatus" style="font-size:.85rem;color:#666"></span>
+            <button class="admin-trigger-btn" onclick="triggerWorkflow('update-members-data.yml','s0')">メンバーデータ</button>
+            <span id="s0" style="font-size:.85rem;color:#666"></span>
           </div>
-          <p style="font-size:.75rem;color:#999;margin:0">※ GAS → members/data.json を即時反映します。通常は5分ごと自動更新。<br>PAT有効期限: 2026-05-19</p>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <button class="admin-trigger-btn" onclick="triggerWorkflow('update-events-data.yml','s1')">イベントデータ</button>
+            <span id="s1" style="font-size:.85rem;color:#666"></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <button class="admin-trigger-btn" onclick="triggerWorkflow('update-dao-data.yml','s2')">DAOデータ</button>
+            <span id="s2" style="font-size:.85rem;color:#666"></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <button class="admin-trigger-btn" onclick="triggerWorkflow('sync-event-sources.yml','s3')">イベントソース同期</button>
+            <span id="s3" style="font-size:.85rem;color:#666"></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <button class="admin-trigger-btn" onclick="triggerWorkflow('health-check.yml','s4')">ヘルスチェック</button>
+            <span id="s4" style="font-size:.85rem;color:#666"></span>
+          </div>
+          <p style="font-size:.75rem;color:#999;margin:4px 0 0">※ 通常は5分ごと自動更新。PAT有効期限: 2026-05-19</p>
         </div>
         <button class="admin-close-btn" onclick="closeAdminPanel()">閉じる</button>
       </div>
@@ -433,19 +449,19 @@
     }
     function closeAdminPanel() { document.getElementById('adminOverlay').style.display = 'none'; }
 
-    function triggerMembersUpdate() {
-      const btn = document.getElementById('triggerMembersBtn');
-      const status = document.getElementById('triggerMembersStatus');
+    function triggerWorkflow(workflow, statusId) {
+      const status = document.getElementById(statusId);
+      const btn = status.previousElementSibling;
       btn.disabled = true;
       status.style.color = '#666';
       status.textContent = '送信中…';
-      const url = 'https://script.google.com/macros/s/AKfycbycw2FBvcm34mS9R8SUNg28KscGqqGjR1zjz3hnLYq8ckgKCZObYaC9kbMs8R2SGXgC/exec?mode=triggerMembersUpdate';
+      const url = 'https://script.google.com/macros/s/AKfycbycw2FBvcm34mS9R8SUNg28KscGqqGjR1zjz3hnLYq8ckgKCZObYaC9kbMs8R2SGXgC/exec?mode=triggerWorkflow&workflow=' + encodeURIComponent(workflow);
       fetch(url)
         .then(r => r.json())
         .then(d => {
           if (d.ok) {
             status.style.color = '#1d9e75';
-            status.textContent = '✓ ワークフロー起動しました（約1分後に反映）';
+            status.textContent = '✓ 起動しました（約1分後に反映）';
           } else {
             status.style.color = '#e53e3e';
             status.textContent = 'エラー: ' + (d.error || '不明');
