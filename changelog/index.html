@@ -117,6 +117,17 @@
         <ul class="changelog-list">
 
           <li class="cl-entry">
+            <p class="cl-date">2026-05-03</p>
+            <h2 class="cl-title">管理者ページ：ワークフロー手動起動ボタンを修復</h2>
+            <p class="cl-desc">
+              管理者ページの「メンバーデータ」「イベントデータ」「DAOデータ」「イベントソース同期」「ヘルスチェック」ボタンが「通信エラー: Failed to fetch」になっていた不具合を修正しました。原因はGASのdoGetにtriggerWorkflowモードが未実装だったことによるCORSエラー。ハンドラを追加してデプロイし直しました。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
             <p class="cl-date">2026-05-02</p>
             <h2 class="cl-title">画像アップロードページに「イベント一覧に戻る」リンクを追加</h2>
             <p class="cl-desc">
