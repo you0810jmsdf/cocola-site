@@ -28,6 +28,12 @@ details[open]>.month-summary::before{transform:rotate(90deg);}
 .ev-meta{margin:0 0 3px;font-size:13px;color:#555;}
 .ev-desc{margin:0 0 3px;font-size:13px;color:#666;line-height:1.5;}
 .ev-source{margin:0;font-size:11px;color:#bbb;}
+.ev-source-badge{display:inline-block;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:bold;margin-right:4px;vertical-align:middle;}
+.ev-source-badge.citizen{background:#fff3e0;color:#e65100;}
+.ev-source-badge.cocola{background:#e8eaf6;color:#3949ab;}
+.admin-scan-btn{display:inline-flex;align-items:center;justify-content:center;padding:8px 18px;background:#fff;color:#777;border:2px solid #bbb;border-radius:4px;font-size:13px;font-weight:bold;cursor:pointer;line-height:1.4;}
+.admin-scan-btn:hover:not(:disabled){background:#f5f5f5;border-color:#888;}
+.admin-scan-btn:disabled{color:#aaa;border-color:#ddd;cursor:not-allowed;}
 .empty{color:#999;text-align:center;padding:20px;}
 .entry-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start;margin:8px 0 12px;}
 .entry-btn{display:inline-flex;align-items:center;justify-content:center;padding:8px 18px;background:#c0392b;color:#fff;border-radius:4px;text-decoration:none;font-size:13px;font-weight:bold;line-height:1.4;}
@@ -108,6 +114,7 @@ details[open]>.month-summary::before{transform:rotate(90deg);}
     <a class="entry-btn" href="https://docs.google.com/forms/d/1MXr-GdG5Jbu9aQE0xTR3xjWFl5XFkQXdl7asJNChMDQ/viewform" target="_blank" rel="noreferrer noopener">📝 フォームで登録する</a>
     <a class="entry-btn-img" href="https://script.google.com/macros/s/AKfycbycw2FBvcm34mS9R8SUNg28KscGqqGjR1zjz3hnLYq8ckgKCZObYaC9kbMs8R2SGXgC/exec?page=image-upload" target="_blank" rel="noreferrer noopener">📷 画像で登録する</a>
     <button class="refresh-btn" id="refreshBtn" onclick="forceRefresh()">🔄 今すぐ反映</button>
+    <button class="admin-scan-btn" id="adminScanBtn" onclick="adminScan()">🔧 管理者スキャン</button>
   </div>
   <div id="refresh-status" style="font-size:12px;color:#555;margin-bottom:4px;min-height:1.4em;"></div>
   <div id="error-area"></div>
@@ -215,7 +222,12 @@ function _card(ev) {
   var s = '<div class="ev-item' + (ev.past ? ' past' : '') + '"><p class="ev-date">' + _esc(ev.d) + '</p><p class="ev-title">' + url + '</p>';
   if (ev.l) s += '<p class="ev-meta">📍 ' + _esc(ev.l) + '</p>';
   if (ev.desc) s += '<p class="ev-desc">' + _esc(ev.desc) + '</p>';
-  if (ev.s) s += '<p class="ev-source">情報元: ' + _esc(ev.s) + '</p>';
+  if (ev.s) {
+    var sBadge = '';
+    if (ev.s.indexOf('市民投稿') !== -1) sBadge = '<span class="ev-source-badge citizen">市民投稿</span>';
+    else if (ev.s.indexOf('COCoLa') !== -1) sBadge = '<span class="ev-source-badge cocola">COCoLa</span>';
+    s += '<p class="ev-source">' + sBadge + '情報元: ' + _esc(ev.s) + '</p>';
+  }
   return s + '</div>';
 }
 function _renderList(el) {
@@ -311,6 +323,32 @@ async function forceRefresh() {
       st.textContent = '最新データを取得中…';
       loadEvents({ skipStatic: true }).then(function() {
         st.textContent = '✅ 反映しました';
+        btn.disabled = false;
+        setTimeout(function() { st.textContent = ''; }, 5000);
+      });
+    }
+  }, 1000);
+}
+
+async function adminScan() {
+  var pw = prompt('管理者パスワードを入力してください');
+  if (pw !== 'cocola2026') { if (pw !== null) alert('パスワードが違います'); return; }
+  var btn = document.getElementById('adminScanBtn');
+  var st = document.getElementById('refresh-status');
+  btn.disabled = true;
+  st.textContent = '管理者スキャン実行中…';
+  try {
+    fetch(GAS_URL + '?mode=scan', { mode: 'no-cors', credentials: 'omit' }).catch(function(){});
+  } catch(_) {}
+  var sec = 15;
+  var iv = setInterval(function() {
+    sec--;
+    st.textContent = 'スキャン完了まで ' + sec + ' 秒…';
+    if (sec <= 0) {
+      clearInterval(iv);
+      st.textContent = '最新データを取得中…';
+      loadEvents({ skipStatic: true }).then(function() {
+        st.textContent = '✅ スキャン完了・反映しました';
         btn.disabled = false;
         setTimeout(function() { st.textContent = ''; }, 5000);
       });
