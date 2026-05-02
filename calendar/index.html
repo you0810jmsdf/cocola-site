@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>イベントカレンダー | COCoLa</title>
+<style>
+  :root {
+    --green: #1d9e75;
+    --green-dark: #0f6e56;
+    --orange: #ef7f4d;
+    --bg: #f7faf8;
+    --bg-soft: #eef8f3;
+    --surface: #ffffff;
+    --border: rgba(29, 158, 117, 0.18);
+    --text: #183128;
+    --muted: #607068;
+    --shadow: 0 18px 42px rgba(29, 158, 117, 0.10);
+    --radius-md: 18px;
+    --radius-lg: 24px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+    line-height: 1.6;
+    padding: 16px;
+  }
+  a { color: var(--green-dark); }
+  .wrap { max-width: 720px; margin: 0 auto; }
+
+  .page-header { padding: 4px 0 16px; border-bottom: 2px solid var(--green); margin-bottom: 16px; }
+  .page-header .kicker { margin: 0 0 4px; font-size: 11px; color: var(--muted); font-weight: 700; letter-spacing: .08em; }
+  .page-header h1 { margin: 0; font-size: 22px; color: var(--green-dark); }
+  .page-header .lead { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
+
+  .toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--surface); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow); padding: 10px 14px; margin-bottom: 12px;
+  }
+  .toolbar button {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--green-dark); border-radius: 999px;
+    padding: 6px 14px; font: inherit; font-size: 14px; cursor: pointer;
+  }
+  .toolbar button:hover { background: var(--bg-soft); }
+  .toolbar .month { font-weight: 800; font-size: 17px; color: var(--green-dark); }
+  .toolbar .today-btn {
+    background: var(--green); color: #fff; border-color: var(--green);
+    margin-left: 8px;
+  }
+  .toolbar .today-btn:hover { background: var(--green-dark); }
+
+  .add-bar {
+    display: flex; justify-content: flex-end; margin-bottom: 12px;
+  }
+  .add-bar a {
+    background: var(--orange); color: #fff; text-decoration: none;
+    border-radius: 999px; padding: 8px 16px; font-weight: 700; font-size: 13px;
+  }
+  .add-bar a:hover { filter: brightness(0.95); }
+
+  .grid {
+    background: var(--surface); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow); padding: 12px; margin-bottom: 12px;
+  }
+  .weekdays, .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .weekdays { margin-bottom: 6px; }
+  .weekdays div {
+    text-align: center; font-size: 11px; font-weight: 700; color: var(--muted);
+    padding: 4px 0;
+  }
+  .weekdays div.sun { color: #c0392b; }
+  .weekdays div.sat { color: #1f5fa3; }
+
+  .day {
+    aspect-ratio: 1 / 1.05;
+    border: 1px solid transparent; border-radius: 12px;
+    padding: 4px; cursor: pointer; position: relative;
+    background: transparent;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    transition: background .12s ease, border-color .12s ease;
+  }
+  .day:hover { background: var(--bg-soft); }
+  .day.other-month { opacity: .35; cursor: default; }
+  .day.other-month:hover { background: transparent; }
+  .day .num { font-size: 13px; font-weight: 700; }
+  .day.sun .num { color: #c0392b; }
+  .day.sat .num { color: #1f5fa3; }
+  .day.today { background: var(--bg-soft); border-color: var(--green); }
+  .day.today .num { color: var(--green-dark); }
+  .day.selected { background: var(--green); border-color: var(--green); }
+  .day.selected .num,
+  .day.selected.sun .num,
+  .day.selected.sat .num { color: #fff; }
+  .day .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--orange);
+  }
+  .day.selected .dot { background: #fff; }
+  .day .more { font-size: 10px; color: var(--muted); }
+  .day.selected .more { color: rgba(255,255,255,.85); }
+
+  .panel {
+    background: var(--surface); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow); padding: 16px 18px;
+  }
+  .panel h2 { margin: 0 0 12px; font-size: 15px; color: var(--green-dark); }
+  .ev {
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .ev:last-child { border-bottom: none; }
+  .ev.past { opacity: .55; }
+  .ev .t { margin: 0 0 2px; font-weight: 700; font-size: 14px; }
+  .ev .t a { color: var(--green-dark); text-decoration: none; }
+  .ev .t a:hover { text-decoration: underline; }
+  .ev .meta { margin: 0; font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 8px; }
+  .ev .desc { margin: 4px 0 0; font-size: 12px; color: var(--text); white-space: pre-wrap; }
+
+  .empty, .loading, .error {
+    padding: 24px; text-align: center; color: var(--muted); font-size: 13px;
+  }
+  .error { color: var(--orange); }
+
+  .footnote { text-align: center; margin: 16px 0 4px; font-size: 12px; color: var(--muted); }
+
+  @media (min-width: 720px) {
+    .day { aspect-ratio: 1 / 0.85; }
+    .day .num { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="page-header">
+    <p class="kicker">COCoLa / EVENT CALENDAR</p>
+    <h1>イベントカレンダー</h1>
+    <p class="lead">COCoLa の予定を月ごとに表示します。日付をタップすると詳細が見られます。</p>
+  </header>
+
+  <div class="add-bar">
+    <a id="addLink" href="#" target="_blank" rel="noopener noreferrer" style="display:none;">＋ 予定を登録</a>
+  </div>
+
+  <div class="toolbar">
+    <button id="prev" aria-label="前の月">← 前月</button>
+    <div>
+      <span class="month" id="monthLabel">--</span>
+      <button class="today-btn" id="todayBtn">今日</button>
+    </div>
+    <button id="next" aria-label="次の月">翌月 →</button>
+  </div>
+
+  <div class="grid" id="grid">
+    <div class="weekdays">
+      <div class="sun">日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div class="sat">土</div>
+    </div>
+    <div class="days" id="days"></div>
+  </div>
+
+  <div class="panel" id="panel">
+    <h2 id="panelTitle">読み込み中...</h2>
+    <div id="panelBody" class="loading">schedule/data.json を取得しています…</div>
+  </div>
+
+  <p class="footnote">
+    千葉ニュータウンの催しは <a href="../events/">イベント一覧ページ</a> へ
+  </p>
+</div>
+
+<script>
+  var WEEK = ['日','月','火','水','木','金','土'];
+  var state = {
+    events: [],
+    byDay: {},
+    cursor: startOfMonth(new Date()),
+    selected: ymd(new Date())
+  };
+
+  function pad(n) { return ('0' + n).slice(-2); }
+  function ymd(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function startOfMonth(d) { return new Date(d.getFullYear(), d.getMonth(), 1); }
+  function addMonth(d, delta) { return new Date(d.getFullYear(), d.getMonth() + delta, 1); }
+
+  function indexEvents(events) {
+    var by = {};
+    var todayMs = new Date().setHours(0, 0, 0, 0);
+    events.forEach(function (ev) {
+      if (!ev || !ev.start) return;
+      var d = new Date(ev.start);
+      if (isNaN(d.getTime())) return;
+      ev._past = d.getTime() < todayMs;
+      var key = ymd(d);
+      (by[key] = by[key] || []).push(ev);
+    });
+    Object.keys(by).forEach(function (k) {
+      by[k].sort(function (a, b) {
+        return new Date(a.start).getTime() - new Date(b.start).getTime();
+      });
+    });
+    return by;
+  }
+
+  function fmtTime(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    return pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }
+
+  function renderMonth() {
+    var cur = state.cursor;
+    document.getElementById('monthLabel').textContent =
+      cur.getFullYear() + '年 ' + (cur.getMonth() + 1) + '月';
+
+    var first = startOfMonth(cur);
+    var startWeekday = first.getDay();
+    var gridStart = new Date(first);
+    gridStart.setDate(first.getDate() - startWeekday);
+
+    var todayStr = ymd(new Date());
+    var days = document.getElementById('days');
+    days.innerHTML = '';
+
+    for (var i = 0; i < 42; i++) {
+      var d = new Date(gridStart);
+      d.setDate(gridStart.getDate() + i);
+      var key = ymd(d);
+      var inMonth = d.getMonth() === cur.getMonth();
+      var dayEvents = state.byDay[key] || [];
+
+      var cell = document.createElement('button');
+      cell.type = 'button';
+      cell.className = 'day';
+      if (!inMonth) cell.classList.add('other-month');
+      if (d.getDay() === 0) cell.classList.add('sun');
+      if (d.getDay() === 6) cell.classList.add('sat');
+      if (key === todayStr) cell.classList.add('today');
+      if (key === state.selected) cell.classList.add('selected');
+
+      var num = document.createElement('div');
+      num.className = 'num';
+      num.textContent = d.getDate();
+      cell.appendChild(num);
+
+      if (dayEvents.length > 0 && inMonth) {
+        var dot = document.createElement('div');
+        dot.className = 'dot';
+        cell.appendChild(dot);
+        if (dayEvents.length > 1) {
+          var more = document.createElement('div');
+          more.className = 'more';
+          more.textContent = dayEvents.length + '件';
+          cell.appendChild(more);
+        }
+      }
+
+      if (inMonth) {
+        (function (k) {
+          cell.addEventListener('click', function () {
+            state.selected = k;
+            renderMonth();
+            renderPanel();
+          });
+        })(key);
+      } else {
+        cell.disabled = true;
+      }
+
+      days.appendChild(cell);
+    }
+  }
+
+  function renderPanel() {
+    var key = state.selected;
+    var d = new Date(key);
+    var label = (d.getMonth() + 1) + '月' + d.getDate() + '日 (' + WEEK[d.getDay()] + ')';
+    document.getElementById('panelTitle').textContent = label + ' の予定';
+
+    var body = document.getElementById('panelBody');
+    var list = state.byDay[key] || [];
+    if (!list.length) {
+      body.className = 'empty';
+      body.textContent = 'この日の予定はまだ登録されていません。';
+      return;
+    }
+    body.className = '';
+    body.innerHTML = '';
+    list.forEach(function (ev) {
+      var item = document.createElement('div');
+      item.className = 'ev' + (ev._past ? ' past' : '');
+
+      var t = document.createElement('p');
+      t.className = 't';
+      t.textContent = ev.title || '(無題)';
+      item.appendChild(t);
+
+      var parts = [];
+      var st = fmtTime(ev.start);
+      var en = fmtTime(ev.end);
+      if (st && en) parts.push(st + '〜' + en);
+      else if (st) parts.push(st);
+      if (ev.location) parts.push('@ ' + ev.location);
+      if (parts.length) {
+        var meta = document.createElement('p');
+        meta.className = 'meta';
+        meta.textContent = parts.join(' / ');
+        item.appendChild(meta);
+      }
+
+      if (ev.description) {
+        var desc = document.createElement('p');
+        desc.className = 'desc';
+        desc.textContent = ev.description;
+        item.appendChild(desc);
+      }
+      body.appendChild(item);
+    });
+  }
+
+  function setupAddLink(formUrl) {
+    if (!formUrl) return;
+    var a = document.getElementById('addLink');
+    a.href = formUrl;
+    a.style.display = 'inline-block';
+  }
+
+  function load() {
+    fetch('../schedule/data.json?t=' + Date.now())
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (j) {
+        state.events = (j && j.events) || [];
+        state.byDay = indexEvents(state.events);
+        if (j && j.formUrl) setupAddLink(j.formUrl);
+        renderMonth();
+        renderPanel();
+      })
+      .catch(function (err) {
+        var body = document.getElementById('panelBody');
+        body.className = 'error';
+        body.textContent = '読み込みに失敗しました: ' + err.message;
+        renderMonth();
+      });
+  }
+
+  document.getElementById('prev').addEventListener('click', function () {
+    state.cursor = addMonth(state.cursor, -1);
+    renderMonth();
+  });
+  document.getElementById('next').addEventListener('click', function () {
+    state.cursor = addMonth(state.cursor, 1);
+    renderMonth();
+  });
+  document.getElementById('todayBtn').addEventListener('click', function () {
+    var now = new Date();
+    state.cursor = startOfMonth(now);
+    state.selected = ymd(now);
+    renderMonth();
+    renderPanel();
+  });
+
+  load();
+</script>
+</body>
+</html>

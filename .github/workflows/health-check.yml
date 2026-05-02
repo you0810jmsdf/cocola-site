@@ -59,6 +59,7 @@ jobs:
             "/events/" \
             "/dao/" \
             "/changelog/" \
+            "/calendar/" \
           ; do
             CODE=$(curl -sL -o /dev/null -w "%{http_code}" --max-time 15 "${PAGES_BASE}${path}" || echo "000")
             echo "${path} ${CODE}" >> pages_status.txt

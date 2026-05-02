@@ -1,0 +1,97 @@
+name: Update schedule data
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'    # 5分ごと
+  workflow_dispatch:           # 手動実行も可
+
+# schedule GAS Web App をデプロイした後に、リポジトリ Variables に以下を設定:
+#   GAS_SCHEDULE_URL  : デプロイ後の exec URL (例: https://script.google.com/macros/s/.../exec)
+#   SCHEDULE_FORM_URL : 予定登録フォームのURL (任意。空でも可)
+# Variables 未設定のうちはこのワークフローはスキップされる。
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Skip if GAS_SCHEDULE_URL is not configured
+        id: gate
+        run: |
+          if [ -z "${{ vars.GAS_SCHEDULE_URL }}" ]; then
+            echo "GAS_SCHEDULE_URL not set; skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Fetch schedule data from GAS
+        if: steps.gate.outputs.skip == 'false'
+        run: |
+          curl -sL \
+            "${{ vars.GAS_SCHEDULE_URL }}?mode=list&t=$(date +%s)" \
+            -o schedule/raw.json \
+            --max-time 30 \
+            --retry 3 \
+            --retry-delay 5
+
+      - name: Validate and stamp timestamp
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          FORM_URL: ${{ vars.SCHEDULE_FORM_URL }}
+        run: |
+          python3 - <<'EOF'
+          import json, os, time, sys
+
+          with open('schedule/raw.json') as f:
+              text = f.read()
+
+          try:
+              payload = json.loads(text)
+          except Exception as e:
+              print(f'JSON parse error (GAS may be down): {e}')
+              print(f'Response: {text[:200]}')
+              sys.exit(0)
+
+          if not payload.get('ok'):
+              print(f'GAS returned not-ok: {payload}')
+              sys.exit(0)
+
+          events = payload.get('events') or []
+          if not isinstance(events, list):
+              print('events is not a list')
+              sys.exit(0)
+
+          data = {
+              '_generatedMs': int(time.time() * 1000),
+              'events': events,
+              'formUrl': os.environ.get('FORM_URL', '') or ''
+          }
+
+          with open('schedule/data.json', 'w', encoding='utf-8') as f:
+              json.dump(data, f, ensure_ascii=False)
+
+          print(f'OK: {len(events)} events')
+          EOF
+
+      - name: Cleanup temp file
+        if: steps.gate.outputs.skip == 'false'
+        run: rm -f schedule/raw.json
+
+      - name: Commit and push if changed
+        if: steps.gate.outputs.skip == 'false'
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add schedule/data.json
+          if git diff --staged --quiet; then
+            echo "No changes"
+          else
+            git commit -m 'Auto-update schedule data [skip ci]'
+            git pull --rebase origin main
+            git push
+          fi
