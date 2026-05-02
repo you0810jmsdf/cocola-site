@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>COCoLa 予定登録</title>
+<style>
+  :root {
+    --green: #1d9e75;
+    --green-dark: #0f6e56;
+    --orange: #ef7f4d;
+    --bg: #f7faf8;
+    --surface: #ffffff;
+    --border: rgba(29, 158, 117, 0.18);
+    --text: #183128;
+    --muted: #607068;
+    --shadow: 0 18px 42px rgba(29, 158, 117, 0.10);
+    --radius-md: 18px;
+    --radius-lg: 24px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
+    line-height: 1.6;
+    padding: 16px;
+  }
+  .card {
+    max-width: 640px;
+    margin: 0 auto;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 24px;
+  }
+  h1 { font-size: 20px; margin: 0 0 16px; color: var(--green-dark); }
+  .field { margin-bottom: 14px; }
+  label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+  input, textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font: inherit;
+    color: var(--text);
+    background: #fff;
+  }
+  input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(29, 158, 117, 0.15);
+  }
+  textarea { min-height: 80px; resize: vertical; }
+  .row { display: grid; gap: 12px; }
+  @media (min-width: 720px) { .row { grid-template-columns: 1fr 1fr; } }
+  button {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--green);
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  button:hover { background: var(--green-dark); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .note { font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .msg { margin-top: 12px; padding: 10px 12px; border-radius: var(--radius-md); font-size: 14px; }
+  .msg.ok { background: rgba(29, 158, 117, 0.10); color: var(--green-dark); }
+  .msg.err { background: rgba(239, 127, 77, 0.12); color: var(--orange); }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>予定を登録する</h1>
+  <form id="f">
+    <div class="field">
+      <label for="title">タイトル *</label>
+      <input id="title" name="title" required>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="start">開始 *</label>
+        <input id="start" name="start" type="datetime-local" required>
+      </div>
+      <div class="field">
+        <label for="end">終了 (任意)</label>
+        <input id="end" name="end" type="datetime-local">
+      </div>
+    </div>
+    <div class="field">
+      <label for="location">場所</label>
+      <input id="location" name="location">
+    </div>
+    <div class="field">
+      <label for="description">メモ</label>
+      <textarea id="description" name="description"></textarea>
+      <p class="note">個人情報は記載しないでください。</p>
+    </div>
+    <div class="field">
+      <label for="url">関連 URL</label>
+      <input id="url" name="url" type="url" placeholder="https://...">
+    </div>
+    <div class="field">
+      <label for="pass">合言葉 *</label>
+      <input id="pass" name="pass" type="password" required>
+    </div>
+    <button id="submit" type="submit">カレンダーに登録</button>
+    <div id="msg"></div>
+  </form>
+</div>
+
+<script>
+  var form = document.getElementById('f');
+  var btn = document.getElementById('submit');
+  var msg = document.getElementById('msg');
+
+  function toIso(local) {
+    if (!local) return '';
+    var d = new Date(local);
+    return isNaN(d.getTime()) ? '' : d.toISOString();
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    btn.disabled = true;
+    msg.className = '';
+    msg.textContent = '送信中...';
+
+    var payload = {
+      title: form.title.value.trim(),
+      start: toIso(form.start.value),
+      end: toIso(form.end.value),
+      location: form.location.value.trim(),
+      description: form.description.value.trim(),
+      url: form.url.value.trim(),
+      pass: form.pass.value
+    };
+
+    google.script.run
+      .withSuccessHandler(function (res) {
+        btn.disabled = false;
+        if (res && res.ok) {
+          msg.className = 'msg ok';
+          msg.textContent = '登録しました。';
+          form.reset();
+        } else {
+          msg.className = 'msg err';
+          msg.textContent = '失敗: ' + (res && res.error || 'unknown');
+        }
+      })
+      .withFailureHandler(function (err) {
+        btn.disabled = false;
+        msg.className = 'msg err';
+        msg.textContent = '失敗: ' + err.message;
+      })
+      .createEventFromForm(payload);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>COCoLa スケジュール</title>
+<style>
+  :root {
+    --green: #1d9e75;
+    --green-dark: #0f6e56;
+    --blue: #1fa7c9;
+    --orange: #ef7f4d;
+    --bg: #f7faf8;
+    --surface: #ffffff;
+    --border: rgba(29, 158, 117, 0.18);
+    --text: #183128;
+    --muted: #607068;
+    --shadow: 0 18px 42px rgba(29, 158, 117, 0.10);
+    --radius-md: 18px;
+    --radius-lg: 24px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
+    line-height: 1.6;
+    padding: 16px;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  h1 { font-size: 20px; margin: 0; color: var(--green-dark); }
+  .reload {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--green-dark);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .reload:hover { background: rgba(29, 158, 117, 0.08); }
+  .empty, .loading, .error {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 24px;
+    text-align: center;
+    color: var(--muted);
+  }
+  .error { color: var(--orange); }
+  .list { display: grid; gap: 12px; }
+  .item {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 16px 18px;
+    display: grid;
+    grid-template-columns: 88px 1fr;
+    gap: 14px;
+    align-items: start;
+  }
+  .date {
+    background: rgba(29, 158, 117, 0.08);
+    border-radius: var(--radius-md);
+    padding: 10px;
+    text-align: center;
+  }
+  .date .m { font-size: 11px; color: var(--green-dark); font-weight: 700; }
+  .date .d { font-size: 22px; font-weight: 800; color: var(--green-dark); line-height: 1; }
+  .date .w { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .body .title { font-weight: 700; font-size: 15px; margin: 0 0 4px; }
+  .body .meta { font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 8px; }
+  .body .desc { font-size: 13px; color: var(--text); margin-top: 6px; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>これからの予定 (30 日)</h1>
+    <button class="reload" id="reload">更新</button>
+  </header>
+  <div id="root" class="loading">読み込み中...</div>
+</div>
+
+<script>
+  var root = document.getElementById('root');
+  var WEEK = ['日','月','火','水','木','金','土'];
+
+  function fmtPart(iso) {
+    var d = new Date(iso);
+    return {
+      m: (d.getMonth() + 1) + '月',
+      d: d.getDate(),
+      w: WEEK[d.getDay()],
+      hm: ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2)
+    };
+  }
+
+  function render(events) {
+    if (!events || !events.length) {
+      root.className = 'empty';
+      root.textContent = '予定はまだありません。';
+      return;
+    }
+    root.className = 'list';
+    root.innerHTML = '';
+    events.forEach(function (ev) {
+      var s = fmtPart(ev.start);
+      var e = fmtPart(ev.end);
+      var item = document.createElement('div');
+      item.className = 'item';
+      item.innerHTML =
+        '<div class="date">' +
+          '<div class="m"></div>' +
+          '<div class="d"></div>' +
+          '<div class="w"></div>' +
+        '</div>' +
+        '<div class="body">' +
+          '<p class="title"></p>' +
+          '<div class="meta"></div>' +
+          '<div class="desc"></div>' +
+        '</div>';
+      item.querySelector('.m').textContent = s.m;
+      item.querySelector('.d').textContent = s.d;
+      item.querySelector('.w').textContent = s.w;
+      item.querySelector('.title').textContent = ev.title;
+      var meta = item.querySelector('.meta');
+      var time = document.createElement('span');
+      time.textContent = s.hm + '〜' + e.hm;
+      meta.appendChild(time);
+      if (ev.location) {
+        var loc = document.createElement('span');
+        loc.textContent = '@ ' + ev.location;
+        meta.appendChild(loc);
+      }
+      if (ev.description) {
+        item.querySelector('.desc').textContent = ev.description;
+      }
+      root.appendChild(item);
+    });
+  }
+
+  function load() {
+    root.className = 'loading';
+    root.textContent = '読み込み中...';
+    google.script.run
+      .withSuccessHandler(render)
+      .withFailureHandler(function (err) {
+        root.className = 'error';
+        root.textContent = '読み込みに失敗しました: ' + err.message;
+      })
+      .listUpcomingEvents();
+  }
+
+  document.getElementById('reload').addEventListener('click', load);
+  load();
+</script>
+</body>
+</html>

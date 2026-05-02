@@ -1,0 +1,84 @@
+COCoLa schedule Web App セットアップ手順
+=========================================
+
+前提
+-----
+- Google アカウント: cocola.project@gmail.com にログイン済み
+- Node.js (v18 以上) と npm がインストール済み
+- カレンダー (cocola.project@gmail.com) にイベント作成権限がある
+
+1. clasp を準備する
+--------------------
+  npm install -g @google/clasp
+  clasp login
+
+2. GAS プロジェクトを作る
+--------------------------
+新規作成する場合:
+  cd schedule
+  clasp create --type webapp --title "COCoLa schedule"
+
+既存プロジェクトに紐付ける場合:
+  cd schedule
+  echo '{"scriptId":"<SCRIPT_ID>","rootDir":"."}' > .clasp.json
+
+3. ファイルを配置する
+----------------------
+schedule/ 配下のファイルがそのまま push 対象になる:
+  - cocola_calendar.gs   → コード.gs として扱われる (ファイル名は任意)
+  - form.html
+  - schedule.html
+
+appsscript.json は clasp create 時に自動生成される。タイムゾーンを Asia/Tokyo に変更する:
+  "timeZone": "Asia/Tokyo"
+
+4. スクリプトプロパティを設定する
+----------------------------------
+GAS エディタ → 歯車アイコン → スクリプト プロパティ:
+  キー: ADMIN_PASS
+  値:   (合言葉。例: cocola2026)
+
+※ コード中にハードコードしないこと。
+
+5. push してデプロイする
+-------------------------
+  clasp push
+  clasp deploy --description "v1"
+
+または GAS エディタ右上「デプロイ」→「新しいデプロイ」:
+  種類:                ウェブアプリ
+  実行ユーザー:        自分
+  アクセスできるユーザー: 全員
+
+発行された URL (https://script.google.com/macros/s/.../exec) をメモ。
+
+6. 動作確認
+------------
+  - URL に GET アクセス → schedule.html が表示される
+  - URL?mode=list → JSON で events 配列が返る
+  - フォームから登録 → カレンダーに反映される (合言葉が必須)
+
+7. COCoLa LP に埋め込む
+------------------------
+任意のページ (例: events/index.html) に追記:
+
+  <iframe
+    src="https://script.google.com/macros/s/XXXXXXXX/exec"
+    width="100%" height="600"
+    style="border:0;border-radius:24px;"
+    loading="lazy"></iframe>
+
+8. 更新時
+----------
+コードを修正したら:
+  clasp push
+  clasp deploy -i <DEPLOYMENT_ID> --description "v2"
+
+※ デプロイ ID を維持すれば URL が変わらない (iframe の差し替え不要)。
+
+トラブル時
+-----------
+- "ADMIN_PASS is not set" → スクリプトプロパティ未設定
+- "calendar not found" → CALENDAR_ID の権限を確認
+- iframe で表示されない → setXFrameOptionsMode(ALLOWALL) が効いているか確認
+- タイムゾーンずれ → appsscript.json の timeZone を Asia/Tokyo に
