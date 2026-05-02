@@ -112,6 +112,15 @@
       <div class="admin-panel">
         <h2>アクセス統計</h2>
         <div id="adminContent"><div class="admin-loading">読み込み中...</div></div>
+        <hr style="margin:20px 0;border:none;border-top:1px solid #eee">
+        <h2 style="margin-bottom:12px">データ手動更新</h2>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <button class="admin-trigger-btn" id="triggerMembersBtn" onclick="triggerMembersUpdate()">メンバーデータを今すぐ更新</button>
+            <span id="triggerMembersStatus" style="font-size:.85rem;color:#666"></span>
+          </div>
+          <p style="font-size:.75rem;color:#999;margin:0">※ GAS → members/data.json を即時反映します。通常は5分ごと自動更新。<br>PAT有効期限: 2026-05-19</p>
+        </div>
         <button class="admin-close-btn" onclick="closeAdminPanel()">閉じる</button>
       </div>
     </div>
@@ -423,6 +432,31 @@
         });
     }
     function closeAdminPanel() { document.getElementById('adminOverlay').style.display = 'none'; }
+
+    function triggerMembersUpdate() {
+      const btn = document.getElementById('triggerMembersBtn');
+      const status = document.getElementById('triggerMembersStatus');
+      btn.disabled = true;
+      status.style.color = '#666';
+      status.textContent = '送信中…';
+      const url = 'https://script.google.com/macros/s/AKfycbycw2FBvcm34mS9R8SUNg28KscGqqGjR1zjz3hnLYq8ckgKCZObYaC9kbMs8R2SGXgC/exec?mode=triggerMembersUpdate';
+      fetch(url)
+        .then(r => r.json())
+        .then(d => {
+          if (d.ok) {
+            status.style.color = '#1d9e75';
+            status.textContent = '✓ ワークフロー起動しました（約1分後に反映）';
+          } else {
+            status.style.color = '#e53e3e';
+            status.textContent = 'エラー: ' + (d.error || '不明');
+          }
+        })
+        .catch(err => {
+          status.style.color = '#e53e3e';
+          status.textContent = '通信エラー: ' + err.message;
+        })
+        .finally(() => { btn.disabled = false; });
+    }
 
     function renderAdminStats(s) {
       const tbl = (rows) => `<table style="width:100%;border-collapse:collapse;font-size:.82rem">${rows}</table>`;
