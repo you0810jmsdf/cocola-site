@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>マイページ - <?= siteName ?></title>
+<?!= include('style') ?>
+</head>
+<body>
+<div class="header">
+  <div style="display:flex;align-items:center;gap:10px">
+    <img src="data:image/jpeg;base64,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" alt="freefree" style="height:40px;width:auto;border-radius:4px">
+    <h1>マイページ</h1>
+  </div>
+  <div>
+    <a href="<?= webAppUrl ?>?page=index" target="_top">← 掲示板へ戻る</a>
+    <button onclick="logoutMypage()" style="margin-left:12px;padding:4px 10px;font-size:12px;background:#fff;border:1px solid #ccc;border-radius:4px;cursor:pointer">🔄 ログアウト（別アカウントへ）</button>
+  </div>
+</div>
+
+<div class="container">
+  <div id="alert-area"></div>
+  <div id="login-area" class="section">
+    <h2>事業主ログイン</h2>
+    <p>登録時のメールアドレスを入力してください。</p>
+    <div class="form-group">
+      <label>メールアドレス</label>
+      <input type="email" id="login-email" placeholder="example@gmail.com" style="max-width:360px">
+    </div>
+    <button class="btn" onclick="doLogin()">ログイン</button>
+    <div id="login-error" style="display:none;margin-top:12px" class="alert error"></div>
+  </div>
+
+  <div id="unregistered-area" style="display:none" class="section">
+    <h2>事業主登録をしてください</h2>
+    <p>掲示板に掲載するには、まず事業主情報の登録が必要です。</p>
+    <a class="btn" href="<?= webAppUrl ?>?page=signup" target="_top">新規登録フォームへ</a>
+  </div>
+
+  <div id="main-area" style="display:none">
+    <div class="tabs">
+      <div class="tab active" onclick="showTab('profile')">プロフィール</div>
+      <div class="tab" onclick="showTab('poster')">ポスター管理</div>
+      <div class="tab" onclick="showTab('stats')">アクセス状況</div>
+    </div>
+
+    <!-- プロフィールタブ -->
+    <div id="tab-profile" class="tab-content section">
+      <h2>プロフィール編集</h2>
+      <form id="profile-form" onsubmit="event.preventDefault(); saveProfile();">
+        <div class="form-group">
+          <label>登録区分 *</label>
+          <div class="checkbox-group">
+            <label><input type="radio" name="entity_type" value="事業主"> 事業主（常設＋イベント）</label>
+            <label><input type="radio" name="entity_type" value="団体"> 団体（イベント告知のみ）</label>
+          </div>
+          <div class="hint">団体区分では常設ポスターは投稿できません。</div>
+        </div>
+        <div class="form-group">
+          <label>屋号 / 団体名 *</label>
+          <input name="business_name" required>
+        </div>
+        <div class="form-group">
+          <label>担当者名</label>
+          <input name="owner_name">
+        </div>
+        <div class="form-group">
+          <label>メール</label>
+          <input name="email" readonly style="background:#f0f0f0">
+          <div class="hint">Googleログインのメールアドレス</div>
+        </div>
+        <div class="form-group">
+          <label>電話番号</label>
+          <input name="phone" type="tel">
+        </div>
+        <div class="form-group">
+          <label>住所</label>
+          <input name="address">
+        </div>
+        <div class="form-group">
+          <label>エリア</label>
+          <select name="area" id="area-select"></select>
+        </div>
+        <div class="form-group">
+          <label>代表カテゴリ *</label>
+          <select name="category" id="category-select" required></select>
+          <div class="hint">事業全体の主カテゴリ。ポスターごとに別カテゴリを指定することもできます。</div>
+        </div>
+        <div class="form-group">
+          <label>自社サイトURL</label>
+          <input name="website_url" type="url" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label>SNS URL</label>
+          <input name="sns_url" type="url" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label>LINE公式URL</label>
+          <input name="line_url" type="url" placeholder="https://lin.ee/...">
+        </div>
+        <div class="form-group">
+          <label>問い合わせ導線 (複数選択可)</label>
+          <div class="checkbox-group">
+            <label><input type="checkbox" name="contact_method" value="メール"> メール</label>
+            <label><input type="checkbox" name="contact_method" value="電話"> 電話</label>
+            <label><input type="checkbox" name="contact_method" value="LINE公式"> LINE公式</label>
+            <label><input type="checkbox" name="contact_method" value="自社サイト/SNS URL"> 自社サイト/SNS</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>PR文 (ポスター下に表示される数行)</label>
+          <textarea name="pr_text" placeholder="お店の魅力を数行でご紹介ください"></textarea>
+        </div>
+        <button type="submit" class="btn">保存する</button>
+      </form>
+    </div>
+
+    <!-- ポスター管理タブ -->
+    <div id="tab-poster" class="tab-content section" style="display:none">
+      <h2>ポスター管理</h2>
+      <div id="poster-list"></div>
+      <hr>
+      <h3 id="poster-form-title">新規ポスター登録</h3>
+      <form id="poster-form" onsubmit="event.preventDefault(); savePoster();">
+        <input type="hidden" name="poster_id">
+        <input type="hidden" name="drive_file_id">
+        <input type="hidden" name="image_url">
+        <div class="form-group">
+          <label>タイトル *</label>
+          <input name="title" required>
+        </div>
+        <div class="form-group">
+          <label>種別 *</label>
+          <select name="poster_type" id="poster-type-select" required>
+            <option value="常設">常設 (1事業主3件まで)</option>
+            <option value="イベント">イベント告知 (無制限)</option>
+          </select>
+          <div class="hint" id="poster-type-hint"></div>
+        </div>
+        <div class="form-group">
+          <label>ポスターのカテゴリ</label>
+          <select name="poster_category" id="poster-category-select"></select>
+          <div class="hint">空欄の場合は代表カテゴリが使われます</div>
+        </div>
+        <div class="form-group">
+          <label>掲載開始日 *</label>
+          <input name="start_date" type="date" required>
+        </div>
+        <div class="form-group">
+          <label>掲載終了日 *</label>
+          <input name="end_date" type="date" required>
+        </div>
+        <div class="form-group">
+          <label>一言コメント (任意)</label>
+          <textarea name="comment" maxlength="80" rows="2" placeholder="例: 5月末まで初回体験500円OFF！"></textarea>
+          <div class="hint">ポスター一覧に短く表示されます (80文字まで)</div>
+        </div>
+        <div class="form-group">
+          <label style="display:block;margin-bottom:6px;font-weight:600;font-size:14px">ポスター画像 (A4比率・JPEG/PNG)</label>
+          <input id="poster_image_input" name="poster_image" type="file" accept="image/jpeg,image/png" style="display:block;width:auto;padding:8px;border:1px solid #ccc;border-radius:4px;background:#fff;font-size:14px;margin-bottom:8px">
+          <div id="poster_image_drop" tabindex="0" style="border:2px dashed #bbb;border-radius:8px;padding:20px;text-align:center;background:#fafafa;color:#555;font-size:13px;cursor:pointer;outline:none">
+            <div style="font-size:14px;font-weight:600;margin-bottom:4px">📎 ここに画像をドラッグ&ドロップ</div>
+            <div>または画像をコピーしてこの枠をクリック後 <b>Ctrl+V</b> で貼付</div>
+            <div style="font-size:12px;color:#888;margin-top:6px">上の「ファイル選択」ボタンも使えます</div>
+          </div>
+          <div id="poster_image_preview" style="margin-top:8px"></div>
+          <div class="hint">最大 5MB 程度を推奨。編集時はアップロードしなければ既存画像のまま</div>
+          <div id="current-image" style="margin-top:8px"></div>
+        </div>
+        <button type="submit" class="btn">保存する</button>
+        <button type="button" class="btn secondary" onclick="resetPosterForm()">リセット</button>
+      </form>
+    </div>
+
+    <!-- 統計タブ -->
+    <div id="tab-stats" class="tab-content section" style="display:none">
+      <h2>アクセス状況</h2>
+      <div id="stats-body"><div class="loading">読み込み中...</div></div>
+    </div>
+  </div>
+</div>
+
+<?!= include('script') ?>
+<script>
+let myData = null;
+let settings = null;
+let myEmail = sessionStorage.getItem('myEmail') || '';
+
+function logoutMypage() {
+  if (!confirm('ログアウトして別のメールアドレスでログインし直しますか？')) return;
+  sessionStorage.removeItem('myEmail');
+  location.reload();
+}
+
+let pickedPosterFile = null;
+
+function setPickedPosterFile(file) {
+  if (!file) { pickedPosterFile = null; document.getElementById('poster_image_preview').innerHTML = ''; return; }
+  if (!/^image\/(jpeg|png)$/.test(file.type)) { showAlert('error', 'JPEGまたはPNG画像のみ対応です'); return; }
+  if (file.size > 5 * 1024 * 1024) { showAlert('error', '画像ファイルは5MB以内にしてください'); return; }
+  pickedPosterFile = file;
+  const url = URL.createObjectURL(file);
+  document.getElementById('poster_image_preview').innerHTML =
+    `<img src="${url}" style="max-width:160px;border-radius:4px;border:1px solid #ddd"><div style="font-size:12px;color:#666">選択中: ${file.name} (${Math.round(file.size/1024)} KB)</div>`;
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const drop = document.getElementById('poster_image_drop');
+  const input = document.getElementById('poster_image_input');
+  if (input) input.addEventListener('change', e => {
+    const f = e.target.files && e.target.files[0];
+    if (f) setPickedPosterFile(f);
+  });
+  if (!drop) return;
+  ['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => {
+    e.preventDefault(); e.stopPropagation();
+    drop.style.background = '#eef6ff'; drop.style.borderColor = '#4a90e2';
+  }));
+  ['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => {
+    e.preventDefault(); e.stopPropagation();
+    drop.style.background = '#fafafa'; drop.style.borderColor = '#bbb';
+  }));
+  drop.addEventListener('drop', e => {
+    const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f) setPickedPosterFile(f);
+  });
+  drop.addEventListener('click', () => drop.focus());
+  drop.addEventListener('paste', e => {
+    const items = e.clipboardData && e.clipboardData.items;
+    if (!items) return;
+    for (const it of items) {
+      if (it.kind === 'file') {
+        const f = it.getAsFile();
+        if (f) { setPickedPosterFile(f); break; }
+      }
+    }
+  });
+  document.addEventListener('paste', e => {
+    if (document.activeElement !== drop) return;
+    const items = e.clipboardData && e.clipboardData.items;
+    if (!items) return;
+    for (const it of items) {
+      if (it.kind === 'file') {
+        const f = it.getAsFile();
+        if (f) { setPickedPosterFile(f); e.preventDefault(); break; }
+      }
+    }
+  });
+});
+
+window.addEventListener('load', () => {
+  settings = { categories: <?!= categoriesJson ?>, areas: <?!= areasJson ?> };
+  fillSelects();
+  if (myEmail) {
+    document.getElementById('login-area').style.display = 'none';
+    loadMe();
+  }
+});
+
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const err = document.getElementById('login-error');
+  if (!email) {
+    err.textContent = 'メールアドレスを入力してください。';
+    err.style.display = 'block';
+    return;
+  }
+  err.style.display = 'none';
+  const btn = document.querySelector('#login-area .btn');
+  btn.disabled = true;
+  btn.textContent = 'ログイン中...';
+  google.script.run
+    .withSuccessHandler(me => {
+      btn.disabled = false;
+      btn.textContent = 'ログイン';
+      if (!me.loggedIn) {
+        const err = document.getElementById('login-error');
+        err.textContent = 'このメールアドレスは登録されていません。';
+        err.style.display = 'block';
+        return;
+      }
+      myEmail = email;
+      sessionStorage.setItem('myEmail', email);
+      document.getElementById('login-area').style.display = 'none';
+      myData = me;
+      if (!me.registered) {
+        document.getElementById('unregistered-area').style.display = 'block';
+        return;
+      }
+      document.getElementById('main-area').style.display = 'block';
+      fillProfile(me.business);
+      renderPosterList(me.posters || []);
+      fillSelects();
+      applyEntityTypeUI();
+    })
+    .withFailureHandler(e => {
+      btn.disabled = false;
+      btn.textContent = 'ログイン';
+      showAlert('error', '通信エラー: ' + e.message);
+    })
+    .api_getMe(email);
+}
+
+function loadMe() {
+  google.script.run
+    .withSuccessHandler(me => {
+      myData = me;
+      if (!me.loggedIn) {
+        myEmail = '';
+        sessionStorage.removeItem('myEmail');
+        document.getElementById('login-area').style.display = 'block';
+        return;
+      }
+      if (!me.registered) {
+        document.getElementById('unregistered-area').style.display = 'block';
+        return;
+      }
+      document.getElementById('main-area').style.display = 'block';
+      fillProfile(me.business);
+      renderPosterList(me.posters || []);
+      applyEntityTypeUI();
+    })
+    .withFailureHandler(e => showAlert('error', '読み込みに失敗しました: ' + e.message))
+    .api_getMe(myEmail);
+}
+
+function fillSelects() {
+  const area = document.getElementById('area-select');
+  area.innerHTML = settings.areas.map(a => `<option>${a}</option>`).join('');
+  const cat = document.getElementById('category-select');
+  cat.innerHTML = '<option value="">選択してください</option>' +
+    settings.categories.map(c => `<option>${c}</option>`).join('');
+  const pcat = document.getElementById('poster-category-select');
+  if (pcat) pcat.innerHTML = '<option value="">（代表カテゴリを使用）</option>' +
+    settings.categories.map(c => `<option>${c}</option>`).join('');
+  if (myData && myData.business) fillProfile(myData.business);
+}
+
+function applyEntityTypeUI() {
+  const b = myData && myData.business;
+  const entity = (b && b.entity_type) || '事業主';
+  const sel = document.getElementById('poster-type-select');
+  const hint = document.getElementById('poster-type-hint');
+  if (!sel) return;
+  if (entity === '団体') {
+    sel.value = 'イベント';
+    Array.from(sel.options).forEach(o => { if (o.value === '常設') o.disabled = true; });
+    if (hint) hint.textContent = '団体区分のためイベント告知のみ投稿できます。';
+  } else {
+    Array.from(sel.options).forEach(o => { o.disabled = false; });
+    if (hint) hint.textContent = '';
+  }
+}
+
+function fillProfile(b) {
+  const form = document.getElementById('profile-form');
+  form.business_name.value = b.business_name || '';
+  form.owner_name.value = b.owner_name || '';
+  form.email.value = b.email || '';
+  form.phone.value = b.phone || '';
+  form.address.value = b.address || '';
+  form.area.value = b.area || '';
+  form.category.value = b.category || '';
+  const entity = b.entity_type || '事業主';
+  form.querySelectorAll('input[name="entity_type"]').forEach(r => { r.checked = (r.value === entity); });
+  applyEntityTypeUI();
+  form.website_url.value = b.website_url || '';
+  form.sns_url.value = b.sns_url || '';
+  form.line_url.value = b.line_url || '';
+  form.pr_text.value = b.pr_text || '';
+  const methods = (b.contact_method || '').split(',').map(s => s.trim());
+  form.querySelectorAll('input[name="contact_method"]').forEach(cb => {
+    cb.checked = methods.includes(cb.value);
+  });
+}
+
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', ['profile','poster','stats'][i] === name);
+  });
+  document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+  document.getElementById('tab-' + name).style.display = 'block';
+  if (name === 'stats') loadStats();
+}
+
+function saveProfile() {
+  const form = document.getElementById('profile-form');
+  const btn = form.querySelector('button[type="submit"]');
+  const data = {
+    email: myEmail,
+    business_name: form.business_name.value,
+    owner_name: form.owner_name.value,
+    phone: form.phone.value,
+    address: form.address.value,
+    area: form.area.value,
+    category: form.category.value,
+    entity_type: (form.querySelector('input[name="entity_type"]:checked') || {}).value || '事業主',
+    website_url: form.website_url.value,
+    sns_url: form.sns_url.value,
+    line_url: form.line_url.value,
+    pr_text: form.pr_text.value,
+    contact_method: Array.from(form.querySelectorAll('input[name="contact_method"]:checked')).map(cb => cb.value)
+  };
+  btn.disabled = true;
+  btn.textContent = '保存中...';
+  google.script.run
+    .withSuccessHandler(r => {
+      btn.disabled = false;
+      btn.textContent = '保存する';
+      if (r.ok) showAlert('success', '保存しました');
+      else showAlert('error', r.error || '保存に失敗しました');
+    })
+    .withFailureHandler(e => {
+      btn.disabled = false;
+      btn.textContent = '保存する';
+      showAlert('error', '通信エラーが発生しました: ' + e.message);
+    })
+    .api_updateBusiness(data);
+}
+
+function renderPosterList(posters) {
+  const el = document.getElementById('poster-list');
+  if (posters.length === 0) {
+    el.innerHTML = '<p style="color:#666">まだポスターがありません。下のフォームから登録してください。</p>';
+    return;
+  }
+  el.innerHTML = posters.map(p => `
+    <div style="display:flex;gap:12px;align-items:center;padding:10px;border:1px solid #e2e2dc;border-radius:8px;margin-bottom:10px">
+      <img src="${p.image_url}" style="width:60px;height:85px;object-fit:cover;border-radius:4px">
+      <div style="flex:1">
+        <strong>${escapeHtml(p.title)}</strong>
+        <div style="font-size:12px;color:#666">
+          ${p.poster_type} / ${fmt(p.start_date)} 〜 ${fmt(p.end_date)} / ${p.status}
+        </div>
+      </div>
+      <button class="btn" onclick='editPoster(${JSON.stringify(p).replace(/'/g, "&#39;")})'>編集</button>
+      <button class="btn danger" onclick="deletePoster('${p.poster_id}')">削除</button>
+    </div>
+  `).join('');
+}
+
+function editPoster(p) {
+  const form = document.getElementById('poster-form');
+  form.poster_id.value = p.poster_id;
+  form.drive_file_id.value = p.drive_file_id;
+  form.image_url.value = p.image_url;
+  form.title.value = p.title;
+  form.poster_type.value = p.poster_type;
+  const pcat = document.getElementById('poster-category-select');
+  if (pcat) pcat.value = p.category || '';
+  form.start_date.value = fmt(p.start_date);
+  form.end_date.value = fmt(p.end_date);
+  form.comment.value = p.comment || '';
+  document.getElementById('poster-form-title').textContent = `ポスター編集: ${p.title}`;
+  document.getElementById('current-image').innerHTML =
+    `<img src="${p.image_url}" style="max-width:120px;border-radius:4px"><div style="font-size:12px;color:#666">現在の画像</div>`;
+  window.scrollTo(0, document.body.scrollHeight);
+}
+
+function resetPosterForm() {
+  document.getElementById('poster-form').reset();
+  document.getElementById('poster-form').poster_id.value = '';
+  document.getElementById('poster-form').drive_file_id.value = '';
+  document.getElementById('poster-form').image_url.value = '';
+  document.getElementById('poster-form-title').textContent = '新規ポスター登録';
+  document.getElementById('current-image').innerHTML = '';
+  const pcat = document.getElementById('poster-category-select');
+  if (pcat) pcat.value = '';
+  applyEntityTypeUI();
+  const pImg = document.getElementById('poster_image_input');
+  if (pImg) pImg.value = '';
+  setPickedPosterFile(null);
+}
+
+async function savePoster() {
+  const form = document.getElementById('poster-form');
+  const btn = form.querySelector('button[type="submit"]');
+  const data = {
+    poster_id: form.poster_id.value,
+    drive_file_id: form.drive_file_id.value,
+    image_url: form.image_url.value,
+    title: form.title.value,
+    poster_type: form.poster_type.value,
+    category: (document.getElementById('poster-category-select') || {}).value || '',
+    start_date: form.start_date.value,
+    end_date: form.end_date.value,
+    comment: form.comment.value,
+    _email: myEmail
+  };
+  const fileInput = form.poster_image;
+  const file = pickedPosterFile || (fileInput.files && fileInput.files[0]);
+  if (file) {
+    if (file.size > 5 * 1024 * 1024) {
+      showAlert('error', '画像ファイルは5MB以内にしてください');
+      return;
+    }
+    showAlert('success', '画像アップロード中...');
+    const img = await fileToBase64(file);
+    data.imageBase64 = img.base64;
+    data.imageName = img.name || ('poster_' + Date.now() + (file.type === 'image/png' ? '.png' : '.jpg'));
+    data.imageMimeType = img.mimeType || file.type;
+  }
+  btn.disabled = true;
+  btn.textContent = '保存中...';
+  google.script.run
+    .withSuccessHandler(r => {
+      btn.disabled = false;
+      btn.textContent = '保存する';
+      if (r.ok) {
+        showAlert('success', '保存しました');
+        resetPosterForm();
+        loadMe();
+      } else {
+        showAlert('error', r.error || '保存に失敗しました');
+      }
+    })
+    .withFailureHandler(e => {
+      btn.disabled = false;
+      btn.textContent = '保存する';
+      showAlert('error', '通信エラーが発生しました: ' + e.message);
+    })
+    .api_savePoster(data);
+}
+
+function deletePoster(id) {
+  if (!confirm('このポスターを削除しますか?')) return;
+  google.script.run
+    .withSuccessHandler(r => {
+      if (r.ok) { showAlert('success', '削除しました'); loadMe(); }
+      else showAlert('error', r.error || '削除に失敗しました');
+    })
+    .withFailureHandler(e => showAlert('error', '通信エラーが発生しました: ' + e.message))
+    .api_deletePoster(id, myEmail);
+}
+
+function loadStats() {
+  document.getElementById('stats-body').innerHTML = '<div class="loading">読み込み中...</div>';
+  google.script.run
+    .withSuccessHandler(r => {
+      const el = document.getElementById('stats-body');
+      if (!r.ok) { el.innerHTML = '<div class="alert error">' + r.error + '</div>'; return; }
+      el.innerHTML = `
+        <div class="stat-grid" style="margin-bottom:20px">
+          <div class="stat-box"><div class="num">${r.total}</div><div class="label">累計アクセス</div></div>
+        </div>
+        <h3>今月のアクセス</h3>
+        <div class="stat-grid">
+          <div class="stat-box"><div class="num">${r.thisMonth.page_view}</div><div class="label">閲覧数</div></div>
+          <div class="stat-box"><div class="num">${r.thisMonth.detail_click}</div><div class="label">詳細クリック</div></div>
+          <div class="stat-box"><div class="num">${r.thisMonth.contact_click}</div><div class="label">問い合わせ</div></div>
+          <div class="stat-box"><div class="num">${r.thisMonth.website_click}</div><div class="label">サイト訪問</div></div>
+        </div>
+        <h3>先月のアクセス</h3>
+        <div class="stat-grid">
+          <div class="stat-box"><div class="num">${r.lastMonth.page_view}</div><div class="label">閲覧数</div></div>
+          <div class="stat-box"><div class="num">${r.lastMonth.detail_click}</div><div class="label">詳細クリック</div></div>
+          <div class="stat-box"><div class="num">${r.lastMonth.contact_click}</div><div class="label">問い合わせ</div></div>
+          <div class="stat-box"><div class="num">${r.lastMonth.website_click}</div><div class="label">サイト訪問</div></div>
+        </div>
+        <p style="color:#666;font-size:13px">※毎月5日に月次レポートをメールでお送りします</p>
+      `;
+    })
+    .withFailureHandler(e => {
+      document.getElementById('stats-body').innerHTML =
+        '<div class="alert error">読み込みに失敗しました: ' + e.message + '</div>';
+    })
+    .api_getMyStats(myEmail);
+}
+
+function escapeHtml(s) { if(s==null)return''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmt(d) { if (!d) return ''; const dt = new Date(d); if (isNaN(dt)) return d; return dt.toISOString().slice(0,10); }
+</script>
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><?= siteName ?></title>
+<?!= include('style') ?>
+</head>
+<body>
+<div class="header">
+  <div style="display:flex;align-items:center;gap:10px">
+    <img src="data:image/jpeg;base64,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" alt="freefree" style="height:40px;width:auto;border-radius:4px">
+    <h1><?= siteName ?></h1>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <a class="cocola-link" href="https://you0810jmsdf.github.io/cocola-site/" target="_blank" rel="noopener" title="COCoLa 地域コミュニティサイト">
+      <span class="cocola-dot"></span>COCoLa
+    </a>
+    <a href="<?= webAppUrl ?>?page=help" target="_top">使い方</a>
+    <a href="<?= webAppUrl ?>?page=mypage" target="_top">事業主ログイン/マイページ</a>
+  </div>
+</div>
+
+<div class="container">
+  <div id="tabs" class="tabs"></div>
+  <div id="poster-grid" class="grid"><div class="loading">読み込み中...</div></div>
+  <div id="business-list" style="display:none"></div>
+</div>
+
+<!-- 詳細モーダル -->
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <span class="modal-close" onclick="closeModal()">×</span>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<?!= include('script') ?>
+<script>
+let allPosters = [];
+let allBusinesses = [];
+let currentCategory = 'all';
+let currentBizCategory = 'all';
+let categories = [];
+
+window.addEventListener('load', () => {
+  categories = <?!= categoriesJson ?>;
+  renderTabs();
+  loadPosters();
+  logEvent('page_view', '');
+
+  document.getElementById('modal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeModal();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+  });
+});
+
+function renderTabs() {
+  const tabs = document.getElementById('tabs');
+  const items = [
+    { key: 'all', label: 'すべて' },
+    { key: 'event', label: '📢 イベント告知' },
+    ...categories.map(c => ({ key: c, label: c })),
+    { key: 'businesses', label: '🏪 事業者' }
+  ];
+  tabs.innerHTML = items.map(i =>
+    `<div class="tab ${i.key === currentCategory ? 'active' : ''}" onclick="selectTab('${i.key}')">${i.label}</div>`
+  ).join('');
+}
+
+function selectTab(key) {
+  currentCategory = key;
+  renderTabs();
+  if (key === 'businesses') {
+    document.getElementById('poster-grid').style.display = 'none';
+    document.getElementById('business-list').style.display = '';
+    loadBusinesses();
+  } else {
+    document.getElementById('poster-grid').style.display = '';
+    document.getElementById('business-list').style.display = 'none';
+    renderPosters();
+  }
+}
+
+function loadPosters() {
+  const url = '<?= webAppUrl ?>?page=api';
+  fetch(url)
+    .then(r => r.json())
+    .then(data => { allPosters = data.posters || []; renderPosters(); })
+    .catch(() => {
+      document.getElementById('poster-grid').innerHTML =
+        '<div class="empty">ポスターの読み込みに失敗しました。再読み込みしてください。</div>';
+    });
+}
+
+function renderPosters() {
+  const grid = document.getElementById('poster-grid');
+  let list = allPosters;
+  if (currentCategory === 'event') {
+    list = list.filter(p => p.poster_type === 'イベント');
+  } else if (currentCategory !== 'all') {
+    list = list.filter(p => p.category === currentCategory);
+  }
+  if (list.length === 0) {
+    grid.innerHTML = '<div class="empty">掲載中のポスターはありません</div>';
+    return;
+  }
+  grid.innerHTML = list.map(p => `
+    <div class="poster-card" onclick="openDetail('${p.poster_id}')">
+      <div class="poster-img-wrap">
+        <img src="${p.image_url}" alt="${escapeHtml(p.title)}" loading="lazy" onerror="this.style.background='#ddd';this.src=''">
+      </div>
+      <div class="poster-info">
+        <div>
+          ${p.poster_type === 'イベント' ? '<span class="badge event">イベント</span>' : ''}
+          ${p.category ? `<span class="badge">${escapeHtml(p.category)}</span>` : ''}
+        </div>
+        <h3>${escapeHtml(p.business.business_name)}</h3>
+        <div class="meta">${escapeHtml(p.business.area)}${p.business.address ? ' / ' + escapeHtml(p.business.address) : ''}</div>
+        ${p.comment ? `<div class="poster-comment">${linkify(p.comment)}</div>` : ''}
+        <div class="pr">${escapeHtml(truncate(p.business.pr_text, 60))}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openDetail(posterId) {
+  const p = allPosters.find(x => x.poster_id === posterId);
+  if (!p) return;
+  logEvent('detail_click', posterId);
+  const b = p.business;
+  const contacts = [];
+  (b.contact_method || []).forEach(m => {
+    if (m === 'メール' && b.email) contacts.push(`<a href="mailto:${b.email}" onclick="logEvent('contact_click','${posterId}')">✉️ メール</a>`);
+    if (m === '電話' && b.phone) contacts.push(`<a href="tel:${b.phone}" onclick="logEvent('contact_click','${posterId}')">📞 電話</a>`);
+    if (m === 'LINE公式' && b.line_url) contacts.push(`<a href="${b.line_url}" target="_blank" onclick="logEvent('contact_click','${posterId}')">LINE</a>`);
+    if (m === '自社サイト/SNS URL') {
+      if (b.website_url) contacts.push(`<a class="sub" href="${b.website_url}" target="_blank" onclick="logEvent('website_click','${posterId}')">🌐 サイト</a>`);
+      if (b.sns_url) contacts.push(`<a class="sub" href="${b.sns_url}" target="_blank" onclick="logEvent('website_click','${posterId}')">📱 SNS</a>`);
+    }
+  });
+
+  document.getElementById('modal-body').innerHTML = `
+    <h2>${escapeHtml(b.business_name)}</h2>
+    <div style="margin-bottom:12px">
+      ${p.poster_type === 'イベント' ? '<span class="badge event">イベント</span>' : ''}
+      ${p.category ? `<span class="badge">${escapeHtml(p.category)}</span>` : ''}
+    </div>
+    <img src="${p.image_url}" style="width:100%;border-radius:8px;margin-bottom:12px">
+    <h3 style="margin:8px 0">${escapeHtml(p.title)}</h3>
+    ${p.comment ? `<div class="poster-comment modal">${linkify(p.comment)}</div>` : ''}
+    <p style="white-space:pre-wrap;word-break:break-word">${linkify(b.pr_text)}</p>
+    <div style="font-size:13px;color:#666;margin:12px 0">
+      ${b.address ? '📍 ' + escapeHtml(b.address) + '<br>' : ''}
+      ${b.area ? 'エリア: ' + escapeHtml(b.area) + '<br>' : ''}
+      ${p.poster_type === 'イベント' ? '開催期間: ' + p.start_date + ' 〜 ' + p.end_date : ''}
+    </div>
+    <div class="contact-row">${contacts.join('')}</div>
+  `;
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+
+function loadBusinesses() {
+  const el = document.getElementById('business-list');
+  if (allBusinesses.length > 0) { renderBusinessList(); return; }
+  el.innerHTML = '<div class="loading">読み込み中...</div>';
+  fetch('<?= webAppUrl ?>?page=api&type=businesses')
+    .then(r => r.json())
+    .then(data => { allBusinesses = data.businesses || []; renderBusinessList(); })
+    .catch(() => { el.innerHTML = '<div class="empty">読み込みに失敗しました</div>'; });
+}
+
+function selectBizCategory(cat) {
+  currentBizCategory = cat;
+  renderBusinessList();
+}
+
+function renderBusinessList() {
+  const el = document.getElementById('business-list');
+  if (allBusinesses.length === 0) {
+    el.innerHTML = '<div class="empty">登録事業者はまだいません</div>';
+    return;
+  }
+  const cats = [...new Set(allBusinesses.map(b => b.category || 'その他'))];
+  const filtered = currentBizCategory === 'all'
+    ? allBusinesses
+    : allBusinesses.filter(b => (b.category || 'その他') === currentBizCategory);
+
+  const pills = ['all', ...cats].map(c => {
+    const label = c === 'all' ? 'すべて' : c;
+    const active = c === currentBizCategory ? 'active' : '';
+    return `<button class="tab ${active}" onclick="selectBizCategory('${escapeHtml(c)}')">${escapeHtml(label)}</button>`;
+  }).join('');
+
+  const grouped = {};
+  filtered.forEach(b => {
+    const cat = b.category || 'その他';
+    if (!grouped[cat]) grouped[cat] = [];
+    grouped[cat].push(b);
+  });
+  const listHtml = currentBizCategory !== 'all'
+    ? `<div class="biz-list">${filtered.map(b => renderBizCard(b)).join('')}</div>`
+    : Object.entries(grouped).map(([cat, list]) => `
+        <div class="biz-group">
+          <h3 class="biz-cat-title">${escapeHtml(cat)}</h3>
+          <div class="biz-list">${list.map(b => renderBizCard(b)).join('')}</div>
+        </div>
+      `).join('');
+
+  el.innerHTML = `<div class="tabs" style="margin-bottom:16px">${pills}</div>${listHtml}`;
+}
+
+function renderBizCard(b) {
+  const contacts = [];
+  (b.contact_method || []).forEach(m => {
+    if (m === 'メール' && b.email) contacts.push(`<a href="mailto:${b.email}">✉️ メール</a>`);
+    if (m === '電話' && b.phone) contacts.push(`<span>📞 ${escapeHtml(b.phone)}</span>`);
+    if (m === 'LINE公式' && b.line_url) contacts.push(`<a href="${b.line_url}" target="_blank" rel="noopener">LINE</a>`);
+    if (m === '自社サイト/SNS URL') {
+      if (b.website_url) contacts.push(`<a href="${b.website_url}" target="_blank" rel="noopener">🌐 サイト</a>`);
+      if (b.sns_url) contacts.push(`<a href="${b.sns_url}" target="_blank" rel="noopener">📱 SNS</a>`);
+    }
+  });
+  return `
+    <div class="biz-card">
+      <div class="biz-name">${escapeHtml(b.business_name)}${b.entity_type === '団体' ? ' <span class="badge">団体</span>' : ''}</div>
+      <div class="biz-meta">${b.area ? escapeHtml(b.area) : ''}${b.address ? ' / ' + escapeHtml(b.address) : ''}</div>
+      ${b.pr_text ? `<div class="biz-pr">${escapeHtml(truncate(b.pr_text, 80))}</div>` : ''}
+      ${contacts.length ? `<div class="contact-row">${contacts.join('')}</div>` : ''}
+    </div>
+  `;
+}
+
+function escapeHtml(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function truncate(s, n) { s = s || ''; return s.length > n ? s.slice(0, n) + '…' : s; }
+function linkify(s) {
+  return escapeHtml(s).replace(/(https?:\/\/[^\s<>"']+)/g,
+    '<a href="$1" target="_blank" rel="noopener">$1</a>');
+}
+</script>
+<script>(function(){var G='https://script.google.com/macros/s/AKfycbycw2FBvcm34mS9R8SUNg28KscGqqGjR1zjz3hnLYq8ckgKCZObYaC9kbMs8R2SGXgC/exec';var v=localStorage.getItem('cocola_vid');if(!v){v=Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);localStorage.setItem('cocola_vid',v);}new Image().src=G+'?mode=pageview&p='+encodeURIComponent('freefree掲示板')+'&vid='+encodeURIComponent(v);})();</script>
+</body>
+</html>
