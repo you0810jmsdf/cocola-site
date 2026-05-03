@@ -258,6 +258,7 @@ body{margin:0;padding:12px;font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans
 // ── 設定 ──
 var GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbycw2FBvcm34mS9R8SUNg28KscGqqGjR1zjz3hnLYq8ckgKCZObYaC9kbMs8R2SGXgC/exec';
 var DATA_JSON = 'data.json';
+var DELETED_IDS_KEY = 'COCOLA_SCHEDULE_DELETED_IDS';
 
 // ── 状態 ──
 var _items = [];
@@ -274,13 +275,32 @@ var _selectedDate = null;
   loadData();
 })();
 
+// ── 削除済みID管理（data.json が古くても復活しないよう localStorage に記憶）──
+function getDeletedIds() {
+  try { return JSON.parse(localStorage.getItem(DELETED_IDS_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+function rememberDeletedId(id) {
+  var ids = getDeletedIds();
+  if (ids.indexOf(id) === -1) { ids.push(id); localStorage.setItem(DELETED_IDS_KEY, JSON.stringify(ids)); }
+}
+function filterDeleted(items) {
+  var ids = getDeletedIds();
+  return ids.length ? items.filter(function(ev){ return ids.indexOf(ev.id) === -1; }) : items;
+}
+function cleanupDeletedIds(items) {
+  var presentIds = items.map(function(ev){ return ev.id; });
+  var ids = getDeletedIds().filter(function(id){ return presentIds.indexOf(id) !== -1; });
+  localStorage.setItem(DELETED_IDS_KEY, JSON.stringify(ids));
+}
+
 function loadData() {
   document.getElementById('loading').style.display = 'block';
   document.getElementById('error-area').innerHTML = '';
   fetch(DATA_JSON + '?t=' + Date.now())
     .then(function(r){ return r.json(); })
     .then(function(d){
-      _items = (d && Array.isArray(d.items)) ? d.items : [];
+      _items = filterDeleted((d && Array.isArray(d.items)) ? d.items : []);
       document.getElementById('loading').style.display = 'none';
       renderView();
     })
@@ -297,7 +317,8 @@ function reloadFromGas(retry) {
     .then(function(r){ return r.json(); })
     .then(function(d){
       if (d && Array.isArray(d.items)) {
-        _items = d.items;
+        cleanupDeletedIds(d.items); // GASが正とみなし、消えたIDをlocalStorageから削除
+        _items = filterDeleted(d.items);
         renderView();
       } else if (!retry) {
         setTimeout(function(){ loadData(); }, 2000);
@@ -592,6 +613,7 @@ function confirmDelete(id) {
     .then(function(r){ return r.json(); })
     .then(function(res) {
       if (res && res.ok) {
+        rememberDeletedId(id);
         showToast('削除しました');
         reloadFromGas();
       } else {
