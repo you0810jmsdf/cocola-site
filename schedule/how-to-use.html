@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>メンバーカレンダー 使い方 | COCoLa</title>
+<style>
+:root{
+  --green:#1d9e75;--green-dark:#0f6e56;--green-light:#e8f7f2;
+  --bg:#f7faf8;--surface:rgba(255,255,255,0.94);--border:rgba(29,158,117,0.18);
+  --text:#183128;--muted:#607068;
+}
+*{box-sizing:border-box;}
+body{margin:0;padding:12px;font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans-serif;font-size:14px;color:var(--text);background:var(--bg);}
+.wrap{max-width:700px;margin:0 auto;}
+.page-header{padding:10px 0 14px;margin-bottom:20px;border-bottom:2px solid var(--green);}
+.page-kicker{margin:0 0 3px;font-size:11px;color:var(--muted);font-weight:bold;letter-spacing:0.08em;}
+.page-header h1{margin:0 0 4px;font-size:22px;color:var(--green);line-height:1.35;}
+.page-header p{margin:0;font-size:13px;color:var(--muted);}
+.back-link{font-size:12px;color:var(--muted);text-decoration:none;display:inline-block;margin-bottom:6px;}
+.back-link:hover{color:var(--green);}
+
+.section{margin-bottom:28px;}
+.section h2{font-size:16px;color:var(--green);margin:0 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px;}
+.section h2 .icon{font-size:18px;}
+
+.card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:10px;}
+.card p{margin:0 0 6px;line-height:1.7;font-size:13px;}
+.card p:last-child{margin-bottom:0;}
+
+.step-list{margin:0;padding:0;list-style:none;display:grid;gap:8px;}
+.step-list li{display:flex;gap:12px;align-items:flex-start;}
+.step-num{flex-shrink:0;width:24px;height:24px;background:var(--green);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;margin-top:1px;}
+.step-text{font-size:13px;line-height:1.7;color:var(--text);}
+.step-text b{color:var(--green);}
+
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:500px){.type-grid{grid-template-columns:1fr;}}
+.type-card{border:1px solid var(--border);border-radius:8px;padding:12px 14px;background:#fff;}
+.type-card.cal-type{border-left:3px solid #b4c0f0;}
+.type-card h3{margin:0 0 6px;font-size:13px;font-weight:bold;color:var(--text);}
+.type-card p{margin:0;font-size:12px;color:var(--muted);line-height:1.6;}
+.badge{display:inline-block;font-size:10px;padding:1px 7px;border-radius:10px;font-weight:bold;margin-bottom:6px;}
+.badge-green{background:var(--green-light);color:var(--green);border:1px solid var(--green);}
+.badge-blue{background:#eef2ff;color:#4563c7;border:1px solid #b4c0f0;}
+
+.note-box{background:#fffbe6;border:1px solid #f5e07a;border-radius:6px;padding:10px 14px;font-size:12px;color:#6b5a00;line-height:1.7;}
+.note-box b{color:#4a3d00;}
+
+.field-table{width:100%;border-collapse:collapse;font-size:13px;}
+.field-table th{background:var(--green-light);color:var(--green);font-weight:bold;padding:7px 10px;text-align:left;border:1px solid var(--border);}
+.field-table td{padding:7px 10px;border:1px solid var(--border);vertical-align:top;line-height:1.6;}
+.field-table tr:nth-child(even) td{background:#f9fefb;}
+.required{color:#c0392b;font-weight:bold;}
+
+.action-chip{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:bold;margin-right:4px;}
+.chip-edit{background:var(--green-light);color:var(--green);}
+.chip-del{background:#fce8e8;color:#c0392b;}
+.chip-import{background:var(--green-light);color:var(--green);}
+
+.faq-list{margin:0;padding:0;list-style:none;display:grid;gap:10px;}
+.faq-item{border:1px solid var(--border);border-radius:8px;overflow:hidden;background:#fff;}
+.faq-q{padding:10px 14px;font-weight:bold;font-size:13px;color:var(--green);cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+.faq-q::after{content:"▼";font-size:10px;color:var(--muted);}
+.faq-a{padding:0 14px 12px;font-size:13px;color:var(--text);line-height:1.7;}
+
+.footer-nav{margin-top:32px;padding-top:16px;border-top:1px solid var(--border);text-align:center;}
+.footer-nav a{display:inline-block;padding:10px 24px;background:var(--green);color:#fff;border-radius:6px;text-decoration:none;font-size:13px;font-weight:bold;}
+.footer-nav a:hover{background:var(--green-dark);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="page-header">
+    <a class="back-link" href="index.html">← メンバーカレンダーへ戻る</a>
+    <p class="page-kicker">COCoLa メンバー限定</p>
+    <h1>メンバーカレンダー 使い方</h1>
+    <p>カレンダーの見方・イベントの登録・編集・削除の方法をまとめています。</p>
+  </div>
+
+  <!-- 1. カレンダーの見方 -->
+  <div class="section">
+    <h2><span class="icon">📅</span>カレンダーの見方</h2>
+    <div class="card">
+      <p>画面上部の <b>「月カレンダー」「リスト」</b> タブで表示を切り替えられます。</p>
+      <p><b>月カレンダー</b>：月ごとの日程一覧。日付をタップするとその日のイベントが下に表示されます。</p>
+      <p><b>リスト</b>：今後のイベントを日付順に一覧表示します。月ごとにまとめて表示され、タップで開閉できます。</p>
+    </div>
+    <div class="card">
+      <p>カレンダー上部の <b>◀ ▶ ボタン</b>で月を前後に移動できます。</p>
+      <p>今日の日付は<span style="display:inline-block;margin:0 4px;padding:0 5px;background:#e8f7f2;border:1px solid var(--green);border-radius:3px;font-size:12px;color:var(--green);font-weight:bold;">緑色</span>でハイライトされています。</p>
+    </div>
+  </div>
+
+  <!-- 2. イベントの登録 -->
+  <div class="section">
+    <h2><span class="icon">＋</span>イベントを登録する</h2>
+    <div class="card">
+      <ul class="step-list">
+        <li>
+          <div class="step-num">1</div>
+          <div class="step-text">ページ上部の <b>「＋ イベントを登録」</b> ボタンをタップします。</div>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <div class="step-text">フォームに必要事項を入力します（必須項目は <span class="required">＊</span> が付いています）。</div>
+        </li>
+        <li>
+          <div class="step-num">3</div>
+          <div class="step-text"><b>「登録する」</b> ボタンを押すと保存されます。カレンダーへの反映は最大5分程度かかります。</div>
+        </li>
+      </ul>
+    </div>
+
+    <table class="field-table">
+      <thead>
+        <tr><th>項目</th><th>説明</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>イベント名 <span class="required">＊</span></td>
+          <td>イベントのタイトル。例：COCoLa 朝活 #5</td>
+        </tr>
+        <tr>
+          <td>日付 <span class="required">＊</span></td>
+          <td>開催日を選択します。</td>
+        </tr>
+        <tr>
+          <td>開始・終了時刻</td>
+          <td>省略可能です。終日イベントの場合は空欄のままにしてください。</td>
+        </tr>
+        <tr>
+          <td>場所</td>
+          <td>例：千葉ニュータウン中央駅前</td>
+        </tr>
+        <tr>
+          <td>参加者</td>
+          <td>カンマ区切りで入力します。例：田中, 鈴木</td>
+        </tr>
+        <tr>
+          <td>メモ</td>
+          <td>概要・持ち物・URLなど自由に記載できます。</td>
+        </tr>
+        <tr>
+          <td>千葉NT イベント一覧にも掲載する</td>
+          <td>チェックを入れると、印西イベント一覧（TOPICSシート）にも自動コピーされます。<br>一般公開したいイベントにチェックしてください。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 3. イベントの編集・削除 -->
+  <div class="section">
+    <h2><span class="icon">✏️</span>イベントを編集・削除する</h2>
+    <div class="card">
+      <p>カレンダーまたはリストに表示されているイベントをタップすると、<span class="action-chip chip-edit">編集</span><span class="action-chip chip-del">削除</span> ボタンが表示されます。</p>
+      <p><b>編集</b>：登録内容をフォームで修正して上書き保存できます。</p>
+      <p><b>削除</b>：確認なしに即削除されます。間違えないようご注意ください。</p>
+    </div>
+  </div>
+
+  <!-- 4. イベントの種類 -->
+  <div class="section">
+    <h2><span class="icon">🏷️</span>イベントの種類</h2>
+    <div class="type-grid">
+      <div class="type-card">
+        <span class="badge badge-green">📝 このページから登録</span>
+        <h3>スプレッドシート管理のイベント</h3>
+        <p>このページから登録したイベントはスプレッドシートで管理されます。編集・削除はこのページから行えます。</p>
+      </div>
+      <div class="type-card cal-type">
+        <span class="badge badge-blue">📅 Googleカレンダー直接登録</span>
+        <h3>Googleカレンダーのイベント</h3>
+        <p>Googleカレンダーに直接登録されたイベントです。「取り込んで編集」を押すとこのページに登録して編集できます。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. よくある質問 -->
+  <div class="section">
+    <h2><span class="icon">❓</span>よくある質問</h2>
+    <ul class="faq-list">
+      <li class="faq-item">
+        <div class="faq-q">登録したのにカレンダーに表示されません</div>
+        <div class="faq-a">登録直後は最大5分程度、カレンダーへの反映が遅れることがあります。しばらく待ってからページを再読み込みしてみてください。</div>
+      </li>
+      <li class="faq-item">
+        <div class="faq-q">「千葉NT イベント一覧」とは何ですか？</div>
+        <div class="faq-a">印西市・千葉ニュータウン周辺のイベントを掲載するCOCoLaの公開ページです。チェックを入れると一般の方にも見えるようになります。メンバー内部のみの活動はチェックを外してください。</div>
+      </li>
+      <li class="faq-item">
+        <div class="faq-q">削除したイベントを元に戻せますか？</div>
+        <div class="faq-a">現在、削除の取り消し機能はありません。削除は慎重に行ってください。管理者に相談いただければスプレッドシートから復元できる場合があります。</div>
+      </li>
+      <li class="faq-item">
+        <div class="faq-q">Googleカレンダーのイベントを編集・削除するには？</div>
+        <div class="faq-a">「取り込んで編集」ボタンを押すと、このページのスプレッドシートにコピーされ、編集・削除が可能になります。元のGoogleカレンダー側は変更されません。</div>
+      </li>
+    </ul>
+  </div>
+
+  <div class="note-box">
+    <b>⚠️ このページについて</b><br>
+    メンバーカレンダーはCOCoLa会員専用ページです。URLを外部に共有しないようお願いします。
+  </div>
+
+  <div class="footer-nav">
+    <a href="index.html">← メンバーカレンダーへ戻る</a>
+  </div>
+
+</div>
+</body>
+</html>
