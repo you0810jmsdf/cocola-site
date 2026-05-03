@@ -104,6 +104,7 @@ body{margin:0;padding:12px;font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans
     <p class="page-kicker">COCoLa メンバー限定</p>
     <h1>メンバーカレンダー</h1>
     <p>COCoLa メンバーが企画・参加する活動を管理するカレンダーです。</p>
+    <p style="font-size:11px;color:var(--muted);margin:6px 0 0;">⏱ イベントの表示は最大5分程度遅れることがあります（自動更新の間隔による）。登録直後に反映されない場合はしばらくお待ちください。</p>
   </div>
 
   <div class="toolbar">
@@ -114,6 +115,43 @@ body{margin:0;padding:12px;font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans
     <button class="vbtn active" id="tab-month" onclick="switchView('month')">月カレンダー</button>
     <button class="vbtn" id="tab-list" onclick="switchView('list')">リスト</button>
   </div>
+
+  <!-- イベント種類の説明 -->
+  <details style="margin-bottom:12px;font-size:12px;color:var(--muted);border:1px solid var(--border);border-radius:6px;background:#fff;">
+    <summary style="padding:8px 12px;cursor:pointer;font-weight:bold;color:var(--green);list-style:none;display:flex;align-items:center;gap:6px;">
+      <span>▶</span> <span>イベントの種類について</span>
+    </summary>
+    <div style="padding:0 12px 12px;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;">
+      <!-- 通常イベント例 -->
+      <div>
+        <p style="margin:0 0 5px;font-size:11px;font-weight:bold;color:var(--muted);">📝 このページから登録したイベント</p>
+        <div style="border:1px solid var(--border);border-radius:6px;padding:8px 10px;background:#fff;">
+          <p style="margin:0 0 2px;font-size:12px;font-weight:bold;">サンプルイベント</p>
+          <p style="margin:0 0 4px;font-size:11px;color:var(--muted);">5/10 10:00〜12:00</p>
+          <div style="display:flex;gap:4px;">
+            <span style="font-size:10px;padding:1px 6px;border-radius:3px;background:var(--green-light);color:var(--green);font-weight:bold;">編集</span>
+            <span style="font-size:10px;padding:1px 6px;border-radius:3px;background:#fce8e8;color:#c0392b;font-weight:bold;">削除</span>
+          </div>
+        </div>
+        <p style="margin:5px 0 0;font-size:10px;line-height:1.5;">スプレッドシートで管理されます。このページから編集・削除できます。</p>
+      </div>
+      <!-- カレンダーのみイベント例 -->
+      <div>
+        <p style="margin:0 0 5px;font-size:11px;font-weight:bold;color:var(--muted);">📅 Googleカレンダー直接登録</p>
+        <div style="border:1px solid #b4c0f0;border-left:3px solid #b4c0f0;border-radius:6px;padding:8px 10px;background:#fff;">
+          <div style="display:flex;align-items:center;gap:4px;margin-bottom:2px;">
+            <p style="margin:0;font-size:12px;font-weight:bold;">サンプルイベント</p>
+          </div>
+          <p style="margin:0 0 4px;font-size:11px;color:var(--muted);">5/10 10:00〜12:00</p>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;">
+            <span style="font-size:10px;padding:1px 6px;border-radius:10px;background:#eef2ff;color:#4563c7;border:1px solid #b4c0f0;">📅 Googleカレンダー</span>
+            <span style="font-size:10px;padding:1px 6px;border-radius:3px;background:var(--green-light);color:var(--green);font-weight:bold;">取り込んで編集</span>
+          </div>
+        </div>
+        <p style="margin:5px 0 0;font-size:10px;line-height:1.5;">Googleカレンダーに直接登録したもの。「取り込んで編集」でこのページに登録できます。</p>
+      </div>
+    </div>
+  </details>
 
   <div id="error-area"></div>
   <div id="loading" class="loading">読み込み中…</div>
