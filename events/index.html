@@ -118,6 +118,13 @@ details[open]>.month-summary::before{transform:rotate(90deg);}
   </div>
   <div id="refresh-status" style="font-size:12px;color:#555;margin-bottom:4px;min-height:1.4em;"></div>
   <div id="error-area"></div>
+  <div id="search-area" style="margin-bottom:8px;">
+    <div style="position:relative;">
+      <input id="search-input" type="search" placeholder="🔍 キーワードで絞り込む（タイトル・場所・説明）" oninput="_onSearch(this.value)" style="width:100%;box-sizing:border-box;padding:9px 36px 9px 12px;border:1px solid #ddd;border-radius:4px;font-size:14px;font-family:inherit;outline:none;color:#333;">
+      <button id="search-clear" onclick="_clearSearch()" style="display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#aaa;font-size:18px;line-height:1;padding:0;" aria-label="クリア">✕</button>
+    </div>
+    <div id="search-count" style="font-size:12px;color:#888;margin-top:4px;min-height:1.4em;"></div>
+  </div>
   <div class="view-tabs">
     <button id="btn-list" class="vbtn active" onclick="_setView('list')">リスト</button>
     <button id="btn-month" class="vbtn" onclick="_setView('month')">月</button>
@@ -131,6 +138,7 @@ var STATIC_JSON_URL = './data.json';
 var STATIC_MAX_AGE_MS = 5 * 60 * 1000;
 
 var EVTS = [];
+var _searchQuery = '';
 var _now = new Date();
 var _view = 'list';
 var _mo = new Date(_now.getFullYear(), _now.getMonth(), 1);
@@ -230,10 +238,45 @@ function _card(ev) {
   }
   return s + '</div>';
 }
+function _getFilteredEvts() {
+  if (!_searchQuery) return EVTS;
+  var qs = _searchQuery.toLowerCase().split(/\s+/).filter(Boolean);
+  return EVTS.filter(function(ev) {
+    var hay = [ev.t, ev.l, ev.desc, ev.d, ev.s].join(' ').toLowerCase();
+    return qs.every(function(q) { return hay.indexOf(q) !== -1; });
+  });
+}
+function _onSearch(val) {
+  _searchQuery = val.trim();
+  document.getElementById('search-clear').style.display = _searchQuery ? '' : 'none';
+  if (_searchQuery) {
+    ['list','month','week'].forEach(function(x) {
+      var b = document.getElementById('btn-' + x);
+      if (b) b.className = 'vbtn' + (x === 'list' ? ' active' : '');
+    });
+    _view = 'list';
+  }
+  _render();
+}
+function _clearSearch() {
+  _searchQuery = '';
+  var inp = document.getElementById('search-input');
+  if (inp) inp.value = '';
+  document.getElementById('search-clear').style.display = 'none';
+  document.getElementById('search-count').textContent = '';
+  _render();
+}
 function _renderList(el) {
-  if (!EVTS.length) { el.innerHTML = '<p class="empty">現在公開中のイベントはありません</p>'; return; }
+  var evts = _getFilteredEvts();
+  var cntEl = document.getElementById('search-count');
+  if (_searchQuery) {
+    cntEl.textContent = evts.length ? evts.length + '件ヒット' : '該当するイベントが見つかりませんでした';
+  } else {
+    cntEl.textContent = '';
+  }
+  if (!evts.length) { el.innerHTML = '<p class="empty">' + (_searchQuery ? '条件に合うイベントはありません' : '現在公開中のイベントはありません') + '</p>'; return; }
   var groups = {}, groupKeys = [];
-  EVTS.forEach(function(ev) {
+  evts.forEach(function(ev) {
     var d = ev.ts ? new Date(ev.ts) : null;
     var key = d ? (d.getFullYear() + '_' + (d.getMonth() + 1)) : 'nodate';
     var label = d ? (d.getFullYear() + '年' + (d.getMonth() + 1) + '月') : '日付不明';
