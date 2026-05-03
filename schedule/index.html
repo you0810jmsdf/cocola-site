@@ -132,20 +132,23 @@ body{margin:0;padding:12px;font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans
 
 <!-- 管理者セクション -->
 <div class="wrap" style="margin-top:32px;padding-top:18px;border-top:1px solid #ccc;">
-  <details id="admin-details">
-    <summary style="cursor:pointer;font-size:13px;color:var(--muted);user-select:none;">🔒 管理者メニュー</summary>
-    <div id="admin-locked" style="margin-top:10px;">
+  <div style="display:flex;align-items:center;gap:8px;">
+    <span id="admin-toggle-btn" style="cursor:pointer;font-size:13px;color:var(--muted);user-select:none;">▶ 🔒 管理者メニュー</span>
+  </div>
+  <div id="admin-body" style="display:none;margin-top:10px;">
+    <div id="admin-locked">
       <input type="password" id="admin-pass" placeholder="パスワードを入力" style="padding:6px 10px;border:1px solid #ccc;border-radius:4px;font-size:13px;font-family:inherit;">
-      <button onclick="adminUnlock()" style="margin-left:6px;padding:6px 14px;background:var(--green);color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:13px;font-family:inherit;">解除</button>
+      <button id="admin-unlock-btn" style="margin-left:6px;padding:6px 14px;background:#1d9e75;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:13px;font-family:inherit;">解除</button>
+      <span id="admin-err" style="margin-left:8px;font-size:12px;color:#c0392b;display:none;">パスワードが違います</span>
     </div>
-    <div id="admin-panel" style="display:none;margin-top:10px;">
+    <div id="admin-panel" style="display:none;">
       <a href="https://calendar.google.com/calendar/r" target="_blank"
-         style="display:inline-block;padding:9px 18px;background:var(--green);color:#fff;border-radius:6px;font-size:13px;font-weight:bold;text-decoration:none;">
+         style="display:inline-block;padding:9px 18px;background:#1d9e75;color:#fff;border-radius:6px;font-size:13px;font-weight:bold;text-decoration:none;">
         Googleカレンダーを開く（cocola.project@gmail.com）
       </a>
       <p style="margin:8px 0 0;font-size:12px;color:var(--muted);">※ cocola.project@gmail.com でログインした状態で開いてください。</p>
     </div>
-  </details>
+  </div>
 </div>
 
 <!-- 登録・編集モーダル -->
@@ -234,17 +237,21 @@ function loadData() {
     });
 }
 
-// CRUD後は GAS から直接取得して即時反映
-function reloadFromGas() {
+// CRUD後は GAS から直接取得して即時反映（失敗時は2秒後に data.json で再試行）
+function reloadFromGas(retry) {
   fetch(GAS_ENDPOINT + '?mode=schedule_list&t=' + Date.now())
     .then(function(r){ return r.json(); })
     .then(function(d){
       if (d && Array.isArray(d.items)) {
         _items = d.items;
         renderView();
+      } else if (!retry) {
+        setTimeout(function(){ loadData(); }, 2000);
       }
     })
-    .catch(function(){});
+    .catch(function(){
+      if (!retry) setTimeout(function(){ loadData(); }, 2000);
+    });
 }
 
 // ── ビュー切り替え ──
@@ -521,12 +528,31 @@ function esc(s){
 var ADMIN_PASS = 'cocola2026';
 function adminUnlock() {
   if (document.getElementById('admin-pass').value === ADMIN_PASS) {
+    document.getElementById('admin-err').style.display = 'none';
     document.getElementById('admin-locked').style.display = 'none';
     document.getElementById('admin-panel').style.display = 'block';
   } else {
-    alert('パスワードが違います');
+    document.getElementById('admin-err').style.display = 'inline';
   }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('admin-toggle-btn').addEventListener('click', function() {
+    var body = document.getElementById('admin-body');
+    var btn = document.getElementById('admin-toggle-btn');
+    if (body.style.display === 'none') {
+      body.style.display = 'block';
+      btn.textContent = '▼ 🔒 管理者メニュー';
+    } else {
+      body.style.display = 'none';
+      btn.textContent = '▶ 🔒 管理者メニュー';
+    }
+  });
+  document.getElementById('admin-unlock-btn').addEventListener('click', adminUnlock);
+  document.getElementById('admin-pass').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') adminUnlock();
+  });
+});
 
 function showToast(msg) {
   var t = document.createElement('div');
