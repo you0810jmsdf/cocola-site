@@ -130,6 +130,24 @@ body{margin:0;padding:12px;font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans
   </div>
 </div>
 
+<!-- 管理者セクション -->
+<div class="wrap" style="margin-top:32px;padding-top:18px;border-top:1px solid #ccc;">
+  <details id="admin-details">
+    <summary style="cursor:pointer;font-size:13px;color:var(--muted);user-select:none;">🔒 管理者メニュー</summary>
+    <div id="admin-locked" style="margin-top:10px;">
+      <input type="password" id="admin-pass" placeholder="パスワードを入力" style="padding:6px 10px;border:1px solid #ccc;border-radius:4px;font-size:13px;font-family:inherit;">
+      <button onclick="adminUnlock()" style="margin-left:6px;padding:6px 14px;background:var(--green);color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:13px;font-family:inherit;">解除</button>
+    </div>
+    <div id="admin-panel" style="display:none;margin-top:10px;">
+      <a href="https://calendar.google.com/calendar/r" target="_blank"
+         style="display:inline-block;padding:9px 18px;background:var(--green);color:#fff;border-radius:6px;font-size:13px;font-weight:bold;text-decoration:none;">
+        Googleカレンダーを開く（cocola.project@gmail.com）
+      </a>
+      <p style="margin:8px 0 0;font-size:12px;color:var(--muted);">※ cocola.project@gmail.com でログインした状態で開いてください。</p>
+    </div>
+  </details>
+</div>
+
 <!-- 登録・編集モーダル -->
 <div class="modal-overlay hidden" id="modal-overlay">
   <div class="modal">
@@ -214,6 +232,19 @@ function loadData() {
       document.getElementById('error-area').innerHTML =
         '<div class="error-banner">データ読み込みエラー。再読み込みしてください。</div>';
     });
+}
+
+// CRUD後は GAS から直接取得して即時反映
+function reloadFromGas() {
+  fetch(GAS_ENDPOINT + '?mode=schedule_list&t=' + Date.now())
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d && Array.isArray(d.items)) {
+        _items = d.items;
+        renderView();
+      }
+    })
+    .catch(function(){});
 }
 
 // ── ビュー切り替え ──
@@ -448,7 +479,7 @@ function saveEvent() {
       if (res && res.ok) {
         closeModal();
         showToast(_editId ? 'イベントを更新しました' : 'イベントを登録しました。Googleカレンダーにも反映されます。');
-        setTimeout(loadData, 1000);
+        reloadFromGas();
       } else {
         alert('保存に失敗しました: ' + (res && res.error ? res.error : '不明なエラー'));
       }
@@ -470,7 +501,7 @@ function confirmDelete(id) {
     .then(function(res) {
       if (res && res.ok) {
         showToast('削除しました');
-        setTimeout(loadData, 1000);
+        reloadFromGas();
       } else {
         alert('削除に失敗しました');
       }
@@ -485,6 +516,16 @@ function fmtDate(d) {
 function pad2(n){ return n < 10 ? '0'+n : String(n); }
 function esc(s){
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+var ADMIN_PASS = 'cocola2026';
+function adminUnlock() {
+  if (document.getElementById('admin-pass').value === ADMIN_PASS) {
+    document.getElementById('admin-locked').style.display = 'none';
+    document.getElementById('admin-panel').style.display = 'block';
+  } else {
+    alert('パスワードが違います');
+  }
 }
 
 function showToast(msg) {
