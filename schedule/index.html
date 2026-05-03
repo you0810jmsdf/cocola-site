@@ -12,7 +12,7 @@
 }
 *{box-sizing:border-box;}
 body{margin:0;padding:12px;font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans-serif;font-size:14px;color:var(--text);background:var(--bg);}
-.wrap{max-width:820px;margin:0 auto;}
+.wrap{max-width:700px;margin:0 auto;}
 .page-header{padding:10px 0 14px;margin-bottom:14px;border-bottom:2px solid var(--green);}
 .page-kicker{margin:0 0 3px;font-size:11px;color:var(--muted);font-weight:bold;letter-spacing:0.08em;}
 .page-header h1{margin:0 0 4px;font-size:22px;color:var(--green);line-height:1.35;}
@@ -194,6 +194,7 @@ body{margin:0;padding:12px;font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans
         <label for="f-public">千葉NT イベント一覧にも掲載する（公開）</label>
       </div>
       <p class="public-note">※チェックすると印西イベント一覧（TOPICSシート）にも自動コピーされます。</p>
+      <input type="hidden" id="f-cal-event-id">
     </div>
     <div class="modal-actions">
       <span class="saving-msg" id="saving-msg">保存中…</span>
@@ -400,12 +401,10 @@ function buildEvHtml(ev) {
   if (ev.isPublic) tags += '<span class="tag public">公開</span>';
   if (ev.participants) tags += '<span class="tag">参加: ' + esc(ev.participants) + '</span>';
 
-  var actions = isCalOnly
-    ? '<p style="font-size:11px;color:var(--muted);margin:6px 0 0;">Googleカレンダーから直接編集してください</p>'
-    : '<div class="ev-actions">'
-      + '<button class="ev-edit-btn" onclick="openEdit(\'' + ev.id + '\')">編集</button>'
-      + '<button class="ev-del-btn" onclick="confirmDelete(\'' + ev.id + '\')">削除</button>'
-      + '</div>';
+  var actions = '<div class="ev-actions">'
+    + '<button class="ev-edit-btn" onclick="openEdit(\'' + ev.id + '\')">' + (isCalOnly ? '取り込んで編集' : '編集') + '</button>'
+    + (isCalOnly ? '' : '<button class="ev-del-btn" onclick="confirmDelete(\'' + ev.id + '\')">削除</button>')
+    + '</div>';
 
   return '<div class="ev-item' + (isPast ? ' past' : '') + (isCalOnly ? ' cal-only-item' : '') + '" id="ev-' + ev.id + '">'
     + '<p class="ev-date-badge">' + esc(dateLabel) + '</p>'
@@ -437,7 +436,9 @@ function openAdd() {
 function openEdit(id) {
   var ev = _items.filter(function(e){ return e.id === id; })[0];
   if (!ev) return;
-  _editId = id;
+  var isCalOnly = ev.source === 'calendar';
+  _editId = isCalOnly ? null : id;
+  document.getElementById('f-cal-event-id').value = isCalOnly ? (ev.calEventId || '') : '';
   document.getElementById('f-title').value = ev.title;
   document.getElementById('f-date').value = ev.date.replace(/\//g, '-');
   document.getElementById('f-start').value = ev.startTime || '';
@@ -446,8 +447,8 @@ function openEdit(id) {
   document.getElementById('f-participants').value = ev.participants || '';
   document.getElementById('f-memo').value = ev.memo || '';
   document.getElementById('f-public').checked = ev.isPublic || false;
-  document.getElementById('modal-title').textContent = 'イベントを編集';
-  document.getElementById('modal-save-btn').textContent = '更新する';
+  document.getElementById('modal-title').textContent = isCalOnly ? 'カレンダーイベントを取り込んで編集' : 'イベントを編集';
+  document.getElementById('modal-save-btn').textContent = isCalOnly ? '取り込んで登録' : '更新する';
   document.getElementById('modal-overlay').classList.remove('hidden');
 }
 
@@ -457,7 +458,7 @@ function closeModal() {
 }
 
 function clearForm() {
-  ['f-title','f-date','f-start','f-end','f-place','f-participants','f-memo'].forEach(function(id){
+  ['f-title','f-date','f-start','f-end','f-place','f-participants','f-memo','f-cal-event-id'].forEach(function(id){
     document.getElementById(id).value = '';
   });
   document.getElementById('f-public').checked = false;
@@ -479,8 +480,20 @@ function saveEvent() {
     isPublic:     document.getElementById('f-public').checked ? 'true' : 'false'
   };
 
-  var mode = _editId ? 'schedule_edit' : 'schedule_add';
-  if (_editId) params.id = _editId;
+  var calEventId = document.getElementById('f-cal-event-id').value.trim();
+  var mode, toastMsg;
+  if (calEventId) {
+    mode = 'schedule_import';
+    params.calEventId = calEventId;
+    toastMsg = 'カレンダーイベントを取り込みました。';
+  } else if (_editId) {
+    mode = 'schedule_edit';
+    params.id = _editId;
+    toastMsg = 'イベントを更新しました';
+  } else {
+    mode = 'schedule_add';
+    toastMsg = 'イベントを登録しました。Googleカレンダーにも反映されます。';
+  }
 
   var savingMsg = document.getElementById('saving-msg');
   var saveBtn = document.getElementById('modal-save-btn');
@@ -495,7 +508,7 @@ function saveEvent() {
       saveBtn.disabled = false;
       if (res && res.ok) {
         closeModal();
-        showToast(_editId ? 'イベントを更新しました' : 'イベントを登録しました。Googleカレンダーにも反映されます。');
+        showToast(toastMsg);
         reloadFromGas();
       } else {
         alert('保存に失敗しました: ' + (res && res.error ? res.error : '不明なエラー'));
