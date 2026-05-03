@@ -146,9 +146,10 @@ body{margin:0;padding:12px;font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans
           <div style="display:flex;gap:4px;flex-wrap:wrap;">
             <span style="font-size:10px;padding:1px 6px;border-radius:10px;background:#eef2ff;color:#4563c7;border:1px solid #b4c0f0;">📅 Googleカレンダー</span>
             <span style="font-size:10px;padding:1px 6px;border-radius:3px;background:var(--green-light);color:var(--green);font-weight:bold;">取り込んで編集</span>
+            <span style="font-size:10px;padding:1px 6px;border-radius:3px;background:#fce8e8;color:#c0392b;font-weight:bold;">カレンダーから削除</span>
           </div>
         </div>
-        <p style="margin:5px 0 0;font-size:10px;line-height:1.5;">Googleカレンダーに直接登録したもの。「取り込んで編集」でこのページに登録できます。</p>
+        <p style="margin:5px 0 0;font-size:10px;line-height:1.5;">Googleカレンダーに直接登録したもの。「取り込んで編集」でこのページに登録、「カレンダーから削除」でGoogleカレンダーからも削除できます。</p>
       </div>
     </div>
   </details>
@@ -227,6 +228,10 @@ body{margin:0;padding:12px;font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans
       <div class="form-row">
         <label>参加者（カンマ区切り）</label>
         <input type="text" id="f-participants" placeholder="例: 田中, 鈴木, 佐藤">
+      </div>
+      <div class="form-row">
+        <label>企画者（DAOポイント付与対象）</label>
+        <input type="text" id="f-organizer" placeholder="例: 田中">
       </div>
       <div class="form-row">
         <label>メモ</label>
@@ -452,7 +457,7 @@ function buildEvHtml(ev) {
 
   var actions = '<div class="ev-actions">'
     + '<button class="ev-edit-btn" onclick="openEdit(\'' + ev.id + '\')">' + (isCalOnly ? '取り込んで編集' : '編集') + '</button>'
-    + (isCalOnly ? '' : '<button class="ev-del-btn" onclick="confirmDelete(\'' + ev.id + '\')">削除</button>')
+    + '<button class="ev-del-btn" onclick="confirmDelete(\'' + ev.id + '\')">' + (isCalOnly ? 'カレンダーから削除' : '削除') + '</button>'
     + '</div>';
 
   return '<div class="ev-item' + (isPast ? ' past' : '') + (isCalOnly ? ' cal-only-item' : '') + '" id="ev-' + ev.id + '">'
@@ -498,6 +503,7 @@ function openEdit(id) {
   document.getElementById('f-end').value = ev.endTime || '';
   document.getElementById('f-place').value = ev.place || '';
   document.getElementById('f-participants').value = ev.participants || '';
+  document.getElementById('f-organizer').value = ev.organizer || '';
   document.getElementById('f-memo').value = ev.memo || '';
   document.getElementById('f-public').checked = ev.isPublic || false;
   document.getElementById('modal-title').textContent = isCalOnly ? 'カレンダーイベントを取り込んで編集' : 'イベントを編集';
@@ -511,7 +517,7 @@ function closeModal() {
 }
 
 function clearForm() {
-  ['f-title','f-date','f-start','f-end','f-place','f-participants','f-memo','f-cal-event-id'].forEach(function(id){
+  ['f-title','f-date','f-start','f-end','f-place','f-participants','f-organizer','f-memo','f-cal-event-id'].forEach(function(id){
     document.getElementById(id).value = '';
   });
   document.getElementById('f-public').checked = false;
@@ -529,6 +535,7 @@ function saveEvent() {
     endTime:      document.getElementById('f-end').value.trim(),
     place:        document.getElementById('f-place').value.trim(),
     participants: document.getElementById('f-participants').value.trim(),
+    organizer:    document.getElementById('f-organizer').value.trim(),
     memo:         document.getElementById('f-memo').value.trim(),
     isPublic:     document.getElementById('f-public').checked ? 'true' : 'false'
   };
