@@ -110,6 +110,7 @@ body{margin:0;padding:12px;font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans
 
   <div class="toolbar">
     <button class="add-btn" onclick="openAdd()">＋ イベントを登録</button>
+    <a href="how-to-use.html" style="font-size:12px;color:var(--muted);text-decoration:none;padding:6px 10px;border:1px solid var(--border);border-radius:5px;background:#fff;">❓ 使い方</a>
   </div>
 
   <div class="view-tabs" style="margin-bottom:14px;">
@@ -465,7 +466,7 @@ function buildEvHtml(ev) {
     + '<p class="ev-date-badge">' + esc(dateLabel) + '</p>'
     + '<p class="ev-title">' + esc(ev.title) + '</p>'
     + (ev.place ? '<p class="ev-meta">📍 ' + esc(ev.place) + '</p>' : '')
-    + (ev.memo  ? '<p class="ev-memo">' + esc(ev.memo) + '</p>' : '')
+    + (ev.memo  ? '<p class="ev-memo">' + esc(ev.memo).replace(/\n/g,'<br>') + '</p>' : '')
     + (tags     ? '<div class="ev-tags">' + tags + '</div>' : '')
     + actions
     + '</div>';
