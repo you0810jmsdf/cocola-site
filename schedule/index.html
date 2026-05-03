@@ -64,8 +64,13 @@ body{margin:0;padding:12px;font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans
 .error-banner{background:#fdecea;border:1px solid #f5c6cb;color:#721c24;padding:10px 14px;border-radius:4px;margin-bottom:12px;font-size:13px;}
 /* list view */
 .list-group{margin-bottom:8px;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
-.list-group-hd{padding:10px 14px;font-weight:bold;font-size:14px;color:var(--green);background:var(--green-light);display:flex;align-items:center;justify-content:space-between;}
+.list-group-hd{padding:10px 14px;font-weight:bold;font-size:14px;color:var(--green);background:var(--green-light);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+.list-group-hd-left{display:flex;align-items:center;gap:6px;}
+.list-group-arrow{display:inline-block;transition:transform 0.2s;font-size:11px;}
+.list-group.collapsed .list-group-arrow{transform:rotate(-90deg);}
 .list-group-cnt{font-size:12px;color:var(--muted);font-weight:normal;}
+.list-group-body{overflow:hidden;}
+.list-group.collapsed .list-group-body{display:none;}
 .list-group .ev-item{border-radius:0;border:none;border-bottom:1px solid var(--border);margin-bottom:0;}
 .list-group .ev-item:last-child{border-bottom:none;}
 /* modal */
@@ -373,16 +378,22 @@ function renderList() {
     groups[key].push(ev);
   });
 
-  var todayStr = fmtDate(new Date());
+  var now = new Date();
+  var currentKey = now.getFullYear() + '/' + pad2(now.getMonth() + 1);
   var html = '';
   order.forEach(function(key) {
     var evs = groups[key];
     var parts = key.split('/');
     var label = parseInt(parts[0],10) + '年 ' + parseInt(parts[1],10) + '月';
-    html += '<div class="list-group"><div class="list-group-hd">' + label
-      + '<span class="list-group-cnt">' + evs.length + '件</span></div>';
+    var isPast = key < currentKey;
+    var collapsedClass = isPast ? ' collapsed' : '';
+    html += '<div class="list-group' + collapsedClass + '">'
+      + '<div class="list-group-hd" onclick="toggleGroup(this)">'
+      + '<span class="list-group-hd-left"><span class="list-group-arrow">▼</span>' + label + '</span>'
+      + '<span class="list-group-cnt">' + evs.length + '件</span></div>'
+      + '<div class="list-group-body">';
     evs.forEach(function(ev) { html += buildEvHtml(ev); });
-    html += '</div>';
+    html += '</div></div>';
   });
   document.getElementById('list-content').innerHTML = html;
 }
@@ -414,6 +425,10 @@ function buildEvHtml(ev) {
     + (tags     ? '<div class="ev-tags">' + tags + '</div>' : '')
     + actions
     + '</div>';
+}
+
+function toggleGroup(hd) {
+  hd.closest('.list-group').classList.toggle('collapsed');
 }
 
 function isEventPast(ev) {
