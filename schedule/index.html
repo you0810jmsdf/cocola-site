@@ -28,7 +28,7 @@ body{margin:0;padding:12px;font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans
 .cal-title{font-weight:bold;font-size:15px;flex:1;text-align:center;color:var(--text);}
 .nav-btn{background:#fff;border:1px solid #ccc;border-radius:4px;padding:5px 12px;cursor:pointer;font-size:14px;color:var(--muted);font-family:inherit;}
 .nav-btn:hover{background:var(--green-light);border-color:var(--green);color:var(--green);}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:12px;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;margin-bottom:12px;}
 .cal-hd{text-align:center;font-size:11px;color:var(--muted);padding:4px 0;font-weight:bold;}
 .cal-cell{min-height:56px;border:1px solid #e0eae5;border-radius:4px;padding:4px 3px;cursor:pointer;background:#fff;}
 .cal-cell:hover{background:var(--green-light);border-color:var(--green);}
