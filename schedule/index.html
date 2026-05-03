@@ -95,6 +95,9 @@ body{margin:0;padding:12px;font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans
 .btn-cancel{padding:9px 16px;background:#f0f0f0;color:#555;border:none;border-radius:6px;font-size:14px;cursor:pointer;font-family:inherit;}
 .btn-cancel:hover{background:#e0e0e0;}
 .saving-msg{font-size:13px;color:var(--muted);display:none;}
+.sync-btn{padding:8px 14px;background:#fff;color:var(--green);border:1px solid var(--green);border-radius:6px;font-size:13px;cursor:pointer;font-family:inherit;}
+.sync-btn:hover{background:var(--green-light);}
+.sync-btn:disabled{opacity:0.6;cursor:default;}
 @media(max-width:600px){.vbtn{padding:6px 12px;font-size:12px;}.cal-hd{font-size:10px;}.cal-dn{font-size:11px;}.modal{padding:16px 14px;}}
 </style>
 </head>
@@ -111,6 +114,7 @@ body{margin:0;padding:12px;font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans
   <div class="toolbar">
     <button class="add-btn" onclick="openAdd()">＋ イベントを登録</button>
     <a href="how-to-use.html" style="font-size:12px;color:var(--muted);text-decoration:none;padding:6px 10px;border:1px solid var(--border);border-radius:5px;background:#fff;">❓ 使い方</a>
+    <button class="sync-btn" id="sync-btn" onclick="forceSync()">🔄 同期</button>
   </div>
 
   <div class="view-tabs" style="margin-bottom:14px;">
@@ -660,6 +664,33 @@ document.addEventListener('DOMContentLoaded', function() {
     if (e.key === 'Enter') adminUnlock();
   });
 });
+
+function forceSync() {
+  var btn = document.getElementById('sync-btn');
+  btn.disabled = true;
+  btn.textContent = '同期中…';
+  fetch(GAS_ENDPOINT + '?mode=schedule_list&t=' + Date.now())
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d && Array.isArray(d.items)) {
+        cleanupDeletedIds(d.items);
+        _items = filterDeleted(d.items);
+        renderView();
+        showToast('Googleカレンダーから同期しました');
+        btn.textContent = '✓ 同期完了';
+      } else {
+        showToast('同期に失敗しました');
+        btn.textContent = '🔄 同期';
+      }
+      btn.disabled = false;
+      setTimeout(function(){ btn.textContent = '🔄 同期'; }, 3000);
+    })
+    .catch(function(){
+      btn.disabled = false;
+      btn.textContent = '🔄 同期';
+      showToast('通信エラーが発生しました');
+    });
+}
 
 function showToast(msg) {
   var t = document.createElement('div');
