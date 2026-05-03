@@ -118,6 +118,51 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-03</p>
+            <h2 class="cl-title">メンバーカレンダー：Googleカレンダー直接登録イベントを編集可能に</h2>
+            <p class="cl-desc">
+              Googleカレンダーに直接追加したイベント（📅バッジ表示）に「取り込んで編集」ボタンを追加。クリックするとスプレッドシートに取り込みながら内容を編集・保存できます。カレンダー幅も調整し見やすくしました。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-03</p>
+            <h2 class="cl-title">千葉ニュータウンイベント一覧：キーワード検索機能を追加</h2>
+            <p class="cl-desc">
+              イベント一覧ページにキーワード絞り込み検索を追加しました。タイトル・場所・説明文・情報元を対象にリアルタイムでフィルタリングします。スペース区切りでAND検索に対応し、検索時は自動的にリスト表示に切り替わります。ヒット件数も表示します。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-03</p>
+            <h2 class="cl-title">DAO：提案提出後に自動公開されない不具合を修正</h2>
+            <p class="cl-desc">
+              DAO提案フォームから提出しても提案が一覧に表示されない不具合を修正しました（cocola_topics GAS v249）。提出後のステータス更新処理が正しく動作するよう修正しました。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-03</p>
+            <h2 class="cl-title">freefree：GitHub Pagesへの移行完了</h2>
+            <p class="cl-desc">
+              千葉ニュータウン事業主向け掲示板「freefree」をGAS WebアプリからGitHub Pages静的ホスティングに移行しました（GAS v60）。GAS側はAPIサーバーとして残し、フロントエンドのみ移行することでiOSのLINE WebViewなど各種ブラウザで安定して動作するようになりました。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--improve">改善</span>
+              <span class="tag tag--infra">インフラ</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-03</p>
             <h2 class="cl-title">文化財MAP：Chrome以外のブラウザで表示できない不具合を修正</h2>
             <p class="cl-desc">
               Firefox・Safari・Edge等のブラウザでGAS WebアプリのリダイレクトがブロックされてMAP画面が開けなかった不具合を修正しました。GAS依存をやめてGitHub Pages上に静的ページ（bunkazai-map/）として移行し、Google Maps Embed（iframeのみ・APIキー不要）を使用することで全ブラウザに対応しました。
