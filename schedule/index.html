@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>COCoLa メンバーカレンダー</title>
+<style>
+:root{
+  --green:#1d9e75;--green-dark:#0f6e56;--green-light:#e8f7f2;
+  --bg:#f7faf8;--surface:rgba(255,255,255,0.94);--border:rgba(29,158,117,0.18);
+  --text:#183128;--muted:#607068;
+}
+*{box-sizing:border-box;}
+body{margin:0;padding:12px;font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans-serif;font-size:14px;color:var(--text);background:var(--bg);}
+.wrap{max-width:820px;margin:0 auto;}
+.page-header{padding:10px 0 14px;margin-bottom:14px;border-bottom:2px solid var(--green);}
+.page-kicker{margin:0 0 3px;font-size:11px;color:var(--muted);font-weight:bold;letter-spacing:0.08em;}
+.page-header h1{margin:0 0 4px;font-size:22px;color:var(--green);line-height:1.35;}
+.page-header p{margin:0;font-size:13px;color:var(--muted);}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px;}
+.add-btn{padding:8px 18px;background:var(--green);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;}
+.add-btn:hover{background:var(--green-dark);}
+.view-tabs{display:flex;gap:0;border-bottom:2px solid var(--green);}
+.vbtn{padding:7px 18px;border:1px solid #ddd;border-bottom:none;background:#f5f5f5;cursor:pointer;font-size:13px;color:var(--muted);border-radius:4px 4px 0 0;font-family:inherit;}
+.vbtn.active{background:#fff;color:var(--green);font-weight:bold;border-color:var(--green);margin-bottom:-2px;}
+.vbtn:hover{background:var(--green-light);}
+.cal-nav{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.cal-title{font-weight:bold;font-size:15px;flex:1;text-align:center;color:var(--text);}
+.nav-btn{background:#fff;border:1px solid #ccc;border-radius:4px;padding:5px 12px;cursor:pointer;font-size:14px;color:var(--muted);font-family:inherit;}
+.nav-btn:hover{background:var(--green-light);border-color:var(--green);color:var(--green);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:12px;}
+.cal-hd{text-align:center;font-size:11px;color:var(--muted);padding:4px 0;font-weight:bold;}
+.cal-cell{min-height:56px;border:1px solid #e0eae5;border-radius:4px;padding:4px 3px;cursor:pointer;background:#fff;}
+.cal-cell:hover{background:var(--green-light);border-color:var(--green);}
+.cal-cell.empty{border:none;background:none;cursor:default;}
+.cal-cell.today{background:#e8f7f2;border-color:var(--green);}
+.cal-cell.selected{background:var(--green-light);border-color:var(--green);box-shadow:0 0 0 2px var(--green);}
+.cal-dn{font-size:12px;display:block;color:var(--text);}
+.cal-cell.today .cal-dn{color:var(--green);font-weight:bold;}
+.cal-evs{margin-top:2px;}
+.cal-ev-chip{font-size:10px;background:var(--green);color:#fff;border-radius:3px;padding:1px 4px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;max-width:100%;}
+.cal-ev-chip.past{background:#b0cdc4;}
+.day-panel{margin-top:10px;padding:10px 0;border-top:2px solid #e0eae5;}
+.dp-title{font-weight:bold;margin:0 0 8px;font-size:14px;color:var(--muted);}
+.ev-item{padding:10px 12px;background:#fff;border-radius:6px;border:1px solid var(--border);margin-bottom:8px;}
+.ev-item.past{opacity:0.5;}
+.ev-date-badge{font-size:11px;color:var(--green);font-weight:bold;margin:0 0 3px;}
+.ev-title{margin:0 0 3px;font-size:15px;font-weight:bold;color:var(--text);}
+.ev-meta{margin:0 0 2px;font-size:13px;color:var(--muted);}
+.ev-memo{margin:0 0 4px;font-size:13px;color:#555;line-height:1.5;}
+.ev-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;}
+.tag{font-size:10px;padding:1px 7px;border-radius:10px;border:1px solid var(--border);color:var(--muted);}
+.tag.public{background:#e8f7f2;color:var(--green);border-color:var(--green);}
+.ev-actions{display:flex;gap:6px;margin-top:6px;}
+.ev-edit-btn,.ev-del-btn{padding:4px 12px;border:none;border-radius:4px;font-size:12px;font-weight:bold;cursor:pointer;font-family:inherit;}
+.ev-edit-btn{background:var(--green-light);color:var(--green);}
+.ev-edit-btn:hover{background:#c5e9dc;}
+.ev-del-btn{background:#fce8e8;color:#c0392b;}
+.ev-del-btn:hover{background:#f8d0d0;}
+.empty{color:var(--muted);text-align:center;padding:30px;font-size:14px;}
+.loading{text-align:center;padding:30px;color:var(--muted);}
+.error-banner{background:#fdecea;border:1px solid #f5c6cb;color:#721c24;padding:10px 14px;border-radius:4px;margin-bottom:12px;font-size:13px;}
+/* list view */
+.list-group{margin-bottom:8px;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.list-group-hd{padding:10px 14px;font-weight:bold;font-size:14px;color:var(--green);background:var(--green-light);display:flex;align-items:center;justify-content:space-between;}
+.list-group-cnt{font-size:12px;color:var(--muted);font-weight:normal;}
+.list-group .ev-item{border-radius:0;border:none;border-bottom:1px solid var(--border);margin-bottom:0;}
+.list-group .ev-item:last-child{border-bottom:none;}
+/* modal */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:200;display:flex;align-items:center;justify-content:center;padding:12px;}
+.modal-overlay.hidden{display:none;}
+.modal{background:#fff;border-radius:10px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:20px 22px;box-shadow:0 8px 32px rgba(0,0,0,0.18);}
+.modal h2{margin:0 0 14px;font-size:17px;color:var(--green);}
+.form-grid{display:grid;gap:10px;}
+.form-row{display:grid;gap:4px;}
+.form-row label{font-size:12px;font-weight:bold;color:var(--muted);}
+.form-row input,.form-row textarea{border:1px solid #ccc;border-radius:5px;padding:8px 10px;font:inherit;font-size:14px;width:100%;}
+.form-row input:focus,.form-row textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 2px rgba(29,158,117,0.15);}
+.form-row textarea{resize:vertical;min-height:72px;}
+.form-time-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.form-check-row{display:flex;align-items:center;gap:8px;font-size:13px;}
+.form-check-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--green);}
+.public-note{font-size:11px;color:var(--muted);margin:0;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;}
+.btn-primary{padding:9px 22px;background:var(--green);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;font-family:inherit;}
+.btn-primary:hover{background:var(--green-dark);}
+.btn-cancel{padding:9px 16px;background:#f0f0f0;color:#555;border:none;border-radius:6px;font-size:14px;cursor:pointer;font-family:inherit;}
+.btn-cancel:hover{background:#e0e0e0;}
+.saving-msg{font-size:13px;color:var(--muted);display:none;}
+@media(max-width:600px){.vbtn{padding:6px 12px;font-size:12px;}.cal-hd{font-size:10px;}.cal-dn{font-size:11px;}.modal{padding:16px 14px;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="page-header">
+    <p class="page-kicker">COCoLa メンバー限定</p>
+    <h1>メンバーカレンダー</h1>
+    <p>COCoLa メンバーが企画・参加する活動を管理するカレンダーです。</p>
+  </div>
+
+  <div class="toolbar">
+    <button class="add-btn" onclick="openAdd()">＋ イベントを登録</button>
+  </div>
+
+  <div class="view-tabs" style="margin-bottom:14px;">
+    <button class="vbtn active" id="tab-month" onclick="switchView('month')">月カレンダー</button>
+    <button class="vbtn" id="tab-list" onclick="switchView('list')">リスト</button>
+  </div>
+
+  <div id="error-area"></div>
+  <div id="loading" class="loading">読み込み中…</div>
+
+  <!-- 月カレンダービュー -->
+  <div id="view-month" style="display:none;">
+    <div class="cal-nav">
+      <button class="nav-btn" onclick="moveMonth(-1)">◀</button>
+      <span class="cal-title" id="cal-title"></span>
+      <button class="nav-btn" onclick="moveMonth(1)">▶</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div class="day-panel" id="day-panel" style="display:none;">
+      <p class="dp-title" id="dp-title"></p>
+      <div id="dp-events"></div>
+    </div>
+  </div>
+
+  <!-- リストビュー -->
+  <div id="view-list" style="display:none;">
+    <div id="list-content"></div>
+  </div>
+</div>
+
+<!-- 登録・編集モーダル -->
+<div class="modal-overlay hidden" id="modal-overlay">
+  <div class="modal">
+    <h2 id="modal-title">イベントを登録</h2>
+    <div class="form-grid">
+      <div class="form-row">
+        <label>イベント名 <span style="color:#c0392b">*</span></label>
+        <input type="text" id="f-title" placeholder="例: COCoLa 朝活 #5">
+      </div>
+      <div class="form-row">
+        <label>日付 <span style="color:#c0392b">*</span></label>
+        <input type="date" id="f-date">
+      </div>
+      <div class="form-time-row">
+        <div class="form-row">
+          <label>開始時刻</label>
+          <input type="time" id="f-start">
+        </div>
+        <div class="form-row">
+          <label>終了時刻</label>
+          <input type="time" id="f-end">
+        </div>
+      </div>
+      <div class="form-row">
+        <label>場所</label>
+        <input type="text" id="f-place" placeholder="例: 千葉ニュータウン中央駅前">
+      </div>
+      <div class="form-row">
+        <label>参加者（カンマ区切り）</label>
+        <input type="text" id="f-participants" placeholder="例: 田中, 鈴木, 佐藤">
+      </div>
+      <div class="form-row">
+        <label>メモ</label>
+        <textarea id="f-memo" placeholder="概要や持ち物など"></textarea>
+      </div>
+      <div class="form-check-row">
+        <input type="checkbox" id="f-public">
+        <label for="f-public">千葉NT イベント一覧にも掲載する（公開）</label>
+      </div>
+      <p class="public-note">※チェックすると印西イベント一覧（TOPICSシート）にも自動コピーされます。</p>
+    </div>
+    <div class="modal-actions">
+      <span class="saving-msg" id="saving-msg">保存中…</span>
+      <button class="btn-cancel" onclick="closeModal()">キャンセル</button>
+      <button class="btn-primary" id="modal-save-btn" onclick="saveEvent()">登録する</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── 設定 ──
+var GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbycw2FBvcm34mS9R8SUNg28KscGqqGjR1zjz3hnLYq8ckgKCZObYaC9kbMs8R2SGXgC/exec';
+var DATA_JSON = 'data.json';
+
+// ── 状態 ──
+var _items = [];
+var _view = 'month';
+var _calYear, _calMonth; // 0始まり
+var _editId = null;
+var _selectedDate = null;
+
+// ── 初期化 ──
+(function init() {
+  var now = new Date();
+  _calYear = now.getFullYear();
+  _calMonth = now.getMonth();
+  loadData();
+})();
+
+function loadData() {
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('error-area').innerHTML = '';
+  fetch(DATA_JSON + '?t=' + Date.now())
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      _items = (d && Array.isArray(d.items)) ? d.items : [];
+      document.getElementById('loading').style.display = 'none';
+      renderView();
+    })
+    .catch(function(err){
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('error-area').innerHTML =
+        '<div class="error-banner">データ読み込みエラー。再読み込みしてください。</div>';
+    });
+}
+
+// ── ビュー切り替え ──
+function switchView(v) {
+  _view = v;
+  document.getElementById('tab-month').classList.toggle('active', v === 'month');
+  document.getElementById('tab-list').classList.toggle('active', v === 'list');
+  renderView();
+}
+
+function renderView() {
+  if (_view === 'month') {
+    document.getElementById('view-month').style.display = '';
+    document.getElementById('view-list').style.display = 'none';
+    renderCalendar();
+  } else {
+    document.getElementById('view-month').style.display = 'none';
+    document.getElementById('view-list').style.display = '';
+    renderList();
+  }
+}
+
+// ── 月カレンダー ──
+function moveMonth(delta) {
+  _calMonth += delta;
+  if (_calMonth < 0) { _calMonth = 11; _calYear--; }
+  if (_calMonth > 11){ _calMonth = 0;  _calYear++; }
+  _selectedDate = null;
+  document.getElementById('day-panel').style.display = 'none';
+  renderCalendar();
+}
+
+function renderCalendar() {
+  var y = _calYear, m = _calMonth;
+  document.getElementById('cal-title').textContent = y + '年 ' + (m + 1) + '月';
+  var today = fmtDate(new Date());
+
+  var firstDay = new Date(y, m, 1).getDay(); // 0=日
+  var lastDate = new Date(y, m + 1, 0).getDate();
+
+  var itemMap = {};
+  _items.forEach(function(ev) {
+    var d = ev.date.replace(/\//g, '-');
+    if (!itemMap[d]) itemMap[d] = [];
+    itemMap[d].push(ev);
+  });
+
+  var html = ['日','月','火','水','木','金','土'].map(function(d){
+    return '<div class="cal-hd">' + d + '</div>';
+  }).join('');
+
+  for (var i = 0; i < firstDay; i++) html += '<div class="cal-cell empty"></div>';
+
+  for (var day = 1; day <= lastDate; day++) {
+    var dateStr = y + '-' + pad2(m + 1) + '-' + pad2(day);
+    var evs = itemMap[dateStr] || [];
+    var cls = 'cal-cell';
+    if (dateStr === today) cls += ' today';
+    if (dateStr === _selectedDate) cls += ' selected';
+
+    var chips = evs.slice(0, 3).map(function(ev) {
+      var isPast = isEventPast(ev);
+      return '<span class="cal-ev-chip' + (isPast ? ' past' : '') + '">' + esc(ev.title) + '</span>';
+    }).join('');
+
+    html += '<div class="' + cls + '" onclick="selectDay(\'' + dateStr + '\')">'
+      + '<span class="cal-dn">' + day + '</span>'
+      + '<div class="cal-evs">' + chips + '</div>'
+      + '</div>';
+  }
+
+  document.getElementById('cal-grid').innerHTML = html;
+
+  if (_selectedDate) {
+    var selY = parseInt(_selectedDate.substr(0, 4), 10);
+    var selM = parseInt(_selectedDate.substr(5, 2), 10) - 1;
+    if (selY === y && selM === m) renderDayPanel(_selectedDate);
+    else { _selectedDate = null; document.getElementById('day-panel').style.display = 'none'; }
+  }
+}
+
+function selectDay(dateStr) {
+  _selectedDate = dateStr;
+  renderCalendar();
+  renderDayPanel(dateStr);
+}
+
+function renderDayPanel(dateStr) {
+  var parts = dateStr.split('-');
+  var label = parseInt(parts[0],10) + '年' + parseInt(parts[1],10) + '月' + parseInt(parts[2],10) + '日';
+  var evs = _items.filter(function(ev){ return ev.date.replace(/\//g,'-') === dateStr; });
+  document.getElementById('dp-title').textContent = label + ' のイベント';
+  var panel = document.getElementById('day-panel');
+  if (evs.length === 0) {
+    document.getElementById('dp-events').innerHTML = '<p class="empty" style="padding:10px 0;">この日のイベントはありません</p>';
+  } else {
+    document.getElementById('dp-events').innerHTML = evs.map(function(ev){ return buildEvHtml(ev); }).join('');
+  }
+  panel.style.display = '';
+}
+
+// ── リストビュー ──
+function renderList() {
+  var sorted = _items.slice().sort(function(a,b){ return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+  if (sorted.length === 0) {
+    document.getElementById('list-content').innerHTML = '<div class="empty">登録されたイベントはありません</div>';
+    return;
+  }
+  var groups = {};
+  var order = [];
+  sorted.forEach(function(ev) {
+    var parts = ev.date.replace(/\//g,'-').split('-');
+    var key = parts[0] + '/' + parts[1];
+    if (!groups[key]) { groups[key] = []; order.push(key); }
+    groups[key].push(ev);
+  });
+
+  var todayStr = fmtDate(new Date());
+  var html = '';
+  order.forEach(function(key) {
+    var evs = groups[key];
+    var parts = key.split('/');
+    var label = parseInt(parts[0],10) + '年 ' + parseInt(parts[1],10) + '月';
+    html += '<div class="list-group"><div class="list-group-hd">' + label
+      + '<span class="list-group-cnt">' + evs.length + '件</span></div>';
+    evs.forEach(function(ev) { html += buildEvHtml(ev); });
+    html += '</div>';
+  });
+  document.getElementById('list-content').innerHTML = html;
+}
+
+// ── イベントカード HTML ──
+function buildEvHtml(ev) {
+  var isPast = isEventPast(ev);
+  var timePart = ev.startTime ? ev.startTime + (ev.endTime ? '〜' + ev.endTime : '') : '';
+  var dateParts = ev.date.replace(/\//g,'-').split('-');
+  var dateLabel = parseInt(dateParts[0],10) + '年' + parseInt(dateParts[1],10) + '月' + parseInt(dateParts[2],10) + '日';
+  if (timePart) dateLabel += ' ' + timePart;
+
+  var tags = '';
+  if (ev.isPublic) tags += '<span class="tag public">公開</span>';
+  if (ev.participants) tags += '<span class="tag">参加: ' + esc(ev.participants) + '</span>';
+
+  return '<div class="ev-item' + (isPast ? ' past' : '') + '" id="ev-' + ev.id + '">'
+    + '<p class="ev-date-badge">' + esc(dateLabel) + '</p>'
+    + '<p class="ev-title">' + esc(ev.title) + '</p>'
+    + (ev.place ? '<p class="ev-meta">📍 ' + esc(ev.place) + '</p>' : '')
+    + (ev.memo  ? '<p class="ev-memo">' + esc(ev.memo) + '</p>' : '')
+    + (tags     ? '<div class="ev-tags">' + tags + '</div>' : '')
+    + '<div class="ev-actions">'
+    + '<button class="ev-edit-btn" onclick="openEdit(\'' + ev.id + '\')">編集</button>'
+    + '<button class="ev-del-btn" onclick="confirmDelete(\'' + ev.id + '\')">削除</button>'
+    + '</div></div>';
+}
+
+function isEventPast(ev) {
+  var todayStr = fmtDate(new Date());
+  var evDate = ev.date.replace(/\//g, '-');
+  return evDate < todayStr;
+}
+
+// ── モーダル ──
+function openAdd() {
+  _editId = null;
+  clearForm();
+  document.getElementById('modal-title').textContent = 'イベントを登録';
+  document.getElementById('modal-save-btn').textContent = '登録する';
+  var today = fmtDate(new Date());
+  document.getElementById('f-date').value = today;
+  document.getElementById('modal-overlay').classList.remove('hidden');
+}
+
+function openEdit(id) {
+  var ev = _items.filter(function(e){ return e.id === id; })[0];
+  if (!ev) return;
+  _editId = id;
+  document.getElementById('f-title').value = ev.title;
+  document.getElementById('f-date').value = ev.date.replace(/\//g, '-');
+  document.getElementById('f-start').value = ev.startTime || '';
+  document.getElementById('f-end').value = ev.endTime || '';
+  document.getElementById('f-place').value = ev.place || '';
+  document.getElementById('f-participants').value = ev.participants || '';
+  document.getElementById('f-memo').value = ev.memo || '';
+  document.getElementById('f-public').checked = ev.isPublic || false;
+  document.getElementById('modal-title').textContent = 'イベントを編集';
+  document.getElementById('modal-save-btn').textContent = '更新する';
+  document.getElementById('modal-overlay').classList.remove('hidden');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.add('hidden');
+  document.getElementById('saving-msg').style.display = 'none';
+}
+
+function clearForm() {
+  ['f-title','f-date','f-start','f-end','f-place','f-participants','f-memo'].forEach(function(id){
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('f-public').checked = false;
+}
+
+function saveEvent() {
+  var title = document.getElementById('f-title').value.trim();
+  var date  = document.getElementById('f-date').value.trim();
+  if (!title || !date) { alert('イベント名と日付は必須です'); return; }
+
+  var params = {
+    title:        title,
+    date:         date.replace(/-/g, '/'),
+    startTime:    document.getElementById('f-start').value.trim(),
+    endTime:      document.getElementById('f-end').value.trim(),
+    place:        document.getElementById('f-place').value.trim(),
+    participants: document.getElementById('f-participants').value.trim(),
+    memo:         document.getElementById('f-memo').value.trim(),
+    isPublic:     document.getElementById('f-public').checked ? 'true' : 'false'
+  };
+
+  var mode = _editId ? 'schedule_edit' : 'schedule_add';
+  if (_editId) params.id = _editId;
+
+  var savingMsg = document.getElementById('saving-msg');
+  var saveBtn = document.getElementById('modal-save-btn');
+  savingMsg.style.display = 'inline';
+  saveBtn.disabled = true;
+
+  var qs = Object.keys(params).map(function(k){ return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]); }).join('&');
+  fetch(GAS_ENDPOINT + '?mode=' + mode + '&' + qs)
+    .then(function(r){ return r.json(); })
+    .then(function(res) {
+      savingMsg.style.display = 'none';
+      saveBtn.disabled = false;
+      if (res && res.ok) {
+        closeModal();
+        showToast(_editId ? 'イベントを更新しました' : 'イベントを登録しました。Googleカレンダーにも反映されます。');
+        setTimeout(loadData, 1000);
+      } else {
+        alert('保存に失敗しました: ' + (res && res.error ? res.error : '不明なエラー'));
+      }
+    })
+    .catch(function(err) {
+      savingMsg.style.display = 'none';
+      saveBtn.disabled = false;
+      alert('通信エラーが発生しました');
+    });
+}
+
+function confirmDelete(id) {
+  var ev = _items.filter(function(e){ return e.id === id; })[0];
+  if (!ev) return;
+  if (!confirm('「' + ev.title + '」を削除しますか？\nGoogleカレンダーからも削除されます。')) return;
+
+  fetch(GAS_ENDPOINT + '?mode=schedule_delete&id=' + encodeURIComponent(id))
+    .then(function(r){ return r.json(); })
+    .then(function(res) {
+      if (res && res.ok) {
+        showToast('削除しました');
+        setTimeout(loadData, 1000);
+      } else {
+        alert('削除に失敗しました');
+      }
+    })
+    .catch(function(){ alert('通信エラーが発生しました'); });
+}
+
+// ── ユーティリティ ──
+function fmtDate(d) {
+  return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate());
+}
+function pad2(n){ return n < 10 ? '0'+n : String(n); }
+function esc(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg) {
+  var t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1d9e75;color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;z-index:999;box-shadow:0 2px 8px rgba(0,0,0,0.2);';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 3500);
+}
+</script>
+</body>
+</html>

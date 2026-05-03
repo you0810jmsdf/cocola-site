@@ -1,0 +1,65 @@
+name: Update schedule data
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'    # 5分ごと
+  workflow_dispatch:           # 手動実行も可
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch schedule data from GAS
+        run: |
+          curl -sL \
+            "https://script.google.com/macros/s/AKfycbycw2FBvcm34mS9R8SUNg28KscGqqGjR1zjz3hnLYq8ckgKCZObYaC9kbMs8R2SGXgC/exec?mode=schedule_list&t=$(date +%s)" \
+            -o schedule/data_new.json \
+            --max-time 30 \
+            --retry 3 \
+            --retry-delay 5
+
+      - name: Validate JSON
+        run: |
+          python3 - <<'EOF'
+          import json, sys
+
+          with open('schedule/data_new.json') as f:
+              text = f.read()
+
+          try:
+              data = json.loads(text)
+          except Exception as e:
+              print(f'JSON parse error (GAS may be down): {e}')
+              print(f'Response: {text[:200]}')
+              sys.exit(0)
+
+          if not data.get('ok') or not isinstance(data.get('items'), list):
+              print('Invalid data structure')
+              sys.exit(0)
+
+          with open('schedule/data.json', 'w', encoding='utf-8') as f:
+              json.dump(data, f, ensure_ascii=False)
+
+          print(f"OK: {len(data['items'])} items")
+          EOF
+
+      - name: Cleanup temp file
+        run: rm -f schedule/data_new.json
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add schedule/data.json
+          if git diff --staged --quiet; then
+            echo "No changes"
+          else
+            git commit -m 'Auto-update schedule data [skip ci]'
+            git pull --rebase origin main
+            git push
+          fi
