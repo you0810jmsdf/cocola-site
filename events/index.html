@@ -225,9 +225,17 @@ function _evOnDate(ev, dt) {
   for (var i = 0; i < ds.length; i++) if (_sd(ds[i], dt)) return true;
   return false;
 }
+function _isPast(ev) {
+  var ds = _evDates(ev);
+  if (!ds.length) return ev.past || false;
+  var today = new Date(_now.getFullYear(), _now.getMonth(), _now.getDate());
+  var last = ds[0];
+  for (var i = 1; i < ds.length; i++) if (ds[i] > last) last = ds[i];
+  return last < today;
+}
 function _card(ev) {
   var url = ev.u ? '<a href="' + _esc(ev.u) + '" target="_blank">' + _esc(ev.t) + '</a>' : _esc(ev.t);
-  var s = '<div class="ev-item' + (ev.past ? ' past' : '') + '"><p class="ev-date">' + _esc(ev.d) + '</p><p class="ev-title">' + url + '</p>';
+  var s = '<div class="ev-item' + (_isPast(ev) ? ' past' : '') + '"><p class="ev-date">' + _esc(ev.d) + '</p><p class="ev-title">' + url + '</p>';
   if (ev.l) s += '<p class="ev-meta">📍 ' + _esc(ev.l) + '</p>';
   if (ev.desc) s += '<p class="ev-desc">' + _esc(ev.desc) + '</p>';
   if (ev.s) {
@@ -334,7 +342,7 @@ function _renderWeek(el) {
     evs.forEach(function(ev) {
       var tim = ev.h >= 0 ? ('0' + ev.h).slice(-2) + ':' + ('0' + ev.mi).slice(-2) : '';
       var ttl = ev.u ? '<a href="' + _esc(ev.u) + '" target="_blank">' + _esc(ev.t) + '</a>' : _esc(ev.t);
-      html += '<div class="week-ev' + (ev.past ? ' past' : '') + '">' + (tim ? '<span class="wtim">' + tim + '</span>' : '') + '<span class="wtit">' + ttl + '</span></div>';
+      html += '<div class="week-ev' + (_isPast(ev) ? ' past' : '') + '">' + (tim ? '<span class="wtim">' + tim + '</span>' : '') + '<span class="wtit">' + ttl + '</span></div>';
     });
     html += '</div></div>';
   }
