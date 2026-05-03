@@ -51,6 +51,8 @@ body{margin:0;padding:12px;font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans
 .ev-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;}
 .tag{font-size:10px;padding:1px 7px;border-radius:10px;border:1px solid var(--border);color:var(--muted);}
 .tag.public{background:#e8f7f2;color:var(--green);border-color:var(--green);}
+.tag.cal-only{background:#eef2ff;color:#4563c7;border-color:#b4c0f0;}
+.ev-item.cal-only-item{border-left:3px solid #b4c0f0;}
 .ev-actions{display:flex;gap:6px;margin-top:6px;}
 .ev-edit-btn,.ev-del-btn{padding:4px 12px;border:none;border-radius:4px;font-size:12px;font-weight:bold;cursor:pointer;font-family:inherit;}
 .ev-edit-btn{background:var(--green-light);color:var(--green);}
@@ -392,20 +394,27 @@ function buildEvHtml(ev) {
   var dateLabel = parseInt(dateParts[0],10) + '年' + parseInt(dateParts[1],10) + '月' + parseInt(dateParts[2],10) + '日';
   if (timePart) dateLabel += ' ' + timePart;
 
+  var isCalOnly = ev.source === 'calendar';
   var tags = '';
+  if (isCalOnly) tags += '<span class="tag cal-only">📅 Googleカレンダー</span>';
   if (ev.isPublic) tags += '<span class="tag public">公開</span>';
   if (ev.participants) tags += '<span class="tag">参加: ' + esc(ev.participants) + '</span>';
 
-  return '<div class="ev-item' + (isPast ? ' past' : '') + '" id="ev-' + ev.id + '">'
+  var actions = isCalOnly
+    ? '<p style="font-size:11px;color:var(--muted);margin:6px 0 0;">Googleカレンダーから直接編集してください</p>'
+    : '<div class="ev-actions">'
+      + '<button class="ev-edit-btn" onclick="openEdit(\'' + ev.id + '\')">編集</button>'
+      + '<button class="ev-del-btn" onclick="confirmDelete(\'' + ev.id + '\')">削除</button>'
+      + '</div>';
+
+  return '<div class="ev-item' + (isPast ? ' past' : '') + (isCalOnly ? ' cal-only-item' : '') + '" id="ev-' + ev.id + '">'
     + '<p class="ev-date-badge">' + esc(dateLabel) + '</p>'
     + '<p class="ev-title">' + esc(ev.title) + '</p>'
     + (ev.place ? '<p class="ev-meta">📍 ' + esc(ev.place) + '</p>' : '')
     + (ev.memo  ? '<p class="ev-memo">' + esc(ev.memo) + '</p>' : '')
     + (tags     ? '<div class="ev-tags">' + tags + '</div>' : '')
-    + '<div class="ev-actions">'
-    + '<button class="ev-edit-btn" onclick="openEdit(\'' + ev.id + '\')">編集</button>'
-    + '<button class="ev-del-btn" onclick="confirmDelete(\'' + ev.id + '\')">削除</button>'
-    + '</div></div>';
+    + actions
+    + '</div>';
 }
 
 function isEventPast(ev) {
