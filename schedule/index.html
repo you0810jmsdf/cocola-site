@@ -495,8 +495,9 @@ function buildEvHtml(ev) {
   if (ev.isPublic) tags += '<span class="tag public">公開</span>';
   if (ev.participants) tags += '<span class="tag">参加: ' + esc(ev.participants) + '</span>';
 
+  var isTopicsOnly = ev.source === 'topics';
   var actions = '<div class="ev-actions">'
-    + '<button class="ev-edit-btn" onclick="openEdit(\'' + ev.id + '\')">' + (isCalOnly ? '取り込んで編集' : '編集') + '</button>'
+    + (isTopicsOnly ? '' : '<button class="ev-edit-btn" onclick="openEdit(\'' + ev.id + '\')">' + (isCalOnly ? '取り込んで編集' : '編集') + '</button>')
     + '<button class="ev-del-btn" onclick="confirmDelete(\'' + ev.id + '\')">' + (isCalOnly ? 'カレンダーから削除' : '削除') + '</button>'
     + '</div>';
 
