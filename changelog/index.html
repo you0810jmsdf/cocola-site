@@ -118,6 +118,14 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-04</p>
+            <h2 class="cl-title">メンバーカレンダー：TOPICSイベント編集時の「つくる」カテゴリが実績ページに反映されるよう修正</h2>
+            <p class="cl-desc">
+              TOPICS由来イベントを編集して「つくる」カテゴリ（自分をつくる等）を変更しても、各カテゴリページの実績一覧（例: <code>/categories/jibun/</code>）に反映されない問題を修正しました。GAS の <code>editTopicsEvent_</code> がカテゴリ列・実績公開フラグを書き込むように修正し、新デプロイ（v276）に切り替えました。
+            </p>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-04</p>
             <h2 class="cl-title">メンバーカレンダー：TOPICSイベント編集の「not found」エラーを修正</h2>
             <p class="cl-desc">
               TOPICS由来イベント（印西市イベント）を編集して保存すると「保存に失敗しました: not found」になる問題を修正しました。GAS側に <code>editTopicsEvent_</code> を実装し、サイトの GAS_ENDPOINT を最新デプロイに切り替えました。
