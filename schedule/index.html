@@ -248,6 +248,19 @@ body{margin:0;padding:12px;font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans
         <label for="f-public">千葉NT イベント一覧にも掲載する（公開）</label>
       </div>
       <p class="public-note">※チェックすると印西イベント一覧（TOPICSシート）にも自動コピーされます。</p>
+      <div class="form-row">
+        <label>「つくる」カテゴリ</label>
+        <select id="f-category">
+          <option value="">選択しない（カテゴリページには掲載しない）</option>
+          <option value="ものをつくる">ものをつくる</option>
+          <option value="まちをつくる">まちをつくる</option>
+          <option value="つながりをつくる">つながりをつくる</option>
+          <option value="食をつくる">食をつくる</option>
+          <option value="自分をつくる">自分をつくる</option>
+          <option value="ともにつくる">ともにつくる</option>
+        </select>
+      </div>
+      <p class="public-note">※カテゴリを選ぶと、各カテゴリページの「実績」欄に表示されます。</p>
       <input type="hidden" id="f-cal-event-id">
     </div>
     <div class="modal-actions">
@@ -533,6 +546,7 @@ function openEdit(id) {
   document.getElementById('f-organizer').value = ev.organizer || '';
   document.getElementById('f-memo').value = ev.memo || '';
   document.getElementById('f-public').checked = ev.isPublic || false;
+  document.getElementById('f-category').value = ev.category || '';
   document.getElementById('modal-title').textContent = isCalOnly ? 'カレンダーイベントを取り込んで編集' : 'イベントを編集';
   document.getElementById('modal-save-btn').textContent = isCalOnly ? '取り込んで登録' : '更新する';
   document.getElementById('modal-overlay').classList.remove('hidden');
@@ -548,6 +562,7 @@ function clearForm() {
     document.getElementById(id).value = '';
   });
   document.getElementById('f-public').checked = false;
+  document.getElementById('f-category').value = '';
 }
 
 function saveEvent() {
@@ -564,7 +579,8 @@ function saveEvent() {
     participants: document.getElementById('f-participants').value.trim(),
     organizer:    document.getElementById('f-organizer').value.trim(),
     memo:         document.getElementById('f-memo').value.trim(),
-    isPublic:     document.getElementById('f-public').checked ? 'true' : 'false'
+    isPublic:     document.getElementById('f-public').checked ? 'true' : 'false',
+    category:     document.getElementById('f-category').value
   };
 
   var calEventId = document.getElementById('f-cal-event-id').value.trim();
