@@ -314,6 +314,22 @@ function cleanupDeletedIds(items) {
 function loadData() {
   document.getElementById('loading').style.display = 'block';
   document.getElementById('error-area').innerHTML = '';
+  fetch(GAS_ENDPOINT + '?mode=schedule_list&t=' + Date.now())
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d && Array.isArray(d.items)) {
+        cleanupDeletedIds(d.items);
+        _items = filterDeleted(d.items);
+        document.getElementById('loading').style.display = 'none';
+        renderView();
+      } else {
+        loadFromDataJson_();
+      }
+    })
+    .catch(function(){ loadFromDataJson_(); });
+}
+
+function loadFromDataJson_() {
   fetch(DATA_JSON + '?t=' + Date.now())
     .then(function(r){ return r.json(); })
     .then(function(d){
