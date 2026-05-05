@@ -586,6 +586,15 @@ function saveEvent() {
   var date  = document.getElementById('f-date').value.trim();
   if (!title || !date) { alert('イベント名と日付は必須です'); return; }
 
+  // 文字化け検出: U+FFFD が混入していたらブロック（SJIS由来のコピペ事故対策）
+  var fieldsToCheck = ['f-title','f-place','f-participants','f-organizer','f-memo'];
+  for (var fi = 0; fi < fieldsToCheck.length; fi++) {
+    if ((document.getElementById(fieldsToCheck[fi]).value || '').indexOf('�') !== -1) {
+      alert('入力に文字化け（�）が含まれています。元のテキストをUTF-8で再入力してください。');
+      return;
+    }
+  }
+
   var params = {
     title:        title,
     date:         date.replace(/-/g, '/'),
