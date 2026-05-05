@@ -919,9 +919,9 @@ function sendDaoProposalNotification_(recipients, proposal) {
     getDaoProposalPageFormUrls_().voteFormUrl || DAO_CONFIG.voteFormUrl,
   ].filter(function(line) { return line !== ''; }).join('\n');
 
+  // メンバー宛BCCを停止し、管理者(cocola.project@gmail.com)のみに通知（v_disable_mass_mail）
   MailApp.sendEmail({
-    to: Session.getEffectiveUser().getEmail(),
-    bcc: recipients.join(','),
+    to: 'cocola.project@gmail.com',
     subject: subject,
     body: body,
     name: 'COCoLa DAO',
