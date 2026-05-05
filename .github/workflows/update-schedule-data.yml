@@ -17,7 +17,7 @@ jobs:
       - name: Fetch schedule data from GAS
         run: |
           curl -sL \
-            "https://script.google.com/macros/s/AKfycbycw2FBvcm34mS9R8SUNg28KscGqqGjR1zjz3hnLYq8ckgKCZObYaC9kbMs8R2SGXgC/exec?mode=schedule_list&t=$(date +%s)" \
+            "https://script.google.com/macros/s/AKfycbzVs_W57Iphxcc5PHShXBNae63CKqjF5fB82tUkQwaf1vyuNWWLgtWZgglY7Qbuuft1/exec?mode=schedule_list&t=$(date +%s)" \
             -o schedule/data_new.json \
             --max-time 30 \
             --retry 3 \

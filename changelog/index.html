@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-05</p>
+            <h2 class="cl-title">メンバースケジュール：文字化け対策のサニタイザーを反映するエンドポイント切替</h2>
+            <p class="cl-desc">
+              v284 デプロイにサニタイザー（<code>sanitizeText_()</code>）を入れていたものの、<a href="../schedule/">メンバースケジュール</a> ページと GitHub Actions の取得先が旧デプロイ（v173）のままで効いていませんでした。<code>schedule/index.html</code> と <code>.github/workflows/update-schedule-data.yml</code> の両方を v284 エンドポイントへ差し替え、文字化けタイトルが「(文字化け)」表記となるようにしました。元データ修正対象として、Google カレンダー側で文字化けしている <strong>「【月次】API使用量確認（Gemini・Claude）」</strong>（毎月1日繰り返し）と <strong>「【要対応】COCoLa GitHub PAT 更新」</strong>（5/17）の2系統を特定済み（手動で再入力予定）。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-05</p>
             <h2 class="cl-title">メンバー宛大量メール停止・BCC徹底・カレンダー文字化け対策</h2>
             <p class="cl-desc">
               メンバーから「大量メールが届く・文字化けしている」との報告を受け、以下の対策を実施しました。
