@@ -117,6 +117,17 @@
         <ul class="changelog-list">
 
           <li class="cl-entry">
+            <p class="cl-date">2026-05-06</p>
+            <h2 class="cl-title">DAO提案／投票：公開ページに出ていた重複提案の検出ロジックを強化</h2>
+            <p class="cl-desc">
+              <a href="../dao/">提案／投票</a> ページに「印西市文化財活用に関するインタビュー」が同日付で <strong>P0063 / P0064</strong> の2件表示されていた問題に対処しました。既存の重複検出（応答キーの照合）では拾いきれないケースに備えて、<code>dao-points.js</code> に「タイムスタンプ＋タイトル＋提案者」によるフィンガープリント重複検出（Phase 3）を追加し、GASエディタから引数なしで実行できるラッパー関数 <code>repairDuplicatedDaoProposalsLive</code> を追加しました。本番実行（dryRun=false）でスプレッドシートの P0064 を非公開化済み。GitHub Actions（DAO data.json 更新ワークフロー）を手動トリガーして公開ページに反映しました。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
             <p class="cl-date">2026-05-05</p>
             <h2 class="cl-title">メンバースケジュール：U+FFFD（文字化け）混入を保存前に拒否するガードを追加</h2>
             <p class="cl-desc">
