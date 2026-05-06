@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-06</p>
+            <h2 class="cl-title">DAO提案／投票：投票後に集計が反映されない問題を根本修正</h2>
+            <p class="cl-desc">
+              <a href="../dao/">提案／投票</a> ページで投票しても <code>協力重み</code>・<code>協力率</code>・<code>投票数</code> が反映されない事象を根本修正しました。原因は <code>doGet</code> の投票処理が <code>processLatestDaoProposalVote</code>（投票シートの最終行のみを集計対象とする実装）を呼んでいたため、ほぼ同時の投票や行順の前後で対象提案が取り違えられ、しかも集計エラーは <code>try/catch</code> で握りつぶされていたことでした。<code>doGet</code> を全提案を再集計する <code>processDaoProposalVotesFast</code> に差し替え、集計エラーは <code>voteResult.aggregateError</code> として呼び出し元に返すよう変更しました（GAS v19 として固定デプロイIDへ上書き）。過去分は <code>processDaoProposalVotesFast</code> を一度実行して全提案を再集計し、P0066「COCoLaマスコットキャラクター募集」の「協力できる」票が反映されたことを公開 data.json で確認済みです。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-06</p>
             <h2 class="cl-title">DAO提案／投票：「つる」「ゆう」の票が反映されていなかった問題を修正</h2>
             <p class="cl-desc">
               <a href="../dao/">提案／投票</a> ページの投票数が一部少なくなっていた問題を修正しました。原因は、過去のメンバー集合に「つるちゃん」「ゆうさん」が同時在籍していた時期に「つる」「ゆう」名義で投じられた8票が、別名候補の競合で <em>ambiguous</em> 判定となり名寄せ済み列・投票重み列が空のまま残っていたことでした。現在は「つるちゃん」「ゆうさん」がメンバーから外れて競合が解消されているため、<code>processDaoProposalVotesFast</code> を再実行することで全行が再評価され、対象8票（つる: 6票 / ゆう: 2票）が自動的に名寄せされ、各提案の集計に反映されました。GitHub Actions の DAO data.json 更新ワークフローを手動トリガーして公開ページに反映済み。
