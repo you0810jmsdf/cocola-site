@@ -1171,6 +1171,7 @@
     var CIVIC_LIKED_IDS_KEY = 'COCOLA_DAO_CIVIC_LIKED_IDS';
     var CANCELLED_IDS_KEY = 'COCOLA_DAO_CANCELLED_IDS';
     var VOTED_IDS_KEY = 'COCOLA_DAO_VOTED_IDS';
+    var NICKNAME_KEY = 'COCOLA_DAO_NICKNAME';
     var actionButtons = document.querySelector('.action-panel .actions');
     if (actionButtons) {
       actionButtons.insertAdjacentHTML('afterend', '<p class="member-only-note">提案・投票はCOCoLaメンバー向けです。メンバー確認ができない回答は、提案一覧・投票結果・DAOポイントには反映されません。メンバー以外の方は、各提案カードの「市民いいね」で応援や関心をお知らせください。</p>');
@@ -1232,8 +1233,8 @@
       var needs = proposal.needs || '必要になったものから相談します。';
       var eligible = proposal.eligibleWeight || state.data.eligibleWeight || 0;
       var liked = hasCivicLiked(proposal.id);
-      var voted = hasVoted(proposal.id);
-      var votedNickname = getVotedNickname(proposal.id);
+      var voted = hasVoted(proposal.id, proposal);
+      var votedNickname = getVotedNickname(proposal.id, proposal);
       var likeCount = Number(proposal.citizenLikeCount) || 0;
       var isVoting = proposal.statusKey === 'voting';
       return '<article class="proposal-card" id="proposal-' + escapeHtml(proposal.id) + '" data-status="' + escapeHtml(proposal.statusKey) + '">' +
@@ -1377,13 +1378,54 @@
       }
     }
 
-    function hasVoted(id) {
-      return Boolean(getVotedIds()[id]);
+    function getStoredNickname() {
+      try {
+        return (localStorage.getItem(NICKNAME_KEY) || '').trim();
+      } catch (e) {
+        return '';
+      }
     }
 
-    function getVotedNickname(id) {
+    function setStoredNickname(nickname) {
+      try {
+        var clean = String(nickname || '').trim();
+        if (clean) {
+          localStorage.setItem(NICKNAME_KEY, clean);
+        }
+      } catch (e) {}
+    }
+
+    function proposalVoters(proposal) {
+      if (!proposal || !Array.isArray(proposal.voters)) return [];
+      return proposal.voters;
+    }
+
+    function votersIncludeStored(proposal) {
+      var stored = getStoredNickname();
+      if (!stored) return '';
+      var voters = proposalVoters(proposal);
+      for (var i = 0; i < voters.length; i++) {
+        if (String(voters[i] || '').trim() === stored) {
+          return stored;
+        }
+      }
+      return '';
+    }
+
+    function hasVoted(id, proposal) {
+      if (getVotedIds()[id]) return true;
+      if (proposal && votersIncludeStored(proposal)) return true;
+      return false;
+    }
+
+    function getVotedNickname(id, proposal) {
       var val = getVotedIds()[id];
-      return (typeof val === 'string') ? val : '';
+      if (typeof val === 'string' && val) return val;
+      if (proposal) {
+        var matched = votersIncludeStored(proposal);
+        if (matched) return matched;
+      }
+      return '';
     }
 
     function rememberVoted(id, nickname) {
@@ -1392,6 +1434,7 @@
         voted[id] = nickname || true;
         localStorage.setItem(VOTED_IDS_KEY, JSON.stringify(voted));
       } catch (e) {}
+      if (nickname) setStoredNickname(nickname);
     }
 
     function saveToLocalStorage() {
@@ -1532,7 +1575,9 @@
       pendingVoteId = id;
       pendingVoteTitle = title;
       voteModalTitle.textContent = title;
-      voteNicknameSelect.value = '';
+      var storedNick = getStoredNickname();
+      var hasOption = storedNick && Array.from(voteNicknameSelect.options).some(function(o) { return o.value === storedNick; });
+      voteNicknameSelect.value = hasOption ? storedNick : '';
       voteModalError.textContent = '';
       document.querySelectorAll('.vote-choice-btn').forEach(function(b) { b.disabled = false; });
       voteModal.hidden = false;
