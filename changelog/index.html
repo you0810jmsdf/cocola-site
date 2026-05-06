@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-06</p>
+            <h2 class="cl-title">DAO提案／投票：「つる」「ゆう」の票が反映されていなかった問題を修正</h2>
+            <p class="cl-desc">
+              <a href="../dao/">提案／投票</a> ページの投票数が一部少なくなっていた問題を修正しました。原因は、過去のメンバー集合に「つるちゃん」「ゆうさん」が同時在籍していた時期に「つる」「ゆう」名義で投じられた8票が、別名候補の競合で <em>ambiguous</em> 判定となり名寄せ済み列・投票重み列が空のまま残っていたことでした。現在は「つるちゃん」「ゆうさん」がメンバーから外れて競合が解消されているため、<code>processDaoProposalVotesFast</code> を再実行することで全行が再評価され、対象8票（つる: 6票 / ゆう: 2票）が自動的に名寄せされ、各提案の集計に反映されました。GitHub Actions の DAO data.json 更新ワークフローを手動トリガーして公開ページに反映済み。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-06</p>
             <h2 class="cl-title">DAO提案／投票：公開ページに出ていた重複提案の検出ロジックを強化</h2>
             <p class="cl-desc">
               <a href="../dao/">提案／投票</a> ページに「印西市文化財活用に関するインタビュー」が同日付で <strong>P0063 / P0064</strong> の2件表示されていた問題に対処しました。既存の重複検出（応答キーの照合）では拾いきれないケースに備えて、<code>dao-points.js</code> に「タイムスタンプ＋タイトル＋提案者」によるフィンガープリント重複検出（Phase 3）を追加し、GASエディタから引数なしで実行できるラッパー関数 <code>repairDuplicatedDaoProposalsLive</code> を追加しました。本番実行（dryRun=false）でスプレッドシートの P0064 を非公開化済み。GitHub Actions（DAO data.json 更新ワークフロー）を手動トリガーして公開ページに反映しました。
