@@ -61,6 +61,10 @@
     .dao-bar__label{font-weight:700;white-space:nowrap}
     .dao-bar__item{display:inline-flex;align-items:center;gap:4px}
     .dao-bar__item a{color:#1d9e75;text-decoration:underline}
+    .freefree-bar{background:#fff8f0;border-bottom:1px solid #f5c880;padding:6px 16px;font-size:.82rem;color:#c07000;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .freefree-bar__label{font-weight:700;white-space:nowrap}
+    .freefree-bar__item{display:inline-flex;align-items:center;gap:4px}
+    .freefree-bar__item a{color:#c07000;text-decoration:underline}
   </style>
 </head>
 <body>
@@ -101,6 +105,10 @@
     <div class="dao-bar" id="daoBar" style="display:none">
       <span class="dao-bar__label">💡 DAO新規提案</span>
       <span id="daoList"></span>
+    </div>
+    <div class="freefree-bar" id="freefreeBar" style="display:none">
+      <span class="freefree-bar__label">📋 FreeFree新着</span>
+      <span id="freefreeList"></span>
     </div>
 
     <!-- 管理者パスワードモーダル -->
@@ -586,6 +594,28 @@
           return '<span class="dao-bar__item"><a href="./dao/">' + cat + p.title + '</a>（' + p.proposer + '・' + ts + '）</span>';
         }).join('<span style="margin:0 4px">·</span>');
         document.getElementById('daoBar').style.display = '';
+      }
+    }).catch(() => {});
+  })();
+  </script>
+  <script>
+  (function () {
+    const FF_API = 'https://script.google.com/macros/s/AKfycbx94vdZCnI_kxOoyvCyVHBpVSVBVg2eUei0LQcqp0qf4buGzcdg-AadP9ec51s1jaYIGg/exec?page=api';
+    const FF_URL = 'https://you0810jmsdf.github.io/freefree/';
+    const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+    fetch(FF_API, { redirect: 'follow' }).then(r => r.json()).then(data => {
+      const now = Date.now();
+      const recent = (data.posters || []).filter(p => {
+        const d = new Date(p.start_date);
+        return !isNaN(d) && (now - d.getTime()) >= 0 && (now - d.getTime()) < SEVEN_DAYS;
+      });
+      if (recent.length) {
+        document.getElementById('freefreeList').innerHTML = recent.map(p => {
+          const name = (p.business && p.business.business_name) ? p.business.business_name : '';
+          const ts = (p.start_date || '').slice(0, 10).replace(/-/g, '/');
+          return '<span class="freefree-bar__item"><a href="' + FF_URL + '" target="_blank" rel="noreferrer noopener">' + p.title + '</a>（' + (name ? name + '・' : '') + ts + ' 掲載開始）</span>';
+        }).join('<span style="margin:0 4px">·</span>');
+        document.getElementById('freefreeBar').style.display = '';
       }
     }).catch(() => {});
   })();
