@@ -118,6 +118,15 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-07</p>
+            <h2 class="cl-title">Threads自動投稿：前日18時プレビューメール送信 + data.json自動更新トリガー追加</h2>
+            <p class="cl-desc">毎日18時JSTに翌日の投稿予定文をcocola.project@gmail.comへ自動メール送信するsendEveningPreview()を追加。同時にGitHub Actions（update-events-data.yml）をworkflow_dispatchでトリガーしevents/data.jsonを強制更新するtriggerDataJsonUpdate_()を実装。buildTodayEventsText_()をbuildEventsText_(offsetDays)に汎用化（0=今日、1=翌日）。threads-daily-post.gs.jsをv300としてデプロイ。⚠️ GITHUB_PAT有効期限 2026-05-19。</p>
+            <div class="cl-tags">
+              <span class="tag tag--feature">機能追加</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-07</p>
             <h2 class="cl-title">Threads自動投稿：ヘッダーを「千葉イベント」に変更・印西市イベントを先頭表示</h2>
             <p class="cl-desc">毎朝7時JST自動投稿の投稿文フォーマットを変更。ヘッダー「印西イベント」→「千葉イベント」に修正。📍印西市 を含むイベントをリスト先頭に並び替えるソートロジックを追加。threads-daily-post.gs.js を更新し v299 としてデプロイ。</p>
             <div class="cl-tags">
