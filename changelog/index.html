@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-07</p>
+            <h2 class="cl-title">DAO：提案フォーム送信時にGitHub Actions即時トリガー機能を追加</h2>
+            <p class="cl-desc">
+              新規提案がフォームから送信された際、スプレッドシートの onFormSubmit トリガーが GitHub Actions <code>update-dao-data.yml</code> を即時発火させ、<code>dao/data.json</code> を数分以内に更新するようにしました。<code>dao-points.js</code> に <code>triggerDaoSiteUpdate_</code>・<code>onDaoProposalFormSubmit_</code>・<code>installDaoProposalFormTrigger_</code> を追加し、GAS メニュー「DAO運営 → 提案フォーム送信トリガーを設定」から初回登録できます（Script Properties に <code>GITHUB_PAT</code> 要設定）。GAS 固定デプロイIDへ上書き済み（@34）。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--improve">改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-07</p>
             <h2 class="cl-title">DAO提案／投票：「投票済み」表示をクロスデバイス対応</h2>
             <p class="cl-desc">
               <a href="../dao/">提案／投票</a> ページで、スマホで投票した提案がPCを開くと「未投票」に見える事象（その逆も含む）を修正しました。原因は「投票済み」判定がブラウザごとの <code>localStorage</code>（<code>COCOLA_DAO_VOTED_IDS</code>）にのみ依存していたためです。GAS側で <code>dao/data.json</code> の各提案に投票者ニックネーム配列 <code>voters</code> を追加（<code>dao-points.js</code> の <code>getDaoVotersByProposal_</code>）し、フロントは新しい <code>COCOLA_DAO_NICKNAME</code> localStorage に保存したニックネームと <code>voters</code> 配列を照合して「投票済み」を判定するようにしました（<code>dao/index.html</code>）。投票モーダルのニックネーム選択肢は前回投票時の名前を自動選択します。GAS は固定デプロイIDへ上書き済み（@33）、GitHub Actions の DAO data.json 更新ワークフローを手動トリガーして公開ページに反映しました。
