@@ -118,6 +118,15 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-07</p>
+            <h2 class="cl-title">スケジュール：カレンダー変更時に schedule/data.json を即時更新する仕組みを追加</h2>
+            <p class="cl-desc">Googleカレンダーへのイベント追加・変更・削除を検知して GitHub の schedule/data.json を即時更新する installable trigger（onCalendarEventUpdated）を実装。calendar-trigger.gs.js を新規追加し、v176 として GHA live endpoint（AKfycbzVs_W...）@295 にデプロイ。GitHub Actions の schedule 待ちが不要になる。setupCalendarTrigger() を GASエディタで1回実行してトリガーを有効化する必要がある。</p>
+            <div class="cl-tags">
+              <span class="tag tag--feature">機能追加</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-07</p>
             <h2 class="cl-title">DAO：提案提出時に貢献度ポイントを即時反映する仕組みを構築</h2>
             <p class="cl-desc">DAO提案フォーム送信時にポイント処理が実行されず、メンバーページの貢献度に反映されない不具合を修正。onDaoProposalFormSubmit_ に提案者ポイント即時付与（processDaoProposalPointsFromAllRows_）と members/data.json 即時更新トリガー（triggerMemberSiteUpdate_）を追加。cocola-dao-gas2 v21 としてデプロイ済み。</p>
             <div class="cl-tags">
