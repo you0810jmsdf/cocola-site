@@ -118,6 +118,15 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-07</p>
+            <h2 class="cl-title">Threads自動投稿：ヘッダーを「千葉イベント」に変更・印西市イベントを先頭表示</h2>
+            <p class="cl-desc">毎朝7時JST自動投稿の投稿文フォーマットを変更。ヘッダー「印西イベント」→「千葉イベント」に修正。📍印西市 を含むイベントをリスト先頭に並び替えるソートロジックを追加。threads-daily-post.gs.js を更新し v299 としてデプロイ。</p>
+            <div class="cl-tags">
+              <span class="tag tag--update">更新</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-07</p>
             <h2 class="cl-title">スケジュール：カレンダー変更時に schedule/data.json を即時更新する仕組みを追加</h2>
             <p class="cl-desc">Googleカレンダーへのイベント追加・変更・削除を検知して GitHub の schedule/data.json を即時更新する installable trigger（onCalendarEventUpdated）を実装。calendar-trigger.gs.js を新規追加し、v176 として GHA live endpoint（AKfycbzVs_W...）@295 にデプロイ。GitHub Actions の schedule 待ちが不要になる。setupCalendarTrigger() を GASエディタで1回実行してトリガーを有効化する必要がある。</p>
             <div class="cl-tags">
