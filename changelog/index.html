@@ -118,6 +118,15 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-07</p>
+            <h2 class="cl-title">スケジュール：文字化けカレンダーイベントを非表示に修正</h2>
+            <p class="cl-desc">Googleカレンダー由来の文字化け（U+FFFD）を含むイベントがスケジュールページに表示される不具合を修正。GASのgetCalendarOnlyEvents_にフィルタを追加し、文字化けイベント12件を除外。あわせてGitHub ActionsのGASエンドポイントが古いデプロイIDを参照していた問題（修正が反映されない根本原因）を解消した。</p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">バグ修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-07</p>
             <h2 class="cl-title">TOPページ：DAO新規提案通知バーを追加</h2>
             <p class="cl-desc">直近7日以内に提出されたDAO提案をTOPページの通知バー（緑）に一覧表示する機能を追加。カテゴリー・タイトル・提案者・日付を表示し、DAO投票ページへリンク。</p>
             <div class="cl-tags">
