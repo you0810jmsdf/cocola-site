@@ -16,6 +16,9 @@ jobs:
 
       - name: Fetch schedule data from GAS
         run: |
+          # GAS deployment ID: AKfycbzVs_W... (@294, v175)
+          # ⚠️ clasp deploy 時は必ずこのIDを --deploymentId に指定すること
+          # （AKfycbycw2F... は別デプロイ。このYMLには届かない）
           curl -sL \
             "https://script.google.com/macros/s/AKfycbzVs_W57Iphxcc5PHShXBNae63CKqjF5fB82tUkQwaf1vyuNWWLgtWZgglY7Qbuuft1/exec?mode=schedule_list&t=$(date +%s)" \
             -o schedule/data_new.json \
