@@ -578,8 +578,10 @@
   <script>
   (function () {
     const DAO_JSON = './dao/data.json';
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbxM2ybpJqfWLL-MPnOwZqeBdHjN6IQh5QB-_LubZAG-bD0x8jLkgbUn7NYRzYLFOPfj7g/exec?mode=json';
     const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
-    fetch(DAO_JSON + '?t=' + Math.floor(Date.now() / 60000), { credentials: 'omit' }).then(r => r.json()).then(data => {
+    const ONE_DAY = 24 * 60 * 60 * 1000;
+    function renderDaoBar(data) {
       const now = Date.now();
       const newProposals = (data.proposals || []).filter(p => {
         const s = p.submittedAt;
@@ -595,7 +597,17 @@
         }).join('<span style="margin:0 4px">·</span>');
         document.getElementById('daoBar').style.display = '';
       }
-    }).catch(() => {});
+    }
+    fetch(DAO_JSON + '?t=' + Math.floor(Date.now() / 60000), { credentials: 'omit' })
+      .then(r => r.json())
+      .then(data => {
+        if (data._generatedMs && (Date.now() - data._generatedMs) > ONE_DAY) {
+          return fetch(GAS_URL, { redirect: 'follow' }).then(r => r.json());
+        }
+        return data;
+      })
+      .then(renderDaoBar)
+      .catch(e => console.warn('[DAO bar]', e));
   })();
   </script>
   <script>
