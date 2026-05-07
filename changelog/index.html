@@ -118,6 +118,15 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-07</p>
+            <h2 class="cl-title">DAO：提案提出時に貢献度ポイントを即時反映する仕組みを構築</h2>
+            <p class="cl-desc">DAO提案フォーム送信時にポイント処理が実行されず、メンバーページの貢献度に反映されない不具合を修正。onDaoProposalFormSubmit_ に提案者ポイント即時付与（processDaoProposalPointsFromAllRows_）と members/data.json 即時更新トリガー（triggerMemberSiteUpdate_）を追加。cocola-dao-gas2 v21 としてデプロイ済み。</p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">バグ修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-07</p>
             <h2 class="cl-title">スケジュール：文字化けカレンダーイベントを非表示に修正</h2>
             <p class="cl-desc">Googleカレンダー由来の文字化け（U+FFFD）を含むイベントがスケジュールページに表示される不具合を修正。GASのgetCalendarOnlyEvents_にフィルタを追加し、文字化けイベント12件を除外。あわせてGitHub ActionsのGASエンドポイントが古いデプロイIDを参照していた問題（修正が反映されない根本原因）を解消した。</p>
             <div class="cl-tags">
