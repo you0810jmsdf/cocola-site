@@ -118,6 +118,15 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-07</p>
+            <h2 class="cl-title">TOPページ：DAO新規提案通知バーを追加</h2>
+            <p class="cl-desc">直近7日以内に提出されたDAO提案をTOPページの通知バー（緑）に一覧表示する機能を追加。カテゴリー・タイトル・提案者・日付を表示し、DAO投票ページへリンク。</p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-07</p>
             <h2 class="cl-title">DAO：提案フォーム送信時にGitHub Actions即時トリガー機能を追加</h2>
             <p class="cl-desc">
               新規提案がフォームから送信された際、スプレッドシートの onFormSubmit トリガーが GitHub Actions <code>update-dao-data.yml</code> を即時発火させ、<code>dao/data.json</code> を数分以内に更新するようにしました。<code>dao-points.js</code> に <code>triggerDaoSiteUpdate_</code>・<code>onDaoProposalFormSubmit_</code>・<code>installDaoProposalFormTrigger_</code> を追加し、GAS メニュー「DAO運営 → 提案フォーム送信トリガーを設定」から初回登録できます（Script Properties に <code>GITHUB_PAT</code> 要設定）。GAS 固定デプロイIDへ上書き済み（@34）。

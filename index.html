@@ -57,6 +57,10 @@
     .update-bar__label{font-weight:700;white-space:nowrap}
     .update-bar__item{display:inline-flex;align-items:center;gap:4px}
     .update-bar__item a{color:#0070c0;text-decoration:underline}
+    .dao-bar{background:#f0fff8;border-bottom:1px solid #b2dfce;padding:6px 16px;font-size:.82rem;color:#1d9e75;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .dao-bar__label{font-weight:700;white-space:nowrap}
+    .dao-bar__item{display:inline-flex;align-items:center;gap:4px}
+    .dao-bar__item a{color:#1d9e75;text-decoration:underline}
   </style>
 </head>
 <body>
@@ -93,6 +97,10 @@
     <div class="update-bar" id="updateBar" style="display:none">
       <span class="update-bar__label">情報更新</span>
       <span id="updateList"></span>
+    </div>
+    <div class="dao-bar" id="daoBar" style="display:none">
+      <span class="dao-bar__label">💡 DAO新規提案</span>
+      <span id="daoList"></span>
     </div>
 
     <!-- 管理者パスワードモーダル -->
@@ -555,6 +563,29 @@
           return '<span class="update-bar__item"><a href="./member-app/html.html">' + nick + 'さん</a>（' + ts + ' 情報更新）</span>';
         }).join('<span style="margin:0 4px">·</span>');
         document.getElementById('updateBar').style.display = '';
+      }
+    }).catch(() => {});
+  })();
+  </script>
+  <script>
+  (function () {
+    const DAO_JSON = './dao/data.json';
+    const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+    fetch(DAO_JSON + '?t=' + Math.floor(Date.now() / 60000), { credentials: 'omit' }).then(r => r.json()).then(data => {
+      const now = Date.now();
+      const newProposals = (data.proposals || []).filter(p => {
+        const s = p.submittedAt;
+        if (!s) return false;
+        const d = new Date(s.replace(/\//g, '-'));
+        return !isNaN(d) && (now - d.getTime()) < SEVEN_DAYS;
+      });
+      if (newProposals.length) {
+        document.getElementById('daoList').innerHTML = newProposals.map(p => {
+          const cat = p.category ? '【' + p.category + '】' : '';
+          const ts = (p.submittedAt || '').slice(0, 10).replace(/-/g, '/');
+          return '<span class="dao-bar__item"><a href="./dao/">' + cat + p.title + '</a>（' + p.proposer + '・' + ts + '）</span>';
+        }).join('<span style="margin:0 4px">·</span>');
+        document.getElementById('daoBar').style.display = '';
       }
     }).catch(() => {});
   })();
