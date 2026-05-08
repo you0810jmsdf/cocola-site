@@ -118,6 +118,15 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-08</p>
+            <h2 class="cl-title">DAO投票ページ：シークレットウィンドウで提案が表示されない不具合を修正</h2>
+            <p class="cl-desc">dao/index.htmlのsetFormLink()関数に null ガード（if (!element) return;）を追加。voteForm要素がHTML上に存在しないためdocument.getElementById('voteForm')がnullを返し、applyDaoData()内でTypeErrorがスローされてrenderProposals()が実行されなかった。localStorageが空のシークレットウィンドウでのみ再現する不具合だった。</p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-08</p>
             <h2 class="cl-title">TOPページ DAO通知バー：data.json陳腐化時のGAS直接フォールバック追加</h2>
             <p class="cl-desc">GitHub Actionsスケジュールが一時停止しdao/data.jsonが24時間以上更新されない場合、ブラウザ側でGASエンドポイントへ直接フェッチするフォールバックをindex.htmlに追加。エラー時のcatch(() => {})をconsole.warnに変更して原因を可視化。data.jsonも手動ワークフロートリガーで最新化（generatedAt: 2026/05/08 08:33）。</p>
             <div class="cl-tags">

@@ -1192,6 +1192,7 @@
     }
 
     function setFormLink(element, url) {
+      if (!element) return;
       if (!url) {
         element.classList.add('is-disabled');
         element.removeAttribute('href');
