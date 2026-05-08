@@ -583,11 +583,15 @@
     const ONE_DAY = 24 * 60 * 60 * 1000;
     function renderDaoBar(data) {
       const now = Date.now();
+      const seen = new Set();
       const newProposals = (data.proposals || []).filter(p => {
         const s = p.submittedAt;
         if (!s) return false;
         const d = new Date(s.replace(/\//g, '-'));
-        return !isNaN(d) && (now - d.getTime()) < SEVEN_DAYS;
+        if (isNaN(d) || (now - d.getTime()) >= SEVEN_DAYS) return false;
+        if (seen.has(p.title)) return false;
+        seen.add(p.title);
+        return true;
       });
       if (newProposals.length) {
         document.getElementById('daoList').innerHTML = newProposals.map(p => {
