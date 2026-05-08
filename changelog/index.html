@@ -118,6 +118,12 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-08</p>
+            <h2 class="cl-title">DAO提案：スキーマ漂流の構造的解消（v20 列名マップinsert・スキーマ正規化）</h2>
+            <p class="cl-desc">P0020投票方式変更（v18）以降、DAO_PROPOSAL_HEADERSの「賛成重み/反対重み/賛成率」とコード側の「協力重み/非協力重み/協力率」が併存し、ensureNamedColumn_が末尾に新列を追加することでシートが20+列に膨張、位置ベースsetValuesで末尾列が破壊されて公開列・回答キー列が空になっていた。v20で根本対策：①DAO_PROPOSAL_HEADERSを新列名へ統一、②insertを列名→値マップ化（insertDaoProposalRowByName_）、③回答キー欠損自動再生成、④起動時スキーマ検証ログ、⑤1回限りの移行関数migrateDaoProposalSchema_()追加（GASエディタから手動実行で旧列を新列へ統合し物理削除）。</p>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-08</p>
             <h2 class="cl-title">DAO提案：手動トリガー依存の根本解消（公開列自動修復・重複登録ガード）</h2>
             <p class="cl-desc">cocola-dao-gas2 (v19, @37) に2件の安全装置を追加。①repairDaoProposalDefaults_ を新設し、提案行の「公開」空欄→TRUE・「ステータス」空欄→「投票中」に自動修復（getDaoProposalPageDataJson_ 経由で毎回実行）。②normalizeLatestDaoProposalResponse_ に isDuplicateRecentProposal_ ガードを追加し、同一タイトル＋同一提案者が直近60分以内に登録済みの場合スキップ。P0176（団体パネル展示展）が公開=FALSE状態でサイト未表示になり、P0177-P0188 が重複作成された再発を防ぐ。GitHub Actions schedule 不安定への対策（onDaoProposalFormSubmit_ 内 triggerDaoSiteUpdate_）は既存（v18）で機能済。</p>
             <div class="cl-tags">
