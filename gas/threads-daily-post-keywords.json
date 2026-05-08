@@ -1,0 +1,11 @@
+{
+  "description": "毎日の『自分をつくる』threads自動投稿で使用する情報収集キーワードの正規記録。GAS側 threads-daily-post.gs.js の SELF_POST_KEYWORDS と同期させること。変更時はchangelogに追記。",
+  "category": "self",
+  "categoryLabel": "自分をつくる",
+  "keywords": [
+    "引き寄せの法則",
+    "宇宙の法則",
+    "アドラー心理学"
+  ],
+  "lastUpdated": "2026-05-08"
+}
