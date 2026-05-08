@@ -1596,16 +1596,22 @@
       if (e.target === voteModal) closeVoteModal();
     });
 
+    function setVoteModalLoading(loading) {
+      document.querySelectorAll('.vote-choice-btn').forEach(function(b) { b.disabled = loading; });
+      voteNicknameSelect.disabled = loading;
+      voteModalCancel.disabled = loading;
+      voteModalError.textContent = loading ? '送信中…しばらくお待ちください' : '';
+    }
+
     document.getElementById('voteChoices').addEventListener('click', function(e) {
       var btn = e.target.closest('.vote-choice-btn');
-      if (!btn) return;
+      if (!btn || btn.disabled) return;
       var nick = voteNicknameSelect.value;
       if (!nick) { voteModalError.textContent = 'ニックネームを選択してください。'; return; }
       var vote = btn.dataset.vote;
       var id = pendingVoteId;
       var title = pendingVoteTitle;
-      voteModalError.textContent = '';
-      btn.disabled = true;
+      setVoteModalLoading(true);
       var url = GAS_URL + '?mode=vote'
         + '&id=' + encodeURIComponent(id)
         + '&title=' + encodeURIComponent(title)
@@ -1626,13 +1632,13 @@
               setTimeout(function() { notice.remove(); }, 5000);
             }
           } else {
+            setVoteModalLoading(false);
             voteModalError.textContent = res.error || '投票に失敗しました。';
-            btn.disabled = false;
           }
         })
         .catch(function() {
+          setVoteModalLoading(false);
           voteModalError.textContent = '通信エラーが発生しました。';
-          btn.disabled = false;
         });
     });
 
