@@ -118,6 +118,15 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-09</p>
+            <h2 class="cl-title">Threads予約投稿の月間カレンダービューを追加（sns-gas @10）</h2>
+            <p class="cl-desc">新規 Calendar.gs を追加し、`?action=calendar` で予約済み下書きを月間グリッドで一覧できるビューを実装。各日セルに「HH:mm 投稿冒頭18文字」のチップを時刻昇順で表示し、クリックすると該当下書きの編集ページへ遷移する。前月/翌月ナビ・今日ハイライト・日曜赤／土曜青の配色・スマホ対応のレスポンシブグリッド付き。投稿候補一覧ページとトップページの両方からカレンダーへの導線を追加。</p>
+            <div class="cl-tags">
+              <span class="tag tag--feature">新機能</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-09</p>
             <h2 class="cl-title">Threads予約投稿機能を追加：日時指定で自動投稿（sns-gas @9）</h2>
             <p class="cl-desc">投稿候補一覧の各カードに datetime-local 入力欄＋「予約設定／予約解除」ボタンを追加。指定したJST日時を draft.scheduled_at に保存する。新規 SchedulePost.gs に runScheduledPosts() を実装し、5分ごとの時間トリガー（setupScheduleTrigger で登録）が scheduled_at <= 現在時刻 の下書きを自動的に Threads へ投稿し、成功した下書きは ScriptProperties から削除する。失敗時は scheduled_at をクリアし schedule_error にエラー内容を記録して再実行ループを停止する。</p>
             <div class="cl-tags">
