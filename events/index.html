@@ -158,17 +158,23 @@ var _wk = _monOf(_now);
 // https://www.pref.chiba.lg.jp/kigyou/nt/documents/tochiriyou.pdf
 var CNT_OFFICIAL = ['千葉ニュータウン','CNT'];
 var CNT_CITY = ['印西市','白井市','小室'];
+// CNT 公式住区（土地利用計画図R7.3準拠）
 var CNT_AREAS = [
-  // 印西市側（公式住区＋実生活圏）
+  // 印西市側
   '中央北','中央南','武西学園台','原山','高花','内野','戸神台',
   '大塚','木刈','牧の木戸','小倉台','泉野',
   '西の原','牧の原','滝野','美瀬','舞姫','若萩','大松','牧の台','東の原','鹿黒南',
-  '印旛中央','いには野',
-  '鎌苅','鎌苅北','草深','萩原','別所','平岡','浦部','木下東','大森',
-  // 白井市側（公式住区＋実生活圏）
+  'いには野',
+  // 白井市側
   '南山','池の上','清水口','大山口','笹塚','堀込','掘込',
-  'けやき台','七次台','野口','桜台','みどり台','つくりや台',
-  '冨士','富士','神々廻'
+  'けやき台','七次台','桜台','みどり台','つくりや台'
+];
+// CNT 外の地区名（広め）。住区名にこれが含まれる場合は CNT 扱いにしない。
+var CNT_EXCLUDE = [
+  '本埜','笠神','岩戸','瀬戸','酒直','中根','和泉','押付','物木','行徳','佐野屋','惣深','北辺田',
+  '吉田','小林','印旛中央','角田','松虫','松崎','平賀','亀成','大廻','宗像','岩富','舞鶴','師戸',
+  '木下','結縁寺','鹿黒','大森','浦部','別所','平岡','萩原','鎌苅','草深',
+  '根','復','十余一','平塚','河原子','谷田','富塚','清戸','名内','折立','滝沢','今井','神々廻','冨士','富士','野口'
 ];
 
 async function tryStaticJson() {
@@ -276,18 +282,21 @@ function _card(ev) {
 function _isCNT(ev) {
   var hay = [ev.t, ev.l, ev.desc, ev.s].join(' ');
   if (hay.normalize) hay = hay.normalize('NFKC');
-  // 公式キーワード（千葉ニュータウン / CNT）即マッチ
+  // 1) 公式キーワード（千葉ニュータウン / CNT）即マッチ
   for (var i = 0; i < CNT_OFFICIAL.length; i++) {
     if (hay.indexOf(CNT_OFFICIAL[i]) !== -1) return true;
   }
-  // 二段階判定: 市名（印西市/白井市/小室）が含まれる場合のみ住区名チェック
-  var hasCity = false;
-  for (var j = 0; j < CNT_CITY.length; j++) {
-    if (hay.indexOf(CNT_CITY[j]) !== -1) { hasCity = true; break; }
-  }
-  if (!hasCity) return false;
+  // 2) CNT 公式住区にマッチ → CNT
   for (var k = 0; k < CNT_AREAS.length; k++) {
     if (hay.indexOf(CNT_AREAS[k]) !== -1) return true;
+  }
+  // 3) CNT 外の地区名にマッチ → CNT ではない
+  for (var x = 0; x < CNT_EXCLUDE.length; x++) {
+    if (hay.indexOf(CNT_EXCLUDE[x]) !== -1) return false;
+  }
+  // 4) 市名（印西市 / 白井市 / 小室）が含まれていれば CNT 扱い（フォールバック）
+  for (var j = 0; j < CNT_CITY.length; j++) {
+    if (hay.indexOf(CNT_CITY[j]) !== -1) return true;
   }
   return false;
 }
