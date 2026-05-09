@@ -117,6 +117,15 @@
         <ul class="changelog-list">
 
           <li class="cl-entry">
+            <p class="cl-date">2026-05-09</p>
+            <h2 class="cl-title">APP/LINKS：Threads投稿候補一覧へのリンクを追加</h2>
+            <p class="cl-desc">apps/index.html に「Threads投稿候補一覧」カードを追加。COCoLa Threads（@cocola_project）の自動生成投稿の確認・編集・承認をサイトの管理画面（APP/LINKS）から開けるようにした。リンク先は sns-gas Web App（?action=drafts）。</p>
+            <div class="cl-tags">
+              <span class="tag tag--feature">機能追加</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
             <p class="cl-date">2026-05-08</p>
             <h2 class="cl-title">TOPページ：DAO新規提案バーの重複表示を修正</h2>
             <p class="cl-desc">GASスプレッドシート上に同一タイトルの提案が新旧IDで二重登録されており、data.jsonが1日以上古くなるとGASへフォールバックした際に最大8件（4ペア×2）が重複表示される問題を修正。index.html の renderDaoBar 関数にタイトル重複排除（Setによる先着1件）を追加し、データソース問わず同名提案は最初の1件のみ表示するよう改修。</p>
