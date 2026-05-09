@@ -118,6 +118,15 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-09</p>
+            <h2 class="cl-title">Threads投稿候補一覧に「その場で生成」ボタンを追加</h2>
+            <p class="cl-desc">sns-gas Code.gs に action=fetch_and_generate / action=generate_now を追加（@6デプロイ）。投稿候補一覧の上部に「🔄 Web情報収集して生成」「✨ いま生成（既存キャッシュ使用）」の2ボタンを設置し、運営者が任意のタイミングで下書きをストックできるようにした。毎朝7時の自動生成（runDailyGenerate）と並行運用。</p>
+            <div class="cl-tags">
+              <span class="tag tag--feature">機能追加</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-09</p>
             <h2 class="cl-title">TOP🔒管理モーダルにThreads運営ツールを統合</h2>
             <p class="cl-desc">既存のTOPページ「🔒管理」ボタン（パスワード cocola2026）から開くadminOverlayモーダル内に、Threads運営ツールセクションを追加。投稿候補一覧・Web情報キャッシュ・キーワード管理の3リンクを集約し、運営管理を1か所に統合した。apps/ 一般公開ページに一時掲載した Threads リンクは取り下げ済。cocola-site/admin/index.html はURL直打ちフォールバックとして併存（noindex/nofollow）。</p>
             <div class="cl-tags">
