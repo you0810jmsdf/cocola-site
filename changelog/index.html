@@ -118,6 +118,16 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-09</p>
+            <h2 class="cl-title">Threads投稿フォーマット規定＋キーワード保存ガード（sns-gas @7）</h2>
+            <p class="cl-desc">GeneratePost.gs を改修し、(1) Markdown強調記法 ** を投稿文から自動除去、(2) フックを「」ではなく【】で書く方針をプロンプトに明記、(3) 末尾に必ず #COCoLa #千葉ニュータウン #じぶんをつくる の3タグが入るよう生成後に自動補完。あわせて Keywords.gs に空配列ガード（空フォーム送信時は保存拒否＆例外）と Logger.log を追加し、「保存したキーワードが時間経過でデフォルトに戻る」問題の原因特定を可能にした。</p>
+            <div class="cl-tags">
+              <span class="tag tag--improve">改善</span>
+              <span class="tag tag--fix">不具合修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-09</p>
             <h2 class="cl-title">Threads投稿候補一覧に「その場で生成」ボタンを追加</h2>
             <p class="cl-desc">sns-gas Code.gs に action=fetch_and_generate / action=generate_now を追加（@6デプロイ）。投稿候補一覧の上部に「🔄 Web情報収集して生成」「✨ いま生成（既存キャッシュ使用）」の2ボタンを設置し、運営者が任意のタイミングで下書きをストックできるようにした。毎朝7時の自動生成（runDailyGenerate）と並行運用。</p>
             <div class="cl-tags">
