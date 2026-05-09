@@ -153,7 +153,23 @@ var _now = new Date();
 var _view = 'list';
 var _mo = new Date(_now.getFullYear(), _now.getMonth(), 1);
 var _wk = _monOf(_now);
-var CNT_KEYWORDS = ['印西','白井','小室'];
+// ─── 千葉ニュータウン地区判定 ───
+// データソース: 千葉県企業局「千葉ニュータウン土地利用計画図（令和7年3月版）」
+// https://www.pref.chiba.lg.jp/kigyou/nt/documents/tochiriyou.pdf
+var CNT_OFFICIAL = ['千葉ニュータウン','CNT'];
+var CNT_CITY = ['印西市','白井市','小室'];
+var CNT_AREAS = [
+  // 印西市側（公式住区＋実生活圏）
+  '中央北','中央南','武西学園台','原山','高花','内野','戸神台',
+  '大塚','木刈','牧の木戸','小倉台','泉野',
+  '西の原','牧の原','滝野','美瀬','舞姫','若萩','大松','牧の台','東の原','鹿黒南',
+  '印旛中央','いには野',
+  '鎌苅','鎌苅北','草深','萩原','別所','平岡','浦部','木下東','大森',
+  // 白井市側（公式住区＋実生活圏）
+  '南山','池の上','清水口','大山口','笹塚','堀込','掘込',
+  'けやき台','七次台','野口','桜台','みどり台','つくりや台',
+  '冨士','富士','神々廻'
+];
 
 async function tryStaticJson() {
   var res = await fetch(STATIC_JSON_URL + '?ts=' + Date.now(), { credentials: 'omit' });
@@ -259,7 +275,21 @@ function _card(ev) {
 }
 function _isCNT(ev) {
   var hay = [ev.t, ev.l, ev.desc, ev.s].join(' ');
-  return CNT_KEYWORDS.some(function(k) { return hay.indexOf(k) !== -1; });
+  if (hay.normalize) hay = hay.normalize('NFKC');
+  // 公式キーワード（千葉ニュータウン / CNT）即マッチ
+  for (var i = 0; i < CNT_OFFICIAL.length; i++) {
+    if (hay.indexOf(CNT_OFFICIAL[i]) !== -1) return true;
+  }
+  // 二段階判定: 市名（印西市/白井市/小室）が含まれる場合のみ住区名チェック
+  var hasCity = false;
+  for (var j = 0; j < CNT_CITY.length; j++) {
+    if (hay.indexOf(CNT_CITY[j]) !== -1) { hasCity = true; break; }
+  }
+  if (!hasCity) return false;
+  for (var k = 0; k < CNT_AREAS.length; k++) {
+    if (hay.indexOf(CNT_AREAS[k]) !== -1) return true;
+  }
+  return false;
 }
 function _setArea(a) {
   _areaFilter = a;
