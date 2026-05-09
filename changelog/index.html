@@ -118,6 +118,15 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-09</p>
+            <h2 class="cl-title">Threads予約投稿機能を追加：日時指定で自動投稿（sns-gas @9）</h2>
+            <p class="cl-desc">投稿候補一覧の各カードに datetime-local 入力欄＋「予約設定／予約解除」ボタンを追加。指定したJST日時を draft.scheduled_at に保存する。新規 SchedulePost.gs に runScheduledPosts() を実装し、5分ごとの時間トリガー（setupScheduleTrigger で登録）が scheduled_at <= 現在時刻 の下書きを自動的に Threads へ投稿し、成功した下書きは ScriptProperties から削除する。失敗時は scheduled_at をクリアし schedule_error にエラー内容を記録して再実行ループを停止する。</p>
+            <div class="cl-tags">
+              <span class="tag tag--feature">新機能</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-09</p>
             <h2 class="cl-title">Threads投稿のスマホ可読性向上：句点改行＋絵文字活用（sns-gas @8）</h2>
             <p class="cl-desc">GeneratePost.gs を改修し、投稿文の見やすさを向上。(1) プロンプトに「文章は『。』ごとに改行」「スマホ画面で読みやすい短い行」「絵文字を要所に1〜3個」のルールを追加、(2) 生成後の後処理 _postProcessText で「。」の直後に自動改行を挿入（ハッシュタグ行は対象外）。これにより、スマホで Threads を見た時に1文ごとに視線が止まりやすくなり、読みやすさが大幅に改善。</p>
             <div class="cl-tags">
