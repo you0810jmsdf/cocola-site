@@ -118,6 +118,16 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-11</p>
+            <h2 class="cl-title">DAO提案 朝カフェゾンビ復活の物理削除 ＆ テスト提案 P0179 ハード削除（cocola-dao-gas2 v23.1 @57）</h2>
+            <p class="cl-desc">v21.1 で「公開列の自動 TRUE 修復」を撤廃した後も、票数 0 の古い提案（P0199 朝カフェ・P0201 4月朝カフェ）が公開ページに復活する事象が継続していたため、v23 で導入済みの <code>purgeAsacafeZombiesLive</code>（タイトル一致＋票数0行をアーカイブ→物理削除）を再実行し、行 193・194 を <code>dao_proposals_archive</code> へ退避のうえスプレッドシートから物理削除。あわせて v23.1 @57 でテスト提案ハード削除用の <code>purgeTestProposalsDryRun/Live</code> ラッパー（対象タイトル: 「464号線でマルシェがしたい」）を追加し、P0179 を物理削除。GitHub Actions <code>update-dao-data.yml</code> を手動トリガーして公開 <code>dao/data.json</code> に反映（proposals 14→12, voting 14→12, 焼き鳥4票・竹箸つくり5票・健活5票・野草ハンター5票はそのまま保全）。なお、票数 0 行がフォーム経路から「同タイトル＋新ID」で再出現する経路は別途追跡予定（取消ボタン＝ソフト削除のままで残るため）。</p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+              <span class="tag tag--infra">基盤</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-11</p>
             <h2 class="cl-title">DAO提案アーカイブ関数の表記ゆれ対応・公開判定統一・列幅バグ修正（cocola-dao-gas2 v21.3.2 @54）</h2>
             <p class="cl-desc">v21.1 で導入した <code>archiveDuplicateAndStaleDaoProposals_</code> が「竹箸つくり／竹箸作り」のような表記ゆれを別タイトル扱いし、重複が4件残っていた問題を修正。(1) v21.3: dedup キーにタイトル正規化を導入（空白除去・<code>つくり/造り → 作り</code>・小文字化）し、表記ゆれ同士を同一提案として束ねる。(2) v21.3.1: アーカイブ関数の対象フィルタを「公開=TRUE のみ」厳格化（v21.1 で確立した「空欄＝非公開、TRUE＝公開」のセマンティクスに揃え、空欄行が drift で混入するのを防止）。(3) v21.3.2: 新規アーカイブシート作成時のヘッダ書き込みで <code>getRange(1,1,1,width)</code> が 22 列だが <code>headers.concat(['archived_at','archived_reason'])</code> が 24 要素となり「data has 24 but range has 22」で失敗していた件を <code>width + 2</code> に修正。Live 実行で 5 件（竹箸4件＋焼き鳥1件）を <code>dao_proposals_archive</code> に退避し、公開ページの重複が解消した（竹箸 5→1、焼き鳥 2→1）。</p>
             <div class="cl-tags">
