@@ -118,6 +118,16 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-11</p>
+            <h2 class="cl-title">朝カフェ・竹箸作りのタイトル一致全行を物理削除（cocola-dao-gas2 v25 @59）</h2>
+            <p class="cl-desc">v23.1／v24 の対策後も、票数0で公開ページに「P0202 朝カフェ／P0200・P0198 竹箸つくり」等が再出現する現象が継続。根因は提案重複判定 <code>isDuplicateRecentProposal_</code> がタイトル完全一致のみで、表記ゆれ（つくり／作り／造り）や物理削除後の新ID再投稿に対して透過する穴を残していたこと。v25 では「票数・公開状態を問わずタイトル一致行を全て物理削除」する積極パージ関数 <code>purgeProposalsByTitleHard_</code> を新設し、対象タイトル <code>['朝カフェ', '4月朝カフェ', '竹箸作り', '竹箸つくり', '竹箸造り']</code> 用ラッパー <code>purgeAsacafeAndBambooDryRun/Live</code> を追加。タイトル正規化（空白除去・つくり／造り→作り・小文字化）を内蔵し、削除前に <code>dao_proposals_archive</code> へ <code>archived_reason: 'hard-purge by title (vote=N, pub=X, status=Y)'</code> 付きで退避。DryRunで35件確認後、票=1のP0021 4月朝カフェも含めユーザー明示指示により全件Live削除。GitHub Actions <code>update-dao-data.yml</code> を手動トリガーし、公開 <code>dao/data.json</code> から朝カフェ／竹箸の全エントリが消失（proposals 12件）。</p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+              <span class="tag tag--infra">基盤</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-11</p>
             <h2 class="cl-title">DAO提案「投票0かつ終了」の汎用ハード削除UIを追加（cocola-dao-gas2 v24 @58）</h2>
             <p class="cl-desc">これまで提案ごとに専用関数（朝カフェゾンビ用 <code>purgeAsacafeZombiesLive</code>、テスト提案用 <code>purgeTestProposalsLive</code> など）を作って物理削除していたが、運用のたびにスクリプト追加が必要で煩雑だった。v24 では「ステータス=『終了』 かつ 投票数=0」を満たす提案行を一括で物理削除する汎用関数 <code>purgeAllZeroVoteSoftDeletedProposals_</code> と、その doGet エンドポイント（<code>?mode=purgeZeroVotesDryRun</code> / <code>?mode=purgeZeroVotesLive</code>）を実装。<code>dao-proposals.html?admin=1</code> でだけ表示される管理セクションから、管理パスワード（<code>DAO_ADMIN_PASSWORD</code>）入力 → DryRunで対象件数確認 → ネイティブ confirm() ダイアログ → Live実行、の二段階フローで安全に呼べる。削除前に <code>dao_proposals_archive</code> シートへ自動退避、票数 &gt; 0 の行は安全弁として絶対に削除しない。GAS版数200制限に達したため旧バージョンを手動削除のうえ <code>@58</code> として固定デプロイIDへ上書き。</p>
             <div class="cl-tags">
