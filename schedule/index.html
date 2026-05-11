@@ -217,6 +217,10 @@ body{margin:0;padding:12px;font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans
         <label>日付 <span style="color:#c0392b">*</span></label>
         <input type="date" id="f-date">
       </div>
+      <div class="form-row">
+        <label>終了日（複数日にまたがる場合のみ）</label>
+        <input type="date" id="f-end-date">
+      </div>
       <div class="form-time-row">
         <div class="form-row">
           <label>開始時刻</label>
@@ -402,9 +406,16 @@ function renderCalendar() {
 
   var itemMap = {};
   _items.forEach(function(ev) {
-    var d = ev.date.replace(/\//g, '-');
-    if (!itemMap[d]) itemMap[d] = [];
-    itemMap[d].push(ev);
+    var startD = ev.date.replace(/\//g, '-');
+    var endD = ev.endDate ? ev.endDate.replace(/\//g, '-') : startD;
+    var cur = new Date(startD + 'T00:00:00');
+    var end = new Date(endD + 'T00:00:00');
+    while (cur <= end) {
+      var key = fmtDate(cur);
+      if (!itemMap[key]) itemMap[key] = [];
+      itemMap[key].push(ev);
+      cur.setDate(cur.getDate() + 1);
+    }
   });
 
   var html = ['日','月','火','水','木','金','土'].map(function(d){
@@ -450,7 +461,11 @@ function selectDay(dateStr) {
 function renderDayPanel(dateStr) {
   var parts = dateStr.split('-');
   var label = parseInt(parts[0],10) + '年' + parseInt(parts[1],10) + '月' + parseInt(parts[2],10) + '日';
-  var evs = _items.filter(function(ev){ return ev.date.replace(/\//g,'-') === dateStr; });
+  var evs = _items.filter(function(ev){
+    var s = ev.date.replace(/\//g,'-');
+    var e = ev.endDate ? ev.endDate.replace(/\//g,'-') : s;
+    return s <= dateStr && dateStr <= e;
+  });
   document.getElementById('dp-title').textContent = label + ' のイベント';
   var panel = document.getElementById('day-panel');
   if (evs.length === 0) {
@@ -503,6 +518,10 @@ function buildEvHtml(ev) {
   var timePart = ev.startTime ? ev.startTime + (ev.endTime ? '〜' + ev.endTime : '') : '';
   var dateParts = ev.date.replace(/\//g,'-').split('-');
   var dateLabel = parseInt(dateParts[0],10) + '年' + parseInt(dateParts[1],10) + '月' + parseInt(dateParts[2],10) + '日';
+  if (ev.endDate && ev.endDate.replace(/\//g,'-') !== dateParts.join('-')) {
+    var endParts = ev.endDate.replace(/\//g,'-').split('-');
+    dateLabel += '〜' + parseInt(endParts[1],10) + '月' + parseInt(endParts[2],10) + '日';
+  }
   if (timePart) dateLabel += ' ' + timePart;
 
   var isCalOnly = ev.source === 'calendar';
@@ -532,7 +551,7 @@ function toggleGroup(hd) {
 
 function isEventPast(ev) {
   var todayStr = fmtDate(new Date());
-  var evDate = ev.date.replace(/\//g, '-');
+  var evDate = (ev.endDate ? ev.endDate : ev.date).replace(/\//g, '-');
   return evDate < todayStr;
 }
 
@@ -555,6 +574,7 @@ function openEdit(id) {
   document.getElementById('f-cal-event-id').value = isCalOnly ? (ev.calEventId || '') : '';
   document.getElementById('f-title').value = ev.title;
   document.getElementById('f-date').value = ev.date.replace(/\//g, '-');
+  document.getElementById('f-end-date').value = ev.endDate ? ev.endDate.replace(/\//g, '-') : '';
   document.getElementById('f-start').value = ev.startTime || '';
   document.getElementById('f-end').value = ev.endTime || '';
   document.getElementById('f-place').value = ev.place || '';
@@ -574,7 +594,7 @@ function closeModal() {
 }
 
 function clearForm() {
-  ['f-title','f-date','f-start','f-end','f-place','f-participants','f-organizer','f-memo','f-cal-event-id'].forEach(function(id){
+  ['f-title','f-date','f-end-date','f-start','f-end','f-place','f-participants','f-organizer','f-memo','f-cal-event-id'].forEach(function(id){
     document.getElementById(id).value = '';
   });
   document.getElementById('f-public').checked = false;
@@ -595,9 +615,12 @@ function saveEvent() {
     }
   }
 
+  var endDateRaw = document.getElementById('f-end-date').value.trim();
+  if (endDateRaw && endDateRaw < date) { alert('終了日は開始日以降の日付を指定してください'); return; }
   var params = {
     title:        title,
     date:         date.replace(/-/g, '/'),
+    endDate:      endDateRaw ? endDateRaw.replace(/-/g, '/') : '',
     startTime:    document.getElementById('f-start').value.trim(),
     endTime:      document.getElementById('f-end').value.trim(),
     place:        document.getElementById('f-place').value.trim(),
