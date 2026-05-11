@@ -341,7 +341,9 @@ function getDaoProposalPageDataJson_(forceRefresh) {
 }
 
 function refreshDaoProposalPageCache_() {
-  return storeDaoProposalPageDataJson_(getDaoProposalPageData({ refresh: false }));
+  var json = storeDaoProposalPageDataJson_(getDaoProposalPageData({ refresh: false }));
+  dispatchGitHubDaoUpdate_('refresh');
+  return json;
 }
 
 function storeDaoProposalPageDataJson_(data) {
@@ -390,6 +392,63 @@ function refreshDaoProposalPageData_(ss) {
 function clearDaoProposalPageCache_() {
   CacheService.getScriptCache().remove(DAO_PROPOSAL_PAGE_CACHE_KEY);
   PropertiesService.getScriptProperties().deleteProperty(DAO_PROPOSAL_PAGE_CACHE_KEY);
+  dispatchGitHubDaoUpdate_('clear');
+}
+
+/**
+ * Notify GitHub Actions that DAO data changed so update-dao-data.yml runs
+ * immediately via repository_dispatch instead of waiting for the next cron tick.
+ *
+ * Requires Script Properties:
+ *   - GITHUB_DISPATCH_TOKEN : fine-grained PAT with "Contents: read & write"
+ *                             (or classic PAT with `repo` scope) on the target repo
+ * Optional Script Properties:
+ *   - GITHUB_DISPATCH_REPO  : "owner/repo" (defaults to you0810jmsdf/cocola-site)
+ *   - GITHUB_DISPATCH_EVENT : event_type   (defaults to "dao-data-updated")
+ *   - GITHUB_DISPATCH_MIN_INTERVAL_MS : throttle window, default 20000ms
+ *
+ * Throttling avoids spamming GitHub during bursts (e.g. multiple form
+ * submits in quick succession). Failures are logged but never thrown
+ * so vote/like/cancel flows never break because of dispatch problems.
+ */
+function dispatchGitHubDaoUpdate_(reason) {
+  try {
+    var props = PropertiesService.getScriptProperties();
+    var token = props.getProperty('GITHUB_DISPATCH_TOKEN');
+    if (!token) return;
+
+    var minIntervalMs = Number(props.getProperty('GITHUB_DISPATCH_MIN_INTERVAL_MS')) || 20000;
+    var lastAt = Number(props.getProperty('GITHUB_DISPATCH_LAST_MS')) || 0;
+    var now = Date.now();
+    if (now - lastAt < minIntervalMs) return;
+    props.setProperty('GITHUB_DISPATCH_LAST_MS', String(now));
+
+    var repo = props.getProperty('GITHUB_DISPATCH_REPO') || 'you0810jmsdf/cocola-site';
+    var eventType = props.getProperty('GITHUB_DISPATCH_EVENT') || 'dao-data-updated';
+    var url = 'https://api.github.com/repos/' + repo + '/dispatches';
+
+    var response = UrlFetchApp.fetch(url, {
+      method: 'post',
+      contentType: 'application/json',
+      headers: {
+        Authorization: 'Bearer ' + token,
+        Accept: 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+      },
+      payload: JSON.stringify({
+        event_type: eventType,
+        client_payload: { reason: String(reason || ''), at: now },
+      }),
+      muteHttpExceptions: true,
+    });
+
+    var code = response.getResponseCode();
+    if (code !== 204) {
+      Logger.log('GitHub dispatch unexpected status ' + code + ': ' + response.getContentText());
+    }
+  } catch (error) {
+    Logger.log('GitHub dispatch failed: ' + (error && error.message ? error.message : error));
+  }
 }
 
 function getDaoAdminPassword_() {
