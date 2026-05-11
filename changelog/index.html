@@ -118,6 +118,16 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-11</p>
+            <h2 class="cl-title">「464号線でマルシェがしたい」のタイトル一致全行を物理削除（cocola-dao-gas2 v26 @60）</h2>
+            <p class="cl-desc">v23.1 でテスト提案 P0179 をハード削除した後も「464号線でマルシェがしたい」が P0192 / P0206 と別IDで何度もゾンビ復活していたため、v25 と同じハード版（票数・公開状態を問わずタイトル一致行を全て物理削除）に切替。v26 では <code>purgeProposalsByTitleHard_(['464号線でマルシェがしたい'])</code> を呼ぶラッパー <code>purgeMarcheOnRt464DryRun/Live</code> を追加。DryRun で7件確認後、Liveで P1000（票=2）・P1001・P1002・P1012・P0028・P0046・P0192（公開=true ステータス=投票中）を <code>dao_proposals_archive</code> へ退避のうえ物理削除。GAS実行ログ「<code>archived+deleted 7 rows, cache cleared</code>」確認後、GAS の <code>?mode=json</code> エンドポイントで 464ヒット 0件、続いて <code>update-dao-data.yml</code> 手動トリガーで公開 <code>dao/data.json</code> からも 464 関連が消失（proposals 11件）。根因の <code>isDuplicateRecentProposal_</code> の dedup 透過は memory 側で 🔴 残タスクとして引き継ぎ。</p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+              <span class="tag tag--infra">基盤</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-11</p>
             <h2 class="cl-title">朝カフェ・竹箸作りのタイトル一致全行を物理削除（cocola-dao-gas2 v25 @59）</h2>
             <p class="cl-desc">v23.1／v24 の対策後も、票数0で公開ページに「P0202 朝カフェ／P0200・P0198 竹箸つくり」等が再出現する現象が継続。根因は提案重複判定 <code>isDuplicateRecentProposal_</code> がタイトル完全一致のみで、表記ゆれ（つくり／作り／造り）や物理削除後の新ID再投稿に対して透過する穴を残していたこと。v25 では「票数・公開状態を問わずタイトル一致行を全て物理削除」する積極パージ関数 <code>purgeProposalsByTitleHard_</code> を新設し、対象タイトル <code>['朝カフェ', '4月朝カフェ', '竹箸作り', '竹箸つくり', '竹箸造り']</code> 用ラッパー <code>purgeAsacafeAndBambooDryRun/Live</code> を追加。タイトル正規化（空白除去・つくり／造り→作り・小文字化）を内蔵し、削除前に <code>dao_proposals_archive</code> へ <code>archived_reason: 'hard-purge by title (vote=N, pub=X, status=Y)'</code> 付きで退避。DryRunで35件確認後、票=1のP0021 4月朝カフェも含めユーザー明示指示により全件Live削除。GitHub Actions <code>update-dao-data.yml</code> を手動トリガーし、公開 <code>dao/data.json</code> から朝カフェ／竹箸の全エントリが消失（proposals 12件）。</p>
             <div class="cl-tags">
