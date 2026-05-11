@@ -2,8 +2,10 @@ name: Update DAO data
 
 on:
   schedule:
-    - cron: '*/5 * * * *'    # 5分ごと
+    - cron: '*/5 * * * *'    # 5分ごと（定期同期。GAS到達不能時のフォールバック）
   workflow_dispatch:           # 手動実行も可
+  repository_dispatch:
+    types: [dao-data-updated]  # GASからの投票/いいね/取消発生時に即時実行
 
 concurrency:
   group: update-dao-data
