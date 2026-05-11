@@ -117,6 +117,16 @@
         <ul class="changelog-list">
 
           <li class="cl-entry">
+            <p class="cl-date">2026-05-11</p>
+            <h2 class="cl-title">DAO提案の「古い提案が復活する」不具合を構造的に根治（cocola-dao-gas2 v21.1 @48）</h2>
+            <p class="cl-desc">P0176等で繰り返し発生していた「管理者が公開を下ろした古い提案が、しばらくすると再び公開ページに復活する」現象を根治。真因は <code>repairDaoProposalDefaults_</code> が doGet?mode=json のたびに「公開列の空欄を TRUE に自動修復」していたこと（読み取り時 defensive 補完）で、これが「手動で下ろした提案」と「単なる入力もれ」を区別できないまま全件再公開する revival 機構として働いていた。v21.1 では (1) 公開列の自動 TRUE 修復を撤廃して「空欄＝非公開」「TRUE＝公開」を一意化、(2) 新規フォーム送信は従来どおり即公開（公開=TRUE で挿入）を維持、(3) 重複検出を「直近60分」から「全期間 提案者+タイトル」の存在チェックに変更、(4) 既存の重複行・古いアーカイブ対象行を <code>dao_proposals_archive</code> シートに退避する <code>archiveDuplicateAndStaleDaoProposals_</code> 関数（DryRun/Live両対応）を追加。これにより「新規提案は即公開、管理者が下ろした古い提案は二度と復活しない」が同時に成立する。</p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+              <span class="tag tag--infra">基盤</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
             <p class="cl-date">2026-05-10</p>
             <h2 class="cl-title">千葉ニュータウン地区フィルタを「ホワイト＋ブラックリスト」方式に再調整</h2>
             <p class="cl-desc">events/index.html の地区判定を再調整。前回の二段階判定では市名フォールバックが効かず、印西市・白井市内のイベントの約9割が「その他」に振り分けられていた問題を修正。判定順を「①公式キーワード（千葉ニュータウン／CNT）→②CNT公式住区（中央北／原山／西の原／南山／けやき台 等）→③CNT外住区ブラックリスト（吉田・小林・印旛中央・本埜・木下・鹿黒・大森・浦部・別所・鎌苅・草深・根・神々廻 等）→④市名（印西市／白井市／小室）でCNT扱い」に変更。これにより「印西まちなか音楽祭」「ほくそう春まつり」「印西市文化ホールのコンサート」等を正しく CNT に分類しつつ、印西市域でも CNT 外（小林・吉田・本埜地区など）のイベントは「その他」に残るようにした。シミュレーション結果: 244件中 CNT 61件 (25%) / その他 183件。</p>
