@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-11</p>
+            <h2 class="cl-title">DAO「竹箸つくり」系ゾンビ9件をID指定で物理削除＋workflow失敗で誤検知だった件の決着（cocola-dao-gas2 v29/v30、公開data.json検証完了）</h2>
+            <p class="cl-desc">v28 で dedup を正規化キー化したが、過去に既にスプレッドシートへ書き込まれていた「竹箸つくり」系9件（P0150／P0152／P0154／P0156／P0158／P0160／P0162／P0164／P0165）は dedup ブロックの対象外で残存していたため、v29 で <code>purgeProposalsByIdHard_</code> ラッパー（<code>purgeBambooChopsticksZombiesDryRun/Live</code>）経由で <code>dao_proposals_archive</code> へ退避＋物理削除を実施。直後に公開 <code>dao/data.json</code> を確認するとゾンビ9件が依然表示されており「また復活した」と判断して v30 で診断関数 <code>debugDumpDaoStateV30</code> を追加デプロイしたが、原因を切り分けたところ <strong>workflow run 25672340304（22:12 JST）が curl --max-time 30 を踏んで <code>exit code 28</code>（GASエンドポイントタイムアウト）で失敗しており、公開 data.json が v29 削除前のスナップショット（<code>_generatedMs</code> 22:06）のままだった</strong>ことが判明。<code>gh workflow run</code> で run 25672761483 を手動再投入したところ正常完了、公開側も proposals 10件・v29ゾンビ9件すべて消滅・P0025（焼き鳥交流会）保全を確認。<strong>教訓：物理削除直後は workflow を必ず手動再実行し <code>_generatedMs</code> の前進を確認するまで「ゾンビ復活」と判断しない</strong>。固定デプロイID <code>AKfycbxM2ybpJqfWLL-MPnOwZqeBdHjN6IQh5QB-_LubZAG-bD0x8jLkgbUn7NYRzYLFOPfj7g</code> へ v29 @63／v30 @64 として上書きデプロイ済み。</p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+              <span class="tag tag--infra">基盤</span>
+              <span class="tag tag--improve">改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-11</p>
             <h2 class="cl-title">DAO提案ゾンビ問題の構造的根治：dedup を正規化キー＋archive横断スキャン化（cocola-dao-gas2 v28 @62）</h2>
             <p class="cl-desc">v23〜v27 で個別タイトルを物理削除しても、同タイトル・別IDで再投函されると <code>isDuplicateRecentProposal_</code> がタイトル完全一致比較しかしていなかったため通過してしまい、再びゾンビ提案として復活する穴が残っていた。v28 では dedup 比較を「正規化キー（空白除去＋『つくり／造り → 作り』置換＋小文字化）」ベースに変更し、さらに <code>dao_proposals_archive</code> シートも横断スキャン対象に追加。これにより物理削除でアーカイブ済みのタイトルが再投函された場合もアーカイブ側の正規化キーがヒットして送信時点でブロックされる。実装では <code>normalizeTitleForDedup_</code>／<code>normalizeProposerForDedup_</code>／<code>scanSheetForDedupKey_</code> をモジュールトップに共通ヘルパー化し、これまで <code>archiveDuplicateDaoProposals_</code>／<code>restoreFromArchive</code>／<code>purgeByTitle</code>（ソフト削除）／<code>purgeByTitleHard</code>（物理削除）の4箇所に重複コピーされていた正規化ロジックを単一定義に集約。今後の表記ゆれ対応も1箇所修正で済む。固定デプロイID（<code>AKfycbxM2ybpJqfWLL-MPnOwZqeBdHjN6IQh5QB-_LubZAG-bD0x8jLkgbUn7NYRzYLFOPfj7g</code>）へ <code>@62</code> として上書きデプロイ完了。</p>
             <div class="cl-tags">
