@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-11</p>
+            <h2 class="cl-title">DAO提案ゾンビ問題の構造的根治：dedup を正規化キー＋archive横断スキャン化（cocola-dao-gas2 v28 @62）</h2>
+            <p class="cl-desc">v23〜v27 で個別タイトルを物理削除しても、同タイトル・別IDで再投函されると <code>isDuplicateRecentProposal_</code> がタイトル完全一致比較しかしていなかったため通過してしまい、再びゾンビ提案として復活する穴が残っていた。v28 では dedup 比較を「正規化キー（空白除去＋『つくり／造り → 作り』置換＋小文字化）」ベースに変更し、さらに <code>dao_proposals_archive</code> シートも横断スキャン対象に追加。これにより物理削除でアーカイブ済みのタイトルが再投函された場合もアーカイブ側の正規化キーがヒットして送信時点でブロックされる。実装では <code>normalizeTitleForDedup_</code>／<code>normalizeProposerForDedup_</code>／<code>scanSheetForDedupKey_</code> をモジュールトップに共通ヘルパー化し、これまで <code>archiveDuplicateDaoProposals_</code>／<code>restoreFromArchive</code>／<code>purgeByTitle</code>（ソフト削除）／<code>purgeByTitleHard</code>（物理削除）の4箇所に重複コピーされていた正規化ロジックを単一定義に集約。今後の表記ゆれ対応も1箇所修正で済む。固定デプロイID（<code>AKfycbxM2ybpJqfWLL-MPnOwZqeBdHjN6IQh5QB-_LubZAG-bD0x8jLkgbUn7NYRzYLFOPfj7g</code>）へ <code>@62</code> として上書きデプロイ完了。</p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+              <span class="tag tag--improve">改善</span>
+              <span class="tag tag--infra">基盤</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-11</p>
             <h2 class="cl-title">「焼き鳥交流会」P0206 のみID指定で物理削除（cocola-dao-gas2 v27 @61）</h2>
             <p class="cl-desc">同タイトル「焼き鳥交流会」が P0025（票=4／正規）と P0206（票=1／ID違いゾンビ／スダショウ 2026-04-19）の二重表示状態になっていたため、v25/v26 のタイトル一括ハード削除では P0025 まで巻き込まれる。v27 では <code>purgeProposalsByIdHard_(ids, dryRun)</code> を新設し提案ID指定で物理削除する汎用関数を追加。ラッパー <code>purgeYakitoriP0206DryRun/Live</code> 経由で P0206 のみ <code>dao_proposals_archive</code> へ退避＋物理削除し、P0025 は保全。Live実行直後にメンバーから「投票できない」報告が入ったため緊急調査したところ、公開 <code>dao/data.json</code> 側の同期前で P0206 が残ったままだったことが原因。<code>update-dao-data.yml</code> を手動トリガーして同期完了（公開側 P0206 消失・proposals 18件・P0025 票=4 残存）、投票復旧確認。教訓：物理削除直後は必ず手動 workflow を回し公開 data.json と GAS を即同期させること。</p>
             <div class="cl-tags">
