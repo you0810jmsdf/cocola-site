@@ -118,6 +118,16 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-11</p>
+            <h2 class="cl-title">DAO提案「投票0かつ終了」の汎用ハード削除UIを追加（cocola-dao-gas2 v24 @58）</h2>
+            <p class="cl-desc">これまで提案ごとに専用関数（朝カフェゾンビ用 <code>purgeAsacafeZombiesLive</code>、テスト提案用 <code>purgeTestProposalsLive</code> など）を作って物理削除していたが、運用のたびにスクリプト追加が必要で煩雑だった。v24 では「ステータス=『終了』 かつ 投票数=0」を満たす提案行を一括で物理削除する汎用関数 <code>purgeAllZeroVoteSoftDeletedProposals_</code> と、その doGet エンドポイント（<code>?mode=purgeZeroVotesDryRun</code> / <code>?mode=purgeZeroVotesLive</code>）を実装。<code>dao-proposals.html?admin=1</code> でだけ表示される管理セクションから、管理パスワード（<code>DAO_ADMIN_PASSWORD</code>）入力 → DryRunで対象件数確認 → ネイティブ confirm() ダイアログ → Live実行、の二段階フローで安全に呼べる。削除前に <code>dao_proposals_archive</code> シートへ自動退避、票数 &gt; 0 の行は安全弁として絶対に削除しない。GAS版数200制限に達したため旧バージョンを手動削除のうえ <code>@58</code> として固定デプロイIDへ上書き。</p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+              <span class="tag tag--infra">基盤</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-11</p>
             <h2 class="cl-title">DAO提案 朝カフェゾンビ復活の物理削除 ＆ テスト提案 P0179 ハード削除（cocola-dao-gas2 v23.1 @57）</h2>
             <p class="cl-desc">v21.1 で「公開列の自動 TRUE 修復」を撤廃した後も、票数 0 の古い提案（P0199 朝カフェ・P0201 4月朝カフェ）が公開ページに復活する事象が継続していたため、v23 で導入済みの <code>purgeAsacafeZombiesLive</code>（タイトル一致＋票数0行をアーカイブ→物理削除）を再実行し、行 193・194 を <code>dao_proposals_archive</code> へ退避のうえスプレッドシートから物理削除。あわせて v23.1 @57 でテスト提案ハード削除用の <code>purgeTestProposalsDryRun/Live</code> ラッパー（対象タイトル: 「464号線でマルシェがしたい」）を追加し、P0179 を物理削除。GitHub Actions <code>update-dao-data.yml</code> を手動トリガーして公開 <code>dao/data.json</code> に反映（proposals 14→12, voting 14→12, 焼き鳥4票・竹箸つくり5票・健活5票・野草ハンター5票はそのまま保全）。なお、票数 0 行がフォーム経路から「同タイトル＋新ID」で再出現する経路は別途追跡予定（取消ボタン＝ソフト削除のままで残るため）。</p>
             <div class="cl-tags">
