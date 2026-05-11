@@ -117,6 +117,17 @@
         <ul class="changelog-list">
 
           <li class="cl-entry">
+            <p class="cl-date">2026-05-12</p>
+            <h2 class="cl-title">メンバースケジュール 期間登録対応（A3-α 方式：終了日入力＋複数日表示／cocola_topics v200 @310）</h2>
+            <p class="cl-desc">印西市市民活動支援センターの「予約受付期間（5/1〜5/7）」のような <strong>多日間にまたがる単発イベント</strong>を1件として登録できるよう、メンバースケジュール機能を期間対応に拡張。スプレッドシート「メンバースケジュール」に Q列「終了日」を非破壊で追加し、GAS（<code>schedule.gs.js</code>）の list/add/edit/delete/get/upsertCalendar 全6関数を <code>endDate</code> 受け渡し対応に。Googleカレンダー連携は <code>createEvent(title, startDate, endDate, opts)</code> を用いて時刻ありの多日間連続帯として1件登録する方式（A3-α）を採用し、開始日の朝〜終了日の夕方までを1イベントとして表現する。フロント（<code>cocola-site/schedule/index.html</code>）はモーダルに「終了日（複数日にまたがる場合のみ）」入力欄を追加、saveEvent でバリデーション（終了日は開始日以降）、リスト表示は「開始日〜M月D日」形式に拡張、過去判定を endDate 基準に変更（多日間イベントは終了日まで「現在」扱い）、カレンダーグリッドは itemMap を期間展開して期間中の各日に同一イベントを表示するよう修正。GAS は固定デプロイID <code>AKfycbzVs_W57Iphxcc5PHShXBNae63CKqjF5fB82tUkQwaf1vyuNWWLgtWZgglY7Qbuuft1</code> へ v200 @310 として上書きデプロイ完了。</p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+              <span class="tag tag--improve">改善</span>
+              <span class="tag tag--infra">基盤</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
             <p class="cl-date">2026-05-11</p>
             <h2 class="cl-title">DAO「竹箸つくり」系ゾンビ9件をID指定で物理削除＋workflow失敗で誤検知だった件の決着（cocola-dao-gas2 v29/v30、公開data.json検証完了）</h2>
             <p class="cl-desc">v28 で dedup を正規化キー化したが、過去に既にスプレッドシートへ書き込まれていた「竹箸つくり」系9件（P0150／P0152／P0154／P0156／P0158／P0160／P0162／P0164／P0165）は dedup ブロックの対象外で残存していたため、v29 で <code>purgeProposalsByIdHard_</code> ラッパー（<code>purgeBambooChopsticksZombiesDryRun/Live</code>）経由で <code>dao_proposals_archive</code> へ退避＋物理削除を実施。直後に公開 <code>dao/data.json</code> を確認するとゾンビ9件が依然表示されており「また復活した」と判断して v30 で診断関数 <code>debugDumpDaoStateV30</code> を追加デプロイしたが、原因を切り分けたところ <strong>workflow run 25672340304（22:12 JST）が curl --max-time 30 を踏んで <code>exit code 28</code>（GASエンドポイントタイムアウト）で失敗しており、公開 data.json が v29 削除前のスナップショット（<code>_generatedMs</code> 22:06）のままだった</strong>ことが判明。<code>gh workflow run</code> で run 25672761483 を手動再投入したところ正常完了、公開側も proposals 10件・v29ゾンビ9件すべて消滅・P0025（焼き鳥交流会）保全を確認。<strong>教訓：物理削除直後は workflow を必ず手動再実行し <code>_generatedMs</code> の前進を確認するまで「ゾンビ復活」と判断しない</strong>。固定デプロイID <code>AKfycbxM2ybpJqfWLL-MPnOwZqeBdHjN6IQh5QB-_LubZAG-bD0x8jLkgbUn7NYRzYLFOPfj7g</code> へ v29 @63／v30 @64 として上書きデプロイ済み。</p>
