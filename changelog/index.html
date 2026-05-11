@@ -118,6 +118,16 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-11</p>
+            <h2 class="cl-title">「焼き鳥交流会」P0206 のみID指定で物理削除（cocola-dao-gas2 v27 @61）</h2>
+            <p class="cl-desc">同タイトル「焼き鳥交流会」が P0025（票=4／正規）と P0206（票=1／ID違いゾンビ／スダショウ 2026-04-19）の二重表示状態になっていたため、v25/v26 のタイトル一括ハード削除では P0025 まで巻き込まれる。v27 では <code>purgeProposalsByIdHard_(ids, dryRun)</code> を新設し提案ID指定で物理削除する汎用関数を追加。ラッパー <code>purgeYakitoriP0206DryRun/Live</code> 経由で P0206 のみ <code>dao_proposals_archive</code> へ退避＋物理削除し、P0025 は保全。Live実行直後にメンバーから「投票できない」報告が入ったため緊急調査したところ、公開 <code>dao/data.json</code> 側の同期前で P0206 が残ったままだったことが原因。<code>update-dao-data.yml</code> を手動トリガーして同期完了（公開側 P0206 消失・proposals 18件・P0025 票=4 残存）、投票復旧確認。教訓：物理削除直後は必ず手動 workflow を回し公開 data.json と GAS を即同期させること。</p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+              <span class="tag tag--infra">基盤</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-11</p>
             <h2 class="cl-title">「464号線でマルシェがしたい」のタイトル一致全行を物理削除（cocola-dao-gas2 v26 @60）</h2>
             <p class="cl-desc">v23.1 でテスト提案 P0179 をハード削除した後も「464号線でマルシェがしたい」が P0192 / P0206 と別IDで何度もゾンビ復活していたため、v25 と同じハード版（票数・公開状態を問わずタイトル一致行を全て物理削除）に切替。v26 では <code>purgeProposalsByTitleHard_(['464号線でマルシェがしたい'])</code> を呼ぶラッパー <code>purgeMarcheOnRt464DryRun/Live</code> を追加。DryRun で7件確認後、Liveで P1000（票=2）・P1001・P1002・P1012・P0028・P0046・P0192（公開=true ステータス=投票中）を <code>dao_proposals_archive</code> へ退避のうえ物理削除。GAS実行ログ「<code>archived+deleted 7 rows, cache cleared</code>」確認後、GAS の <code>?mode=json</code> エンドポイントで 464ヒット 0件、続いて <code>update-dao-data.yml</code> 手動トリガーで公開 <code>dao/data.json</code> からも 464 関連が消失（proposals 11件）。根因の <code>isDuplicateRecentProposal_</code> の dedup 透過は memory 側で 🔴 残タスクとして引き継ぎ。</p>
             <div class="cl-tags">
