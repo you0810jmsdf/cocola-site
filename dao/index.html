@@ -1169,6 +1169,7 @@
     var voteForm = document.getElementById('voteForm');
     var CIVIC_LIKE_CLIENT_KEY = 'COCOLA_DAO_CIVIC_LIKE_CLIENT';
     var CIVIC_LIKED_IDS_KEY = 'COCOLA_DAO_CIVIC_LIKED_IDS';
+    var CIVIC_LIKE_COUNTS_KEY = 'COCOLA_DAO_CIVIC_LIKE_COUNTS';
     var CANCELLED_IDS_KEY = 'COCOLA_DAO_CANCELLED_IDS';
     var VOTED_IDS_KEY = 'COCOLA_DAO_VOTED_IDS';
     var NICKNAME_KEY = 'COCOLA_DAO_NICKNAME';
@@ -1355,6 +1356,24 @@
       }
     }
 
+    function getCivicLikeCounts() {
+      try {
+        return JSON.parse(localStorage.getItem(CIVIC_LIKE_COUNTS_KEY) || '{}') || {};
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function rememberCivicLikeCount(id, count) {
+      try {
+        var counts = getCivicLikeCounts();
+        var prev = Number(counts[id]) || 0;
+        var next = Number(count) || 0;
+        counts[id] = Math.max(prev, next);
+        localStorage.setItem(CIVIC_LIKE_COUNTS_KEY, JSON.stringify(counts));
+      } catch (error) {}
+    }
+
     function getCancelledIds() {
       try {
         return JSON.parse(localStorage.getItem(CANCELLED_IDS_KEY) || '{}') || {};
@@ -1447,14 +1466,16 @@
     }
 
     function updateProposalLikeCount(id, count) {
+      var next = Number(count) || 0;
       (state.data.proposals || []).forEach(function(proposal) {
-        if (proposal.id === id) proposal.citizenLikeCount = count;
+        if (proposal.id === id) proposal.citizenLikeCount = next;
       });
       if (state.data.stats) {
         state.data.stats.citizenLikes = (state.data.proposals || []).reduce(function(total, proposal) {
           return total + (Number(proposal.citizenLikeCount) || 0);
         }, 0);
       }
+      rememberCivicLikeCount(id, next);
       saveToLocalStorage();
     }
 
@@ -1472,6 +1493,7 @@
         .then(function(res) {
           if (!res.ok) throw new Error(res.error || 'いいねを保存できませんでした');
           rememberCivicLiked(id);
+          rememberCivicLikeCount(id, res.count);
           updateProposalLikeCount(id, res.count);
           renderStats();
           renderProposals();
@@ -1672,11 +1694,27 @@
       state.data = data || { stats: {}, proposals: [], eligibleWeight: 0 };
       state.loaded = true;
       state.cacheStale = false;
+      mergeLocalCivicLikeCounts();
       saveToLocalStorage();
       setFormLink(proposalForm, state.data.proposalFormUrl);
       setFormLink(voteForm, state.data.voteFormUrl);
       renderStats();
       renderProposals();
+    }
+
+    function mergeLocalCivicLikeCounts() {
+      var counts = getCivicLikeCounts();
+      if (!state.data || !Array.isArray(state.data.proposals)) return;
+      state.data.proposals.forEach(function(proposal) {
+        var local = Number(counts[proposal.id]) || 0;
+        var server = Number(proposal.citizenLikeCount) || 0;
+        proposal.citizenLikeCount = Math.max(local, server);
+      });
+      if (state.data.stats) {
+        state.data.stats.citizenLikes = state.data.proposals.reduce(function(total, proposal) {
+          return total + (Number(proposal.citizenLikeCount) || 0);
+        }, 0);
+      }
     }
 
     function restoreLastDaoData() {
@@ -1689,6 +1727,7 @@
         state.data = data;
         state.loaded = true;
         state.cacheStale = data._cachedAt ? (Date.now() - data._cachedAt > CACHE_TTL_MS) : false;
+        mergeLocalCivicLikeCounts();
       } catch (error) {
         // Corrupt local cache should not block a fresh load.
       }
