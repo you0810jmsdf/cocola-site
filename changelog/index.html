@@ -118,6 +118,16 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-13</p>
+            <h2 class="cl-title">Threads 自動投稿のイベント抽出を <code>events/data.json</code> 起点に統一（cocola-site のイベント一覧と完全一致）</h2>
+            <p class="cl-desc">これまで <code>cocola_topics_clasp_sync</code> の <code>threads-daily-post.gs.js</code> 内 <code>buildEventsText_()</code> はスプレッドシート（<code>SHEET_ID</code> + <code>INZAI_SHEET</code>）を直接読み、CNT（千葉ニュータウン）判定を行わずに開催地問わず全件を投稿していたため、<code>https://you0810jmsdf.github.io/cocola-site/events/</code> に出ているイベント一覧と Threads 投稿（<a href="https://www.threads.com/@cocola_project">@cocola_project</a>）の中身が食い違うケースがあった。今回 <code>buildEventsText_()</code> を <code>events/data.json</code>（GitHub Pages 上の Source of Truth）を <code>UrlFetchApp</code> で取得して処理する形に書き換え、<code>events/index.html</code> の <code>_isCNT</code> ロジック（OFFICIAL → AREAS → EXCLUDE → CITY の4段判定、NFKC 正規化済み haystack）を <code>isCNT_()</code> として完全に移植。日付一致判定も範囲イベントを含めて <code>evOnDate_()</code> で当日マッチを取り、ヘッダーを「千葉イベント」→「千葉ニュータウンイベント」に統一した。これでサイトの一覧と Threads 投稿が同一ロジック・同一ソースで揃う。</p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">修正</span>
+              <span class="tag tag--infra">運用</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-13</p>
             <h2 class="cl-title">DAO「市民いいね」をリロード後も即時表示（localStorage マージで GitHub Actions 5分ラグを吸収）</h2>
             <p class="cl-desc">これまでは押下直後にカウントが +1 されても、ページをリロードすると <code>dao/data.json</code>（GitHub Actions が5分ごとに上書き更新）の古い値で画面が再描画され、最大5分間は数字が押下前に戻って見える挙動だった。<code>cocola-site/dao/index.html</code> に <code>COCOLA_DAO_CIVIC_LIKE_COUNTS</code> キーで提案IDごとの最新いいね数を localStorage に保存する仕組みを追加し、<code>applyDaoData</code>／<code>restoreLastDaoData</code> 経由でデータを描画する際に <code>mergeLocalCivicLikeCounts()</code> でローカル値とサーバ値の max を採用するよう変更。さらに <code>stats.citizenLikes</code> の合計値もマージ後の値で再集計するため、ヘッダーの累計表示も即時反映される。これでリロード直後も自分が押下したカウントが保持され、サーバ側が追いついた時点で自然にサーバ値が優勢になる。</p>
             <div class="cl-tags">
