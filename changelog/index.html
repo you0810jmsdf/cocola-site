@@ -117,6 +117,16 @@
         <ul class="changelog-list">
 
           <li class="cl-entry">
+            <p class="cl-date">2026-05-14</p>
+            <h2 class="cl-title">Threads 自動投稿の対象を「千葉ニュータウン」から「印西エリア全域」に拡大（cocola_topics v312）</h2>
+            <p class="cl-desc">前日18:00 JST の <code>sendEveningPreview</code> プレビューメールが <code>2026-05-15</code> 松山下公園総合体育館（印西市浦部）でのニュースポーツ教室を「明日の千葉イベントは登録なし」として通知していた問題を是正。原因は <code>threads-daily-post.gs.js</code> の CNT 判定で参照される <code>CNT_CITY = ['印西市','白井市','小室']</code> に対し、当該イベントの所在は「松山下公園総合体育館」、source は「広報いんざい」（ひらがな）で漢字「印西市」を含まないため <code>isCNT_()</code> が <code>false</code> を返し、結果0件として除外されていた。対応として <code>CNT_CITY</code> に <code>いんざい</code>／<code>city.inzai</code> を追加し、ひらがな表記や印西市公式ドメイン由来のイベントも捕捉。あわせて投稿テキスト先頭タイトルを「千葉ニュータウンイベント」→「印西エリアのイベント」に、ヘッダコメントも「印西エリアのイベント」に統一した（ハッシュタグ <code>#印西 #千葉ニュータウン #COCoLa</code> および印西市優先ソートは維持）。<code>clasp deploy --deploymentId AKfycbzVs_W57Iphxcc5PHShXBNae63CKqjF5fB82tUkQwaf1vyuNWWLgtWZgglY7Qbuuft1</code> で v312 として GHA live endpoint へ上書きデプロイ完了。</p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">修正</span>
+              <span class="tag tag--improve">改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
             <p class="cl-date">2026-05-13</p>
             <h2 class="cl-title">Threads 自動投稿のイベント抽出を <code>events/data.json</code> 起点に統一（cocola-site のイベント一覧と完全一致）</h2>
             <p class="cl-desc">これまで <code>cocola_topics_clasp_sync</code> の <code>threads-daily-post.gs.js</code> 内 <code>buildEventsText_()</code> はスプレッドシート（<code>SHEET_ID</code> + <code>INZAI_SHEET</code>）を直接読み、CNT（千葉ニュータウン）判定を行わずに開催地問わず全件を投稿していたため、<code>https://you0810jmsdf.github.io/cocola-site/events/</code> に出ているイベント一覧と Threads 投稿（<a href="https://www.threads.com/@cocola_project">@cocola_project</a>）の中身が食い違うケースがあった。今回 <code>buildEventsText_()</code> を <code>events/data.json</code>（GitHub Pages 上の Source of Truth）を <code>UrlFetchApp</code> で取得して処理する形に書き換え、<code>events/index.html</code> の <code>_isCNT</code> ロジック（OFFICIAL → AREAS → EXCLUDE → CITY の4段判定、NFKC 正規化済み haystack）を <code>isCNT_()</code> として完全に移植。日付一致判定も範囲イベントを含めて <code>evOnDate_()</code> で当日マッチを取り、ヘッダーを「千葉イベント」→「千葉ニュータウンイベント」に統一した。これでサイトの一覧と Threads 投稿が同一ロジック・同一ソースで揃う。</p>
