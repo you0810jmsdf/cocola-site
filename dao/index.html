@@ -1259,7 +1259,7 @@
         '</div>' +
         '<div class="card-foot">' +
           '<button class="cancel-btn" type="button" data-cancel-id="' + escapeHtml(proposal.id) + '" data-cancel-title="' + escapeHtml(proposal.title) + '">取消</button>' +
-          (isVoting ? '<button class="vote-btn' + (voted ? ' is-voted' : '') + '" type="button" data-vote-id="' + escapeHtml(proposal.id) + '" data-vote-title="' + escapeHtml(proposal.title) + '"' + (voted ? ' disabled' : '') + '>' + (voted ? '✓ ' + escapeHtml(votedNickname || '') + 'さん 投票済み' : '投票する') + '</button>' : '') +
+          (isVoting ? '<button class="vote-btn' + (voted ? ' is-voted' : '') + '" type="button" data-vote-id="' + escapeHtml(proposal.id) + '" data-vote-title="' + escapeHtml(proposal.title) + '">' + (voted ? '投票を変更' : '投票する') + '</button>' : '') +
         '</div>' +
         '<div class="civic-like" aria-label="市民いいね">' +
           '<div class="civic-like__text">' +
@@ -1649,7 +1649,9 @@
             if (res.ok && !res.alreadyVoted) {
               var notice = document.createElement('div');
               notice.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#2d7a2d;color:#fff;padding:.75rem 1.5rem;border-radius:8px;font-size:.95rem;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,.3)';
-              notice.textContent = '投票しました！投票数への反映には最大5分かかります。';
+              notice.textContent = res.changed
+                ? '投票を変更しました！集計への反映には最大5分かかります。'
+                : '投票しました！投票数への反映には最大5分かかります。';
               document.body.appendChild(notice);
               setTimeout(function() { notice.remove(); }, 5000);
             }
