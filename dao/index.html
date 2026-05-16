@@ -1157,6 +1157,7 @@
       data: { stats: {}, proposals: [], eligibleWeight: 0 },
       loaded: false,
       cacheStale: false,
+      nicknameHash: '',
     };
 
     var grid = document.getElementById('proposalGrid');
@@ -1413,6 +1414,38 @@
           localStorage.setItem(NICKNAME_KEY, clean);
         }
       } catch (e) {}
+      refreshStoredNicknameHash().then(function() {
+        if (state.loaded) renderProposals();
+      });
+    }
+
+    function computeSha256Hex(text) {
+      if (!window.crypto || !window.crypto.subtle || typeof TextEncoder === 'undefined') {
+        return Promise.resolve('');
+      }
+      var enc = new TextEncoder();
+      return window.crypto.subtle.digest('SHA-256', enc.encode(String(text || ''))).then(function(buf) {
+        var arr = new Uint8Array(buf);
+        var hex = '';
+        for (var i = 0; i < arr.length; i++) {
+          var h = arr[i].toString(16);
+          if (h.length < 2) h = '0' + h;
+          hex += h;
+        }
+        return hex;
+      }).catch(function() { return ''; });
+    }
+
+    function refreshStoredNicknameHash() {
+      var stored = getStoredNickname();
+      if (!stored) {
+        state.nicknameHash = '';
+        return Promise.resolve('');
+      }
+      return computeSha256Hex(stored).then(function(hex) {
+        state.nicknameHash = hex || '';
+        return state.nicknameHash;
+      });
     }
 
     function proposalVoters(proposal) {
@@ -1421,12 +1454,12 @@
     }
 
     function votersIncludeStored(proposal) {
-      var stored = getStoredNickname();
-      if (!stored) return '';
+      var hash = state.nicknameHash;
+      if (!hash) return '';
       var voters = proposalVoters(proposal);
       for (var i = 0; i < voters.length; i++) {
-        if (String(voters[i] || '').trim() === stored) {
-          return stored;
+        if (String(voters[i] || '').trim() === hash) {
+          return getStoredNickname();
         }
       }
       return '';
@@ -1691,6 +1724,9 @@
     renderStats();
     renderProposals();
     bindFilters();
+    refreshStoredNicknameHash().then(function() {
+      if (state.loaded) renderProposals();
+    });
 
     function applyDaoData(data) {
       state.data = data || { stats: {}, proposals: [], eligibleWeight: 0 };
