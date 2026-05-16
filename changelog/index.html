@@ -117,6 +117,16 @@
         <ul class="changelog-list">
 
           <li class="cl-entry">
+            <p class="cl-date">2026-05-16</p>
+            <h2 class="cl-title">DAO 投票変更（上書き）機能を追加（取消は廃止／cocola-dao-gas2 v25 @64）</h2>
+            <p class="cl-desc">DAO投票ページ（<code>cocola-site/dao/index.html</code>）で、メンバーが一度投じた投票を別の選択肢に変更できるようにした。検討した4案（A:取消フォーム再送／B:固有フォーム発行／C:管理画面取消／D:変更のみ・取消し不可）のうち、P0020 承認条件「参加率20%以上」を維持するため <strong>投票数を減らさないD案</strong>を採用。GAS 側 <code>cocola-dao-gas2/dao-points.js</code> の <code>recordDirectVote_</code> を改修し、同じ提案ID＋投票者の既存行があれば「記録日時(1列目)」「投票(5列目)」を上書きして「投票集計済(9列目)」を <code>false</code> にリセット、再集計対象に戻す方式とした。<code>LockService.getScriptLock()</code> による TOCTOU 対策および投票ポイント台帳の <code>noteKey</code> 重複付与防止は既存実装をそのまま活用。フロント側は投票済みボタンを <code>disabled</code> 解除して「投票を変更」ラベルに変更し、レスポンスの <code>res.changed</code> で通知メッセージを「投票を変更しました」「投票しました」に分岐。固定デプロイID <code>AKfycbxM2ybpJqfWLL-MPnOwZqeBdHjN6IQh5QB-_LubZAG-bD0x8jLkgbUn7NYRzYLFOPfj7g</code> へ v25 @64 として上書きデプロイ完了。</p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+              <span class="tag tag--improve">改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
             <p class="cl-date">2026-05-13</p>
             <h2 class="cl-title">DAO「市民いいね」をリロード後も即時表示（localStorage マージで GitHub Actions 5分ラグを吸収）</h2>
             <p class="cl-desc">これまでは押下直後にカウントが +1 されても、ページをリロードすると <code>dao/data.json</code>（GitHub Actions が5分ごとに上書き更新）の古い値で画面が再描画され、最大5分間は数字が押下前に戻って見える挙動だった。<code>cocola-site/dao/index.html</code> に <code>COCOLA_DAO_CIVIC_LIKE_COUNTS</code> キーで提案IDごとの最新いいね数を localStorage に保存する仕組みを追加し、<code>applyDaoData</code>／<code>restoreLastDaoData</code> 経由でデータを描画する際に <code>mergeLocalCivicLikeCounts()</code> でローカル値とサーバ値の max を採用するよう変更。さらに <code>stats.citizenLikes</code> の合計値もマージ後の値で再集計するため、ヘッダーの累計表示も即時反映される。これでリロード直後も自分が押下したカウントが保持され、サーバ側が追いついた時点で自然にサーバ値が優勢になる。</p>
