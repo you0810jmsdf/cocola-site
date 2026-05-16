@@ -118,6 +118,16 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-16</p>
+            <h2 class="cl-title">DAO 投票送信「送信中…」長時間化への根本対策（vote 後の集計を時間トリガで非同期化／cocola-dao-gas2 v66 @66）</h2>
+            <p class="cl-desc">DAO投票ページ（<code>https://you0810jmsdf.github.io/cocola-site/dao/</code>）の投票モーダルで「送信中…しばらくお待ちください」が異常に長く表示される問題への根本対策として、<code>cocola-dao-gas2/dao-points.js</code> の <code>doGet</code> vote 分岐内で同期実行していた <code>processDaoProposalVotesFast()</code>（30秒 <code>LockService.waitLock(30000)</code>＋投票シート正規化2回＋集計＋キャッシュクリアの重処理）を切り離し、<code>ScriptApp.newTrigger('processDaoProposalVotesFastTriggered').timeBased().after(1000).create()</code> による時間トリガキューイング方式に変更。フロントへのレスポンスは投票記録（<code>recordDirectVote_</code>）が完了した時点で即時返却される。新規追加した <code>processDaoProposalVotesFastTriggered(e)</code> は実行完了後に <code>ScriptApp.getProjectTriggers()</code> から <code>e.triggerUid</code> 一致のトリガを検索して <code>deleteTrigger</code> で自身を削除し、トリガ枠（GAS制限20個）が膨らまないようクリーンアップ済み。前提として v65 で導入した <code>recordDirectVote_</code> の B/D 列限定取得＋setValues バッチ化はそのまま維持。固定デプロイID <code>AKfycbxM2ybpJqfWLL-MPnOwZqeBdHjN6IQh5QB-_LubZAG-bD0x8jLkgbUn7NYRzYLFOPfj7g</code> へ v66 として上書きデプロイ完了。集計反映はトリガ発火後（約1秒〜数秒後）になるため、投票直後の集計反映は GitHub Actions の5分ポーリングまたは管理画面手動更新で確認する。</p>
+            <div class="cl-tags">
+              <span class="tag tag--improve">改善</span>
+              <span class="tag tag--fix">不具合修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-16</p>
             <h2 class="cl-title">DAO 投票記録の Lock タイムアウト対策（recordDirectVote_ 最適化／cocola-dao-gas2 @65）</h2>
             <p class="cl-desc">DAO投票ページ（<code>https://you0810jmsdf.github.io/cocola-site/dao/</code>）で、投票送信モーダルに「しばらく時間をおいてお試しください」エラーが発生する事象（GAS <code>LockService.waitLock(10000)</code> の10秒タイムアウト）への根本対策として、<code>cocola-dao-gas2/dao-points.js</code> の <code>recordDirectVote_</code> を最適化。具体的には ①投票シート走査時に <code>getLastColumn()</code> ベースの全列読み込みをやめ、B列（提案ID）と D列（投票者）のみ <code>getRange(2, 2, n, 1).getValues()</code> / <code>getRange(2, 4, n, 1).getValues()</code> で2列だけ取得するよう変更、②既存行発見時の更新を <code>setValue</code>×3回（A列・E列・I列）から <code>getRange(rowNum, 1, 1, 5).setValues([[...]])</code> による A〜E列一括書き込み＋I列のみ単発 <code>setValue</code> の合計2回呼び出しに削減、③ existingVote の比較は一致行発見後の単一セル読みに局所化。これにより Lock 保持期間が短縮され、同時投票時のタイムアウト発生確率を下げる。固定デプロイID <code>AKfycbxM2ybpJqfWLL-MPnOwZqeBdHjN6IQh5QB-_LubZAG-bD0x8jLkgbUn7NYRzYLFOPfj7g</code> へ @65 として上書きデプロイ完了。前提として v25 @64 で導入した「投票変更（上書き）」機能・<code>LockService.getScriptLock()</code> による TOCTOU 対策・noteKey 重複付与防止はそのまま維持。</p>
             <div class="cl-tags">
