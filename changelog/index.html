@@ -118,6 +118,16 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-16</p>
+            <h2 class="cl-title">DAO 投票記録の Lock タイムアウト対策（recordDirectVote_ 最適化／cocola-dao-gas2 @65）</h2>
+            <p class="cl-desc">DAO投票ページ（<code>https://you0810jmsdf.github.io/cocola-site/dao/</code>）で、投票送信モーダルに「しばらく時間をおいてお試しください」エラーが発生する事象（GAS <code>LockService.waitLock(10000)</code> の10秒タイムアウト）への根本対策として、<code>cocola-dao-gas2/dao-points.js</code> の <code>recordDirectVote_</code> を最適化。具体的には ①投票シート走査時に <code>getLastColumn()</code> ベースの全列読み込みをやめ、B列（提案ID）と D列（投票者）のみ <code>getRange(2, 2, n, 1).getValues()</code> / <code>getRange(2, 4, n, 1).getValues()</code> で2列だけ取得するよう変更、②既存行発見時の更新を <code>setValue</code>×3回（A列・E列・I列）から <code>getRange(rowNum, 1, 1, 5).setValues([[...]])</code> による A〜E列一括書き込み＋I列のみ単発 <code>setValue</code> の合計2回呼び出しに削減、③ existingVote の比較は一致行発見後の単一セル読みに局所化。これにより Lock 保持期間が短縮され、同時投票時のタイムアウト発生確率を下げる。固定デプロイID <code>AKfycbxM2ybpJqfWLL-MPnOwZqeBdHjN6IQh5QB-_LubZAG-bD0x8jLkgbUn7NYRzYLFOPfj7g</code> へ @65 として上書きデプロイ完了。前提として v25 @64 で導入した「投票変更（上書き）」機能・<code>LockService.getScriptLock()</code> による TOCTOU 対策・noteKey 重複付与防止はそのまま維持。</p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+              <span class="tag tag--improve">改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-16</p>
             <h2 class="cl-title">DAO 投票変更（上書き）機能を追加（取消は廃止／cocola-dao-gas2 v25 @64）</h2>
             <p class="cl-desc">DAO投票ページ（<code>cocola-site/dao/index.html</code>）で、メンバーが一度投じた投票を別の選択肢に変更できるようにした。検討した4案（A:取消フォーム再送／B:固有フォーム発行／C:管理画面取消／D:変更のみ・取消し不可）のうち、P0020 承認条件「参加率20%以上」を維持するため <strong>投票数を減らさないD案</strong>を採用。GAS 側 <code>cocola-dao-gas2/dao-points.js</code> の <code>recordDirectVote_</code> を改修し、同じ提案ID＋投票者の既存行があれば「記録日時(1列目)」「投票(5列目)」を上書きして「投票集計済(9列目)」を <code>false</code> にリセット、再集計対象に戻す方式とした。<code>LockService.getScriptLock()</code> による TOCTOU 対策および投票ポイント台帳の <code>noteKey</code> 重複付与防止は既存実装をそのまま活用。フロント側は投票済みボタンを <code>disabled</code> 解除して「投票を変更」ラベルに変更し、レスポンスの <code>res.changed</code> で通知メッセージを「投票を変更しました」「投票しました」に分岐。固定デプロイID <code>AKfycbxM2ybpJqfWLL-MPnOwZqeBdHjN6IQh5QB-_LubZAG-bD0x8jLkgbUn7NYRzYLFOPfj7g</code> へ v25 @64 として上書きデプロイ完了。</p>
             <div class="cl-tags">
