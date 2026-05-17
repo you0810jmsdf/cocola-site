@@ -280,7 +280,9 @@ function _card(ev) {
   return s + '</div>';
 }
 function _isCNT(ev) {
-  var hay = [ev.t, ev.l, ev.desc, ev.s].join(' ');
+  // 判定対象は t/l/desc の3フィールドのみ。s（情報元サイト名）は除外
+  // （いんざい市公式サイトが拾った市外イベントを印西扱いしないため）
+  var hay = [ev.t, ev.l, ev.desc].join(' ');
   if (hay.normalize) hay = hay.normalize('NFKC');
   // 1) 公式キーワード（千葉ニュータウン / CNT）即マッチ
   for (var i = 0; i < CNT_OFFICIAL.length; i++) {
