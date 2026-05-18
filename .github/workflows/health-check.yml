@@ -48,9 +48,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh run list --workflow=update-dao-data.yml     --limit=10 --json createdAt,conclusion,status > runs_dao.json
-          gh run list --workflow=update-members-data.yml --limit=10 --json createdAt,conclusion,status > runs_members.json
-          gh run list --workflow=update-events-data.yml  --limit=10 --json createdAt,conclusion,status > runs_events.json
+          gh run list --repo ${{ github.repository }} --workflow=update-dao-data.yml     --limit=10 --json createdAt,conclusion,status > runs_dao.json
+          gh run list --repo ${{ github.repository }} --workflow=update-members-data.yml --limit=10 --json createdAt,conclusion,status > runs_members.json
+          gh run list --repo ${{ github.repository }} --workflow=update-events-data.yml  --limit=10 --json createdAt,conclusion,status > runs_events.json
 
       # ── 集計・判定 ───────────────────────────────────────────────────────
       - name: Aggregate and judge
@@ -172,14 +172,14 @@ jobs:
           TITLE="[自動監視] COCoLa サイト異常検知"
           BODY=$(cat health_body.txt)
 
-          gh label create "$LABEL" --color "d93f0b" --description "自動監視アラート" --force 2>/dev/null || true
+          gh label create "$LABEL" --repo ${{ github.repository }} --color "d93f0b" --description "自動監視アラート" --force 2>/dev/null || true
 
-          EXISTING=$(gh issue list --label "$LABEL" --state open --json number --jq '.[0].number // ""')
+          EXISTING=$(gh issue list --repo ${{ github.repository }} --label "$LABEL" --state open --json number --jq '.[0].number // ""')
           if [ -n "$EXISTING" ]; then
-            gh issue comment "$EXISTING" --body "$BODY"
+            gh issue comment "$EXISTING" --repo ${{ github.repository }} --body "$BODY"
             echo "Issue #$EXISTING に追記しました"
           else
-            gh issue create --title "$TITLE" --body "$BODY" --label "$LABEL"
+            gh issue create --repo ${{ github.repository }} --title "$TITLE" --body "$BODY" --label "$LABEL"
             echo "新規 Issue を作成しました"
           fi
 
@@ -190,8 +190,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           LABEL="auto-monitor"
-          EXISTING=$(gh issue list --label "$LABEL" --state open --json number --jq '.[0].number // ""')
+          EXISTING=$(gh issue list --repo ${{ github.repository }} --label "$LABEL" --state open --json number --jq '.[0].number // ""')
           if [ -n "$EXISTING" ]; then
-            gh issue close "$EXISTING" --comment "✅ 全項目正常に復旧しました（自動クローズ）"
+            gh issue close "$EXISTING" --repo ${{ github.repository }} --comment "✅ 全項目正常に復旧しました（自動クローズ）"
             echo "Issue #$EXISTING をクローズしました"
           fi
