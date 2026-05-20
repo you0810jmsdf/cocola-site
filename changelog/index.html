@@ -119,7 +119,19 @@
           <li class="cl-entry">
             <p class="cl-date">2026-05-20</p>
             <h2 class="cl-title">Threads 事前プレビューメールに<strong>広報いんざい掲載イベントが0件表示されるバグを修正</strong>（<code>threads-daily-post.gs.js</code> <code>isCNT_()</code> に「広報いんざい」情報元の特例判定を追加 + <code>CNT_AREAS</code> に「北総」を追加 / GAS v341 デプロイ）</h2>
-            <p class="cl-desc"><strong>原因</strong>：<code>isCNT_()</code> の判定対象はタイトル・場所・説明の3フィールドのみで、<code>s</code>（情報元）フィールドを意図的に除外していた。「北総自動車学校」「高齢者就労支援センター」のように場所名にCNTキーワードを含まない広報いんざい掲載イベントがすべて除外されていた。<strong>修正①</strong>：<code>isCNT_()</code> の先頭に <code>if ((ev.s || '').indexOf('広報いんざい') !== -1) return true;</code> を追加（広報いんざい掲載イベントは印西市内確定のため無条件で含める）。<strong>修正②</strong>：<code>CNT_AREAS</code> に <code>'北総'</code> を追加（北総自動車学校等のマッチ強化）。<strong>デプロイ</strong>：<code>clasp push --force</code> → <code>clasp deploy --deploymentId AKfycbzVs_W57Iphxcc5PHShXBNae63CKqjF5fB82tUkQwaf1vyuNWWLgtWZgglY7Qbuuft1 -d "広報いんざいCNT判定追加・北総CNT_AREAS追加"</code> にて v341 としてデプロイ完了。</p>
+            <p class="cl-desc">
+              <strong>発見の経緯</strong>：毎日18時に送信される翌日投稿プレビューメールで「明日のイベントはシートに登録されていません」と表示されたが、実際には2026年5月21日（木）の「運転技能（北総自動車学校）」「健康体操（高齢者就労支援センター）」など複数の広報いんざい掲載イベントがシートに存在していた。「情報元が広報いんざいなら含めるべきでは」という運営者の指摘で調査開始。
+              <br><br>
+              <strong>根本原因</strong>：Threads投稿対象の絞り込みは <code>isCNT_()</code> 関数（千葉ニュータウン関連判定）が行う。この関数は <code>events/index.html</code> の <code>_isCNT()</code> と同一ロジックで、判定対象をタイトル（<code>t</code>）・場所（<code>l</code>）・説明（<code>desc</code>）の3フィールドに限定し、<code>s</code>（情報元）フィールドを<strong>意図的に除外</strong>していた。除外理由はコメントにも明記：「印西市公式サイトが拾った市外イベントを印西扱いしないため」。しかし「北総自動車学校」「高齢者就労支援センター」は場所名にCNTキーワード（千葉ニュータウン・印西市・いんざい等）を一切含まないため、<code>isCNT_()</code> が <code>false</code> を返し除外されていた。
+              <br><br>
+              <strong>修正方針の検討（3案）</strong>：(A) <code>isCNT_()</code> に「<code>ev.s</code> が <code>広報いんざい</code> を含む場合は即 <code>true</code>」の特例を追加、(B) <code>CNT_AREAS</code> に「北総」を追加、(C) <code>s</code> フィールド全体を <code>hay</code> に含める（除外ルールの全撤廃）。案Cは「市外イベント混入」という元々の懸念が戻るため採用せず、AとBを組み合わせて対応。広報いんざいは印西市の公報誌であり掲載イベントは市内確定のため、特例として情報元からの判定を許容することは合理的と判断した。
+              <br><br>
+              <strong>修正①</strong>：<code>isCNT_()</code> の先頭に <code>if ((ev.s || '').indexOf('広報いんざい') !== -1) return true;</code> を追加。<code>s</code> フィールドの値が「広報いんざい」または「広報いんざい4月号」等の月付き表記でも部分一致で対応できる。
+              <br>
+              <strong>修正②</strong>：<code>CNT_AREAS</code> に <code>'北総'</code> を追加。「北総自動車学校」等の施設名を場所キーワードとしてマッチさせる。
+              <br><br>
+              <strong>デプロイ</strong>：<code>clasp push --force</code> → <code>clasp deploy --deploymentId AKfycbzVs_W57Iphxcc5PHShXBNae63CKqjF5fB82tUkQwaf1vyuNWWLgtWZgglY7Qbuuft1 -d "広報いんざいCNT判定追加・北総CNT_AREAS追加"</code> にて v341 としてデプロイ完了。次回18時の <code>sendEveningPreview()</code> 実行から広報いんざい掲載イベントがプレビューメールに反映される。
+            </p>
             <div class="cl-tags">
               <span class="tag tag--fix">バグ修正</span>
             </div>
