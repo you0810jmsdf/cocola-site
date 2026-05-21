@@ -157,7 +157,8 @@ var _wk = _monOf(_now);
 // データソース: 千葉県企業局「千葉ニュータウン土地利用計画図（令和7年3月版）」
 // https://www.pref.chiba.lg.jp/kigyou/nt/documents/tochiriyou.pdf
 var CNT_OFFICIAL = ['千葉ニュータウン','CNT'];
-var CNT_CITY = ['印西市','白井市','小室'];
+// 「広報いんざい」は市公式広報誌。情報元名がひらがな表記のため漢字「印西市」に当たらない
+var CNT_CITY = ['印西市','白井市','小室','広報いんざい'];
 // CNT 公式住区（土地利用計画図R7.3準拠）
 var CNT_AREAS = [
   // 印西市側
@@ -294,7 +295,7 @@ function _isCNT(ev) {
   for (var x = 0; x < CNT_EXCLUDE.length; x++) {
     if (hay.indexOf(CNT_EXCLUDE[x]) !== -1) return false;
   }
-  // 4) 市名（印西市 / 白井市 / 小室）が含まれていれば CNT 扱い（フォールバック）
+  // 4) 市名・市公式広報誌（広報いんざい）が含まれていれば CNT 扱い（フォールバック）
   for (var j = 0; j < CNT_CITY.length; j++) {
     if (hay.indexOf(CNT_CITY[j]) !== -1) return true;
   }
