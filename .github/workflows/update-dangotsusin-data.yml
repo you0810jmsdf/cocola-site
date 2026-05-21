@@ -30,6 +30,14 @@ jobs:
             -w "%{http_code}")
           echo "http_code=$HTTP_CODE" >> $GITHUB_OUTPUT
 
+      - name: Debug GAS response
+        run: |
+          echo "=== GAS response (first 500 chars) ==="
+          head -c 500 dangotsusin/data_new.json || echo "(empty)"
+          echo ""
+          echo "=== HTTP status ==="
+          echo "${{ steps.fetch.outputs.http_code }}"
+
       - name: Validate and stamp timestamp
         run: |
           python3 - <<'EOF'
@@ -42,11 +50,12 @@ jobs:
               data = json.loads(text)
           except Exception as e:
               print(f'JSON parse error (GAS may be down): {e}')
-              print(f'Response: {text[:200]}')
+              print(f'Response (first 300): {text[:300]}')
               sys.exit(0)
 
           if not isinstance(data, list):
-              print('Invalid data structure (expected array)')
+              print(f'Invalid data structure (expected array, got {type(data).__name__})')
+              print(f'Keys: {list(data.keys()) if isinstance(data, dict) else "N/A"}')
               sys.exit(0)
 
           output = {
@@ -66,7 +75,7 @@ jobs:
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           git add dangotsusin/data.json
           if git diff --staged --quiet; then
-            echo "No changes"
+            echo "No changes (data.json unchanged or GAS returned error)"
           else
             git commit -m 'Auto-update dangotsusin data [skip ci]'
             git pull --rebase origin main
