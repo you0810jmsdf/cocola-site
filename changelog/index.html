@@ -117,6 +117,17 @@
         <ul class="changelog-list">
 
           <li class="cl-entry">
+            <p class="cl-date">2026-05-22</p>
+            <h2 class="cl-title"><strong>だんご通信アーカイブページを新設</strong>（<code>dangotsusin/index.html</code> 追加・GAS <code>DangoTsusin.gs</code> 追加・<code>doGet</code> に <code>mode=dangotsusin</code> 分岐追加）</h2>
+            <p class="cl-desc">
+              印西市市民活動支援センターから毎月代表宛に届くメールマガジン「だんご通信」をメンバー全員がサイト上で閲覧できるよう、新規ページ <code>dangotsusin/index.html</code> を追加。GAS 側では <code>DangoTsusin.gs</code> を新規作成し、<code>cocola.project@gmail.com</code> の Gmail から <code>inzai.activity@machikatsu.co.jp</code> 発信メールを全件取得、添付ファイルは Google Drive「だんご通信」フォルダに自動保存・公開リンク化し、<code>doGet?mode=dangotsusin</code> でJSON配信。フロントエンドはGASエンドポイントをfetchして日付・件名のカード一覧を表示し、クリックでモーダル（本文＋添付ファイルリンク）を開く構成。アクセス制限なし（全員公開）。CacheServiceで1時間キャッシュして負荷を軽減。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
             <p class="cl-date">2026-05-20</p>
             <h2 class="cl-title">Threads 事前プレビューメールに<strong>広報いんざい掲載イベントが0件表示されるバグを修正</strong>（<code>threads-daily-post.gs.js</code> <code>isCNT_()</code> に「広報いんざい」情報元の特例判定を追加 + <code>CNT_AREAS</code> に「北総」を追加 / GAS v341 デプロイ）</h2>
             <p class="cl-desc">
