@@ -1,0 +1,74 @@
+name: Update Dangotsusin data
+
+on:
+  schedule:
+    - cron: '0 1 1 * *'   # 毎月1日 AM10時JST（月次更新）
+  workflow_dispatch:        # 手動実行も可
+
+concurrency:
+  group: update-dangotsusin-data
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch dangotsusin data from GAS
+        id: fetch
+        run: |
+          HTTP_CODE=$(curl -sL \
+            "https://script.google.com/macros/s/AKfycbwWAtWkd4KQQVGJvmnhO_bVFZ305WdQxY1kre9mluQpfIsSexK1JfyjnzD4ywJ9i0jB/exec?mode=dangotsusin&t=$(date +%s)" \
+            -o dangotsusin/data_new.json \
+            --max-time 60 \
+            --retry 3 \
+            --retry-delay 10 \
+            -w "%{http_code}")
+          echo "http_code=$HTTP_CODE" >> $GITHUB_OUTPUT
+
+      - name: Validate and stamp timestamp
+        run: |
+          python3 - <<'EOF'
+          import json, time, sys
+
+          with open('dangotsusin/data_new.json') as f:
+              text = f.read()
+
+          try:
+              data = json.loads(text)
+          except Exception as e:
+              print(f'JSON parse error (GAS may be down): {e}')
+              print(f'Response: {text[:200]}')
+              sys.exit(0)
+
+          if not isinstance(data, list):
+              print('Invalid data structure (expected array)')
+              sys.exit(0)
+
+          output = {
+              '_generatedMs': int(time.time() * 1000),
+              'items': data,
+          }
+
+          with open('dangotsusin/data.json', 'w', encoding='utf-8') as f:
+              json.dump(output, f, ensure_ascii=False)
+
+          print(f"OK: {len(data)} items")
+          EOF
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add dangotsusin/data.json
+          if git diff --staged --quiet; then
+            echo "No changes"
+          else
+            git commit -m 'Auto-update dangotsusin data [skip ci]'
+            git pull --rebase origin main
+            git push
+          fi

@@ -302,8 +302,8 @@
 
 <script>
 (function () {
-  // GAS WebアプリURL（固定デプロイID）
-  var GAS_URL = 'https://script.google.com/macros/s/AKfycbyRVO7fLJx62HS6W3M2_bmPIP9y6stpiVJFM429NMKXzlV24_wGx97xms22QLb1VHsX/exec';
+  // GitHub Pages 上の静的JSON（GitHub Actions が月次更新）
+  var DATA_URL = './data.json';
 
   var loadingEl  = document.getElementById('loading');
   var mailListEl = document.getElementById('mail-list');
@@ -317,30 +317,19 @@
   }
 
   function fetchData() {
-    var cbName = '_dangoCallback' + Date.now();
-    var timer = setTimeout(function () {
-      showError('データの取得がタイムアウトしました。しばらく後に再読み込みしてください。');
-      delete window[cbName];
-    }, 15000);
-
-    window[cbName] = function (data) {
-      clearTimeout(timer);
-      delete window[cbName];
-      if (!Array.isArray(data)) {
-        showError('データ形式が正しくありません');
-        return;
-      }
-      render(data);
-    };
-
-    var script = document.createElement('script');
-    script.src = GAS_URL + '?mode=dangotsusin&callback=' + cbName;
-    script.onerror = function () {
-      clearTimeout(timer);
-      delete window[cbName];
-      showError('データを取得できませんでした。しばらく後に再読み込みしてください。');
-    };
-    document.head.appendChild(script);
+    fetch(DATA_URL + '?t=' + Date.now())
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (json) {
+        var items = Array.isArray(json) ? json : (json.items || []);
+        if (!Array.isArray(items)) throw new Error('データ形式が正しくありません');
+        render(items);
+      })
+      .catch(function (err) {
+        showError('データを取得できませんでした。しばらく後に再読み込みしてください。(' + err.message + ')');
+      });
   }
 
   function attIcon(mimeType) {
