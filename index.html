@@ -65,6 +65,10 @@
     .freefree-bar__label{font-weight:700;white-space:nowrap}
     .freefree-bar__item{display:inline-flex;align-items:center;gap:4px}
     .freefree-bar__item a{color:#c07000;text-decoration:underline}
+    .dango-bar{background:#f8f4ff;border-bottom:1px solid #c9b8f5;padding:6px 16px;font-size:.82rem;color:#5b3fa0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .dango-bar__label{font-weight:700;white-space:nowrap}
+    .dango-bar__item{display:inline-flex;align-items:center;gap:4px}
+    .dango-bar__item a{color:#5b3fa0;text-decoration:underline}
   </style>
 </head>
 <body>
@@ -86,6 +90,7 @@
         <a href="./member-app/html.html">メンバー紹介</a>
         <a href="./dao/">提案／投票</a>
         <a href="./schedule/">メンバーカレンダー</a>
+        <a href="./dangotsusin/">だんご通信</a>
         <a href="./changelog/">更新履歴</a>
         <button class="admin-trigger-btn" onclick="openPwModal()">🔒 管理</button>
       </nav>
@@ -109,6 +114,10 @@
     <div class="freefree-bar" id="freefreeBar" style="display:none">
       <span class="freefree-bar__label">📋 FreeFree新着</span>
       <span id="freefreeList"></span>
+    </div>
+    <div class="dango-bar" id="dangoBar" style="display:none">
+      <span class="dango-bar__label">📰 だんご通信</span>
+      <span id="dangoList"></span>
     </div>
 
     <!-- 管理者パスワードモーダル -->
@@ -533,6 +542,35 @@
           <a href="${ADMIN_FULL_URL}" target="_blank" style="font-size:.8rem;color:#1d9e75;text-decoration:none">▶ 詳細管理ページを開く</a>
         </div>`;
     }
+  </script>
+  <script>
+  (function () {
+    var DANGO_JSON = './dangotsusin/data.json';
+    var SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+    fetch(DANGO_JSON + '?t=' + Math.floor(Date.now() / 60000), { credentials: 'omit' })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var items = Array.isArray(data) ? data : (data.items || []);
+        var now = Date.now();
+        var seen = new Set();
+        var recent = items.filter(function (item) {
+          if (!item.date) return false;
+          var d = new Date(item.date);
+          if (isNaN(d) || (now - d.getTime()) >= SEVEN_DAYS) return false;
+          if (seen.has(item.date)) return false;
+          seen.add(item.date);
+          return true;
+        });
+        if (recent.length) {
+          document.getElementById('dangoList').innerHTML = recent.map(function (item) {
+            var ts = item.date.slice(0, 10).replace(/-/g, '/');
+            var subj = item.subject || 'だんご通信';
+            return '<span class="dango-bar__item"><a href="./dangotsusin/">' + subj + '</a>（' + ts + '）</span>';
+          }).join('<span style="margin:0 4px">·</span>');
+          document.getElementById('dangoBar').style.display = '';
+        }
+      }).catch(function () {});
+  })();
   </script>
   <script src="./assets/site-config.js?v=20260424"></script>
   <script src="./assets/page-tracker.js" data-page="COCoLaトップ"></script>
