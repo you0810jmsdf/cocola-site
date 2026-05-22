@@ -69,6 +69,9 @@
     .dango-bar__label{font-weight:700;white-space:nowrap}
     .dango-bar__item{display:inline-flex;align-items:center;gap:4px}
     .dango-bar__item a{color:#5b3fa0;text-decoration:underline}
+    .notice-panel{background:#fff;border:1px solid var(--border,rgba(29,158,117,.18));border-radius:var(--radius-lg,24px);overflow:hidden;margin:16px 0;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+    .notice-panel__header{padding:8px 16px;font-size:.78rem;font-weight:700;color:var(--muted,#607068);letter-spacing:.06em;background:var(--bg-soft,#eef8f3);border-bottom:1px solid var(--border,rgba(29,158,117,.18))}
+    .notice-panel > div:last-child{border-bottom:none}
   </style>
 </head>
 <body>
@@ -95,29 +98,32 @@
         <button class="admin-trigger-btn" onclick="openPwModal()">🔒 管理</button>
       </nav>
     </header>
-    <div class="new-member-bar" id="newMemberBar" style="display:none">
-      <span class="new-member-bar__label">🎉 新規入会</span>
-      <span id="newMemberList"></span>
-    </div>
-    <div class="withdraw-bar" id="withdrawBar" style="display:none">
-      <span class="withdraw-bar__label">退会のお知らせ</span>
-      <span id="withdrawList"></span>
-    </div>
-    <div class="update-bar" id="updateBar" style="display:none">
-      <span class="update-bar__label">情報更新</span>
-      <span id="updateList"></span>
-    </div>
-    <div class="dao-bar" id="daoBar" style="display:none">
-      <span class="dao-bar__label">💡 DAO新規提案</span>
-      <span id="daoList"></span>
-    </div>
-    <div class="freefree-bar" id="freefreeBar" style="display:none">
-      <span class="freefree-bar__label">📋 FreeFree新着</span>
-      <span id="freefreeList"></span>
-    </div>
-    <div class="dango-bar" id="dangoBar" style="display:none">
-      <span class="dango-bar__label">📰 だんご通信</span>
-      <span id="dangoList"></span>
+    <div class="notice-panel" id="noticePanel" style="display:none">
+      <div class="notice-panel__header">🔔 今週のCOCoLa</div>
+      <div class="new-member-bar" id="newMemberBar" style="display:none">
+        <span class="new-member-bar__label">🎉 新規入会</span>
+        <span id="newMemberList"></span>
+      </div>
+      <div class="withdraw-bar" id="withdrawBar" style="display:none">
+        <span class="withdraw-bar__label">退会のお知らせ</span>
+        <span id="withdrawList"></span>
+      </div>
+      <div class="update-bar" id="updateBar" style="display:none">
+        <span class="update-bar__label">情報更新</span>
+        <span id="updateList"></span>
+      </div>
+      <div class="dao-bar" id="daoBar" style="display:none">
+        <span class="dao-bar__label">💡 DAO新規提案</span>
+        <span id="daoList"></span>
+      </div>
+      <div class="freefree-bar" id="freefreeBar" style="display:none">
+        <span class="freefree-bar__label">📋 FreeFree新着</span>
+        <span id="freefreeList"></span>
+      </div>
+      <div class="dango-bar" id="dangoBar" style="display:none">
+        <span class="dango-bar__label">📰 だんご通信</span>
+        <span id="dangoList"></span>
+      </div>
     </div>
 
     <!-- 管理者パスワードモーダル -->
@@ -568,6 +574,7 @@
             return '<span class="dango-bar__item"><a href="./dangotsusin/">' + subj + '</a>（' + ts + '）</span>';
           }).join('<span style="margin:0 4px">·</span>');
           document.getElementById('dangoBar').style.display = '';
+          document.getElementById('noticePanel').style.display = '';
         }
       }).catch(function () {});
   })();
@@ -597,6 +604,7 @@
           return '<span class="new-member-bar__item"><a href="./member-app/html.html">' + nick + 'さん</a>（' + ts + ' 入会）</span>';
         }).join('<span style="margin:0 4px">·</span>');
         document.getElementById('newMemberBar').style.display = '';
+        document.getElementById('noticePanel').style.display = '';
       }
       const withdrawn = (data.recentWithdrawals || []);
       if (withdrawn.length) {
@@ -607,6 +615,7 @@
           return '<span class="withdraw-bar__item">' + nick + 'さん（' + ts + ' 退会）</span>';
         }).join('<span style="margin:0 4px">·</span>');
         document.getElementById('withdrawBar').style.display = '';
+        document.getElementById('noticePanel').style.display = '';
       }
       const updated = (data.recentUpdates || []);
       if (updated.length) {
@@ -617,6 +626,7 @@
           return '<span class="update-bar__item"><a href="./member-app/html.html">' + nick + 'さん</a>（' + ts + ' 情報更新）</span>';
         }).join('<span style="margin:0 4px">·</span>');
         document.getElementById('updateBar').style.display = '';
+        document.getElementById('noticePanel').style.display = '';
       }
     }).catch(() => {});
   })();
@@ -646,6 +656,7 @@
           return '<span class="dao-bar__item"><a href="./dao/">' + cat + p.title + '</a>（' + p.proposer + '・' + ts + '）</span>';
         }).join('<span style="margin:0 4px">·</span>');
         document.getElementById('daoBar').style.display = '';
+        document.getElementById('noticePanel').style.display = '';
       }
     }
     fetch(DAO_JSON + '?t=' + Math.floor(Date.now() / 60000), { credentials: 'omit' })
@@ -678,6 +689,7 @@
           return '<span class="freefree-bar__item"><a href="' + FF_URL + '" target="_blank" rel="noreferrer noopener">' + p.title + '</a>（' + (name ? name + '・' : '') + ts + ' 掲載開始）</span>';
         }).join('<span style="margin:0 4px">·</span>');
         document.getElementById('freefreeBar').style.display = '';
+        document.getElementById('noticePanel').style.display = '';
       }
     }).catch(() => {});
   })();
