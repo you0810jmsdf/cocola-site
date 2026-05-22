@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-22</p>
+            <h2 class="cl-title">TOPICS一覧で<strong>日時が過去のイベントを非表示</strong>（GAS <code>buildHtml</code> v278）</h2>
+            <p class="cl-desc">
+              TOPページの「最近のTOPICS一覧」において、開催日時がJST当日深夜0時より前のイベントを自動で非表示にした。<code>buildHtml()</code> 内で <code>parseEventDate()</code> を用いて日時をパースし、過去日時のものは一覧から除外する。日時が未設定の場合は従来通り表示維持。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--improve">改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-22</p>
             <h2 class="cl-title">TOP通知欄を<strong>「🔔 今週のCOCoLa」枠でグループ化</strong>（<code>index.html</code> <code>.notice-panel</code> 追加）</h2>
             <p class="cl-desc">
               入退会・情報更新・DAO提案・FreeFree新着・だんご通信の各通知バーが増えてきたため、角丸の枠（<code>.notice-panel</code>）でまとめてグループ化。セクションタイトル「🔔 今週のCOCoLa」を先頭に表示。いずれかのバーが表示されたとき JS で枠ごと表示し、全バー非表示時は枠も非表示のまま。
