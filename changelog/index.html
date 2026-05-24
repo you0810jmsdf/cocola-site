@@ -117,6 +117,17 @@
         <ul class="changelog-list">
 
           <li class="cl-entry">
+            <p class="cl-date">2026-05-24</p>
+            <h2 class="cl-title">クリエイターズマップに<strong>最新登録通知バナー</strong>を追加（<code>creators-map</code>）</h2>
+            <p class="cl-desc">
+              「＋ 掲載登録する」ボタンの上に「最新登録: YYYY/MM/DD ××さん（N日前）」を表示するバナーを実装。クリエイターズマップでいつ・誰が新しく登録されたか一目で分かるように。GAS の <code>getCreators()</code> に <code>timestamp</code> フィールドを追加し、フロント側で最新エントリを抽出して表示。タイムスタンプが無いデータでは非表示にフォールバック。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
             <p class="cl-date">2026-05-22</p>
             <h2 class="cl-title">TOPICS一覧で<strong>日時が過去のイベントを非表示</strong>（GAS <code>buildHtml</code> v278）</h2>
             <p class="cl-desc">
