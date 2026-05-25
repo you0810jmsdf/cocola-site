@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-25</p>
+            <h2 class="cl-title">Threads予約カレンダーを<strong>コース別に色分け</strong>（<code>sns-gas v7 @16</code>）</h2>
+            <p class="cl-desc">
+              sns-gas Webアプリの「📅 予約カレンダー」で、予約済みチップを「じぶんをつくる」＝緑（#0a8a4a）・「ともにつくる」＝紫（#6a4caf）・前回失敗＝赤（#cc0000）に色分けして識別可能に。<code>Calendar.gs</code> の byDay バケットに <code>course</code> フィールドを追加し、チップ生成時にコース別CSSクラス（<code>cal-chip--tomoni</code>）を付与。グリッド上部に凡例（緑●じぶん／紫●ともに／赤●前回失敗）を表示。紫は cocola-site の <code>page-hero--violet</code>（tomoniカテゴリーバナー）と整合。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--improve">改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-25</p>
             <h2 class="cl-title">Threads自動投稿に<strong>定型句2行を自動付与</strong>・<strong>手動起案フォーム</strong>を追加（<code>sns-gas v6 @15</code>）</h2>
             <p class="cl-desc">
               全Threads投稿の末尾に COCoLa の定型句2行（<code>🌱 COCoLaはともにまちをつくる（行政に声を届けたい）仲間を募集中</code>＋サイトURL <code>https://you0810jmsdf.github.io/cocola-site/</code>）を自動付与。<code>GeneratePost.gs</code> に <code>_ensureSignoff</code> 関数を実装し <code>saveDraft</code> で必ず通すことで、Claude 生成・手動起案の両ルートで漏れなく付与（冪等で二重付与なし）。Claude 生成プロンプトには「本文は380字以内（定型句約80字＋ハッシュタグが自動追加されるため）」を明記。あわせて <code>Code.gs</code> に <code>?action=manual_post</code> の「✍️ 起案」フォーム（コース選択＋本文テキストエリア＋500字カウンタ）を追加し、自分で書いた投稿文も既存の予約投稿スケジュール（5分毎の <code>runScheduledPosts</code>）に流せるようにした。
