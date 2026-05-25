@@ -118,6 +118,18 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-25</p>
+            <h2 class="cl-title">Threads自動投稿に<strong>定型句2行を自動付与</strong>・<strong>手動起案フォーム</strong>を追加（<code>sns-gas v3 @12</code>）</h2>
+            <p class="cl-desc">
+              全Threads投稿の末尾に COCoLa の定型句2行（<code>🌱 COCoLaは意見を交わす仲間を募集中。</code>＋サイトURL <code>https://you0810jmsdf.github.io/cocola-site/</code>）を自動付与。<code>GeneratePost.gs</code> に <code>_ensureSignoff</code> 関数を実装し <code>saveDraft</code> で必ず通すことで、Claude 生成・手動起案の両ルートで漏れなく付与（冪等で二重付与なし）。Claude 生成プロンプトには「本文は400字以内（定型句65字＋ハッシュタグが自動追加されるため）」を明記。あわせて <code>Code.gs</code> に <code>?action=manual_post</code> の「✍️ 起案」フォーム（コース選択＋本文テキストエリア＋500字カウンタ）を追加し、自分で書いた投稿文も既存の予約投稿スケジュール（5分毎の <code>runScheduledPosts</code>）に流せるようにした。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+              <span class="tag tag--improve">改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-25</p>
             <h2 class="cl-title">「ともにつくる」カテゴリに<strong>Threads発信枠</strong>を追加・CiDAO関連5本を登録（<code>categories/tomoni/index.html</code>＋<code>data/threads-tomoni.json</code>＋<code>sns-gas</code>）</h2>
             <p class="cl-desc">
               「ともにつくる」カテゴリページ末尾に「自分をつくる」と同形式のTHREADS発信欄を新設。CiDAO・市民参加・vTaiwan・印西市の地域自治をテーマにした5本（2026-05-25〜05-29 投稿予定）を <code>data/threads-tomoni.json</code> に初期登録。<code>url</code> が <code>null</code> の行は「📝 投稿予定」バッジ付きで表示し、Threads投稿後にURLを記入するとリンク化される設計。あわせて COCoLa-SNS-PostManager GAS（<code>projects/cocola/sns-gas</code>）をコース制（じぶん／ともに）に拡張：<code>GeneratePost.gs</code> の SYSTEM_PROMPT・トピック・必須ハッシュタグをコース別に分岐、<code>Keywords.gs</code>・<code>FetchWebReferences.gs</code> をコース別キャッシュ対応、<code>Setup.gs</code> に 8:00 jibun / 8:10 tomoni の毎日生成トリガーと週次fetchトリガーを追加、<code>Code.gs</code> にコース切替UI・コースフィルタ・コースバッジを追加。
