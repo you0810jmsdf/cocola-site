@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-26</p>
+            <h2 class="cl-title">DAO投票集計の<strong>P0020新形式対応</strong>（協力できる／協力は難しい／検討中／わからない）を cocola_topics に移植（<code>cocola_topics v192-v193 @356-@357</code>）</h2>
+            <p class="cl-desc">
+              cleanup後にユーザー報告で「投票数が全部消失（P0213/P0199/P0176/P0123/P0122/P0066/P0063 が votes=0）」が発覚。<code>debugDaoVoteDump_</code> エンドポイントを追加（v192 @356）して投票シート 619行を分析、投票値分布が「賛成229／反対12／<strong>協力できる34／協力は難しい1／検討中12／わからない6</strong>／空325」と判明。原因は cocola-dao-gas2 で v18 実装済みの P0020 投票方式変更（選択肢を <code>['協力できる','協力は難しい','検討中','わからない／もう少し聞きたい']</code> に変更）が cocola_topics の <code>normalizeDaoVote_</code> に未移植だったこと。GHA endpoint切替（cc376f1）で cocola_topics 側集計に切り替わった瞬間、新形式投票が全て「判定不能」扱いで votes=0 へ。<strong>v193 @357</strong> で <code>normalizeDaoVote_</code> に新選択肢処理を追加（「協力できる」→ yes／「協力は難しい」→ no／「検討中」「わからない」→ 集計外）。修復後 P0199 を含む7提案の票数が全復活、既存提案も「協力できる」票が正しく yes 扱いされ票数が増加（例：P0027 2→5、P0025 2→4、P0016 3→5）。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-26</p>
             <h2 class="cl-title">DAO提案<strong>ゾンビ重複の構造的根治＋既存120行の一括クリーンアップ</strong>（<code>cocola_topics v188-v191 @352-@355</code>）</h2>
             <p class="cl-desc">
               cocola_topics に dedup ロジック移植（cocola-dao-gas2 の v28由来）：<code>normalizeTitleForDedup_</code>／<code>normalizeProposerForDedup_</code>／<code>scanDaoProposalSheetForDedupKey_</code>／<code>isDuplicateDaoProposal_</code> を新設し、<code>createDaoProposalRowFromResponse_</code> 内で title+proposer 正規化キーによる全期間重複チェック→重複は <code>{duplicate:true, row:null}</code> を返してスキップ。3箇所の呼び元（normalize系）に <code>entry.duplicate || !entry.row</code> ガード追加。これでフォーム再送信や force refresh による ID-rotation zombie を構造的にブロック。既存の残存ゾンビ用に <code>cleanupDaoProposalDuplicates_(dryRun)</code> 関数を新設（正規化キーでグループ化→票数/yes/最古順で最良1行を残し他を <code>dao_proposals_archive</code> シートに退避＋物理削除）、DAO運営メニューに「重複提案を一括クリーンアップ（DryRun/Live）」追加。Live 実行で DAO提案シート 120行→32行（過去のフォーム回答転記事故による破損データ80件＋正規重複8件をすべて退避削除）、公開 data.json 14→12件で完全クリーン化。あわせて重大バグ修正：<code>doGet</code> のホワイトリストに新規 mode（<code>refreshMemberChoices</code>／<code>debugDaoProposalDump</code>）が登録されておらず HTML が返っていた（cocola-gas からの即時メンバーリスト更新呼び出しが実は機能していなかった）件を修正。
