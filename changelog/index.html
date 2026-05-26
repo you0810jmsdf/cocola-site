@@ -118,6 +118,18 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-26</p>
+            <h2 class="cl-title">DAO投票<strong>「検討中」「わからない」票を投票数にカウント</strong>＋<strong>ゴーストエイリアス3件削除</strong>で P0199 = 12票復活（<code>cocola_topics v194-v197 @358-@361</code>）</h2>
+            <p class="cl-desc">
+              ユーザー報告「P0199 イルミライは12名以上は票が入っていたはず」を起点に、集計の欠落を2段階で修正。<strong>(1) 名寄せ修正</strong>: <code>debugDaoMemberMatch_</code> で「つる」検索が ambiguous（候補2件: "つる","つるちゃん"）と判明、memory v178 と同じ「ゴーストエイリアス」パターン。<code>removeDaoGhostAliases_(dryRun)</code> 関数＋DAOメニュー＋WebAppエンドポイント（スマホ対応）を新設、DAOメンバー別名シートから 3件物理削除（「ゆみちゃん→ゆみ」「ひこ→ひこさん」「つるちゃん→つるちゃん」自己ループ）→<code>dao_aliases_archive</code> に退避。これで「つる」さんの票が全提案で +1票復活。<strong>(2) abstain対応</strong>: 残り P0199 8票 vs 期待12票のギャップは「検討中3件・わからない1件」が集計外だったため。ユーザー要望「投票数にはカウントしたい（誰が投票していないか管理ページで把握）」を受け、<code>normalizeDaoVote_</code> で「検討中」「わからない」を空文字→<code>'abstain'</code> に変更。集計関数の <code>count += 1</code> は vote種別問わず加算する設計なので、abstain も voteCount に含まれる（yes/no重み・承認判定には影響なし）。最終結果: P0199 = 12票 yes=10.8、他提案も abstain票が voteCount に加算（P0123 2→5、P0176 1→3、P0066 3→5）。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+              <span class="tag tag--improve">改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-26</p>
             <h2 class="cl-title">DAO投票集計の<strong>P0020新形式対応</strong>（協力できる／協力は難しい／検討中／わからない）を cocola_topics に移植（<code>cocola_topics v192-v193 @356-@357</code>）</h2>
             <p class="cl-desc">
               cleanup後にユーザー報告で「投票数が全部消失（P0213/P0199/P0176/P0123/P0122/P0066/P0063 が votes=0）」が発覚。<code>debugDaoVoteDump_</code> エンドポイントを追加（v192 @356）して投票シート 619行を分析、投票値分布が「賛成229／反対12／<strong>協力できる34／協力は難しい1／検討中12／わからない6</strong>／空325」と判明。原因は cocola-dao-gas2 で v18 実装済みの P0020 投票方式変更（選択肢を <code>['協力できる','協力は難しい','検討中','わからない／もう少し聞きたい']</code> に変更）が cocola_topics の <code>normalizeDaoVote_</code> に未移植だったこと。GHA endpoint切替（cc376f1）で cocola_topics 側集計に切り替わった瞬間、新形式投票が全て「判定不能」扱いで votes=0 へ。<strong>v193 @357</strong> で <code>normalizeDaoVote_</code> に新選択肢処理を追加（「協力できる」→ yes／「協力は難しい」→ no／「検討中」「わからない」→ 集計外）。修復後 P0199 を含む7提案の票数が全復活、既存提案も「協力できる」票が正しく yes 扱いされ票数が増加（例：P0027 2→5、P0025 2→4、P0016 3→5）。
