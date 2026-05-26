@@ -117,6 +117,17 @@
         <ul class="changelog-list">
 
           <li class="cl-entry">
+            <p class="cl-date">2026-05-27</p>
+            <h2 class="cl-title">DAOページに<strong>「DAOメンバー一覧」テーブル</strong>を追加（投票権の可視化／未投票者把握の基礎）（<code>cocola_topics v198 @362</code>）</h2>
+            <p class="cl-desc">
+              「いずれ未投票者一覧を出すようになるかもしれないので、誰が投票権を有しているか把握するため」のユーザー要望を実装。<code>dao-points.js</code> に <code>collectDaoMembersForPage_(ss)</code> を新設し、DAOメンバーシート全行から <code>{nickname, totalPoints, recentPoints, lastActiveAt, status, weight}</code> を抽出（重み降順→直近pt降順→五十音順）。<code>getDaoProposalPageData()</code> の戻り値に <code>members</code> 配列と <code>stats.members</code>/<code>stats.eligibleMembers</code> を追加。<code>cocola-site/dao/index.html</code> に「DAOメンバー一覧」セクション追加：サマリ（総メンバー数／投票権あり／投票権なし／母数weight）＋「投票権あり」テーブル（ニックネーム／重み／直近6ヶ月pt／ステータス）＋「投票権なし」テーブル（折りたたみ）。ステータスバッジは <code>アクティブ</code>（緑）／<code>サポーター</code>（青）／<code>休眠</code>（茶）の3色。反映結果：総26人、全員アクティブ＝投票権あり、母数30.2。仕様: 最終活動6ヶ月以内→アクティブ（base weight 1.0）／6〜12ヶ月→サポーター（base 0.5）／12ヶ月以上 or null→休眠（weight 0）。シートから行は消えず、ステータスとweightが変わるのみ。新たな活動でポイント付与されれば自動でアクティブ復活。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
             <p class="cl-date">2026-05-26</p>
             <h2 class="cl-title">DAO投票<strong>「検討中」「わからない」票を投票数にカウント</strong>＋<strong>ゴーストエイリアス3件削除</strong>で P0199 = 12票復活（<code>cocola_topics v194-v197 @358-@361</code>）</h2>
             <p class="cl-desc">
