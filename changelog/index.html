@@ -118,6 +118,18 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-26</p>
+            <h2 class="cl-title">DAO提案<strong>ゾンビ重複の構造的根治＋既存120行の一括クリーンアップ</strong>（<code>cocola_topics v188-v191 @352-@355</code>）</h2>
+            <p class="cl-desc">
+              cocola_topics に dedup ロジック移植（cocola-dao-gas2 の v28由来）：<code>normalizeTitleForDedup_</code>／<code>normalizeProposerForDedup_</code>／<code>scanDaoProposalSheetForDedupKey_</code>／<code>isDuplicateDaoProposal_</code> を新設し、<code>createDaoProposalRowFromResponse_</code> 内で title+proposer 正規化キーによる全期間重複チェック→重複は <code>{duplicate:true, row:null}</code> を返してスキップ。3箇所の呼び元（normalize系）に <code>entry.duplicate || !entry.row</code> ガード追加。これでフォーム再送信や force refresh による ID-rotation zombie を構造的にブロック。既存の残存ゾンビ用に <code>cleanupDaoProposalDuplicates_(dryRun)</code> 関数を新設（正規化キーでグループ化→票数/yes/最古順で最良1行を残し他を <code>dao_proposals_archive</code> シートに退避＋物理削除）、DAO運営メニューに「重複提案を一括クリーンアップ（DryRun/Live）」追加。Live 実行で DAO提案シート 120行→32行（過去のフォーム回答転記事故による破損データ80件＋正規重複8件をすべて退避削除）、公開 data.json 14→12件で完全クリーン化。あわせて重大バグ修正：<code>doGet</code> のホワイトリストに新規 mode（<code>refreshMemberChoices</code>／<code>debugDaoProposalDump</code>）が登録されておらず HTML が返っていた（cocola-gas からの即時メンバーリスト更新呼び出しが実は機能していなかった）件を修正。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+              <span class="tag tag--new">新機能</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-26</p>
             <h2 class="cl-title">DAO提案フォームの設問タイトル変更に追従＋<strong>GHA endpoint切り替え</strong>（<code>cocola_topics v187 @351</code>＋<code>cocola-site cc376f1</code>）</h2>
             <p class="cl-desc">
               ユーザーがDAO提案フォームで設問タイトルを変更したのに合わせ、サイト側ラベル・コード側エイリアスを統一: 「理由・詳細」→「提案内容の概要」、「必要なもの」→「要調整事項・その他」。<code>dao-points.js</code> の <code>getFirstFromRowValues_</code> 検索エイリアスに新ラベルを追加（旧ラベルも維持＝過去回答との互換性確保）、<code>configureDaoProposalForm_</code> の新規作成タイトルと通知メール本文ラベルも統一、<code>cocola-site/dao/index.html</code> と GAS Webアプリ <code>dao-proposals.html</code> のカードラベルも置換。あわせて、GitHub Actions の <code>update-dao-data.yml</code>・<code>health-check.yml</code> が長らく別プロジェクト <code>cocola-dao-gas2</code>（v29 @77 古い）を叩いていた問題を発見・修正し、<code>cocola_topics</code> の最新 deployment（<code>AKfycbzVs...</code>）に統一。これによりv181〜v187 で追加した機能（attachmentUrl、カテゴリ説明文、メンバーニックネームリスト、五十音順ソート、即時更新エンドポイント等）が公開 data.json にも反映されるようになり、提案数も 12 → 14 に増加。
