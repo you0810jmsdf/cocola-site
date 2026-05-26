@@ -412,6 +412,99 @@
       box-shadow: var(--shadow);
     }
 
+    .members-band {
+      margin: 24px 0 18px;
+      padding: 20px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+    .members-band__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .members-band__head h2 {
+      margin: 0;
+      font-size: 1.25rem;
+    }
+    .members-summary {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .members-summary strong {
+      color: var(--ink);
+      font-size: 1.05rem;
+    }
+    .members-subtitle {
+      margin: 16px 0 8px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+    .members-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+    .members-table th,
+    .members-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+    }
+    .members-table th {
+      background: #f5f8f6;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 0.82rem;
+    }
+    .members-table td.num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .member-status {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .member-status--active {
+      background: #e7f5f0;
+      color: var(--green-deep);
+    }
+    .member-status--supporter {
+      background: #e8eeff;
+      color: #3a4cb5;
+    }
+    .member-status--inactive {
+      background: #f3efe3;
+      color: #7a6330;
+    }
+    .members-toggle {
+      margin-top: 12px;
+      padding: 8px 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--ink);
+      font: inherit;
+      font-size: 0.88rem;
+      cursor: pointer;
+    }
+    .members-toggle:hover {
+      background: #f5f8f6;
+    }
+
     .points-copy {
       display: grid;
       align-content: start;
@@ -1109,6 +1202,20 @@
         <div class="empty" id="empty" hidden>公開中の提案はまだありません。</div>
       </section>
 
+      <section class="members-band" id="membersBand" aria-label="DAOメンバー一覧" hidden>
+        <div class="members-band__head">
+          <h2>DAOメンバー一覧</h2>
+        </div>
+        <div class="members-summary" id="membersSummary"></div>
+        <p class="members-subtitle">投票権あり</p>
+        <table class="members-table" id="membersEligibleTable"></table>
+        <button class="members-toggle" id="membersToggle" type="button" hidden>投票権なしメンバーを表示</button>
+        <div id="membersInactiveWrap" hidden>
+          <p class="members-subtitle">投票権なし（新規入会・活動が少ない・支援者ステータス等）</p>
+          <table class="members-table" id="membersInactiveTable"></table>
+        </div>
+      </section>
+
       <section class="points-band" aria-label="DAOポイントとは">
         <div class="points-copy">
           <p class="eyebrow">DAOポイントとは</p>
@@ -1336,6 +1443,74 @@
           '</a></li>';
       }).join('');
       proposalIndex.hidden = visible.length === 0;
+    }
+
+    function statusClassMember(status) {
+      if (status === 'アクティブ' || status === 'active') return 'member-status--active';
+      if (status === 'サポーター' || status === 'supporter') return 'member-status--supporter';
+      return 'member-status--inactive';
+    }
+
+    function renderMembersTable(tableEl, list) {
+      if (!list || list.length === 0) {
+        tableEl.innerHTML = '<tr><td colspan="4" style="color: var(--muted); padding: 12px;">該当メンバーはいません</td></tr>';
+        return;
+      }
+      var head = '<thead><tr>' +
+        '<th>ニックネーム</th>' +
+        '<th class="num">投票権重み</th>' +
+        '<th class="num">直近6ヶ月pt</th>' +
+        '<th>ステータス</th>' +
+        '</tr></thead>';
+      var body = '<tbody>' + list.map(function(m) {
+        return '<tr>' +
+          '<td>' + escapeHtml(m.nickname) + '</td>' +
+          '<td class="num">' + (m.weight ? escapeHtml(m.weight) : '-') + '</td>' +
+          '<td class="num">' + escapeHtml(m.recentPoints || 0) + '</td>' +
+          '<td><span class="member-status ' + statusClassMember(m.status) + '">' + escapeHtml(m.status || '未設定') + '</span></td>' +
+          '</tr>';
+      }).join('') + '</tbody>';
+      tableEl.innerHTML = head + body;
+    }
+
+    function renderMembers() {
+      var band = document.getElementById('membersBand');
+      var summary = document.getElementById('membersSummary');
+      var eligibleTable = document.getElementById('membersEligibleTable');
+      var inactiveTable = document.getElementById('membersInactiveTable');
+      var toggle = document.getElementById('membersToggle');
+      var inactiveWrap = document.getElementById('membersInactiveWrap');
+      var members = (state.data && state.data.members) || [];
+      if (!band) return;
+      if (members.length === 0) {
+        band.hidden = true;
+        return;
+      }
+      band.hidden = false;
+      var eligible = members.filter(function(m) { return m.weight > 0; });
+      var inactive = members.filter(function(m) { return m.weight <= 0; });
+      var totalWeight = eligible.reduce(function(acc, m) { return acc + (Number(m.weight) || 0); }, 0);
+      summary.innerHTML =
+        '<span>総メンバー: <strong>' + escapeHtml(members.length) + '</strong>人</span>' +
+        '<span>投票権あり: <strong>' + escapeHtml(eligible.length) + '</strong>人</span>' +
+        '<span>投票権なし: <strong>' + escapeHtml(inactive.length) + '</strong>人</span>' +
+        '<span>母数(eligibleWeight): <strong>' + escapeHtml(Math.round(totalWeight * 10) / 10) + '</strong></span>';
+      renderMembersTable(eligibleTable, eligible);
+      renderMembersTable(inactiveTable, inactive);
+      toggle.hidden = inactive.length === 0;
+      toggle.textContent = inactiveWrap.hidden
+        ? ('投票権なしメンバーを表示 (' + inactive.length + '人)')
+        : ('投票権なしメンバーを隠す');
+    }
+
+    function bindMembersToggle() {
+      var toggle = document.getElementById('membersToggle');
+      var wrap = document.getElementById('membersInactiveWrap');
+      if (!toggle || !wrap) return;
+      toggle.addEventListener('click', function() {
+        wrap.hidden = !wrap.hidden;
+        renderMembers();
+      });
     }
 
     function bindFilters() {
@@ -1751,7 +1926,9 @@
     restoreLastDaoData();
     renderStats();
     renderProposals();
+    renderMembers();
     bindFilters();
+    bindMembersToggle();
     refreshStoredNicknameHash().then(function() {
       if (state.loaded) renderProposals();
     });
@@ -1766,6 +1943,7 @@
       setFormLink(voteForm, state.data.voteFormUrl);
       renderStats();
       renderProposals();
+      renderMembers();
     }
 
     function mergeLocalCivicLikeCounts() {
