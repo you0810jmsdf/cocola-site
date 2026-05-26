@@ -118,6 +118,18 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-26</p>
+            <h2 class="cl-title">DAO提案・投票フォームを<strong>メンバーニックネームのリスト選択方式</strong>に変更・メンバー入会時に<strong>即時自動反映</strong>（<code>cocola_topics v186 @350</code>＋<code>cocola-gas v57 @69</code>）</h2>
+            <p class="cl-desc">
+              DAO提案フォーム「提案者」と DAO投票フォーム「投票者」を、自由テキスト入力からメンバーニックネームのドロップダウン選択方式に変更。表記ゆれ・スペル誤りがなくなり「保留」状態（メンバー確認できないため公開・集計外）になる提案が発生しなくなる。<code>dao-points.js</code> に <code>buildDaoMemberNicknameChoices_</code>（メンバー入会フォーム回答シートから取得・五十音順ソート：ひらがな/カタカナ→漢字→英字、カタカナはひらがな換算）／<code>ensureDaoMemberChoiceItem_</code>（TEXT型→ListItem 自動変換、既存回答と後方互換）／専用メニュー「提案者・投票者リストを更新」を追加。カテゴリ項目には6つのつくる分類の説明文を <code>setHelpText</code> で付与＋専用メニュー「カテゴリ説明文を更新」追加。メンバー新規入会時の即時反映のため、<code>cocola_topics</code> に Web App エンドポイント <code>?mode=refreshMemberChoices&amp;pw=...</code> を新設、<code>cocola-gas</code> の <code>onFormSubmit</code> から <code>UrlFetchApp</code> で呼び出す構成（失敗時も入会処理は止めず Logger に残し、DAO運営メニューから手動復旧可）。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+              <span class="tag tag--improve">改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-26</p>
             <h2 class="cl-title">DAO提案カードに<strong>「📄 企画提案書を見る」ボタン</strong>を表示する仕組みを追加（<code>cocola_topics v180 @344</code>）</h2>
             <p class="cl-desc">
               DAO提案フォームのファイルアップロード項目（質問タイトルに「企画提案書」「企画書」を含むもの、または<code>FILE_UPLOAD</code>型）の回答URLを、提案カードのタイトル下に「📄 企画提案書を見る」ボタンとして表示。本文の冗長化を抑えつつ詳細資料へ誘導できる。<code>dao-points.js</code> に <code>extractFirstDaoAttachmentUrl_</code>／<code>findDaoProposalAttachmentItem_</code>／<code>ensureDaoProposalAttachmentFolder_</code> を新設、<code>DAO_PROPOSAL_HEADERS</code> に「企画提案書URL」列追加、<code>createDaoProposalRowFromResponse_</code> で19列目にURL転記、<code>collectDaoProposalPageRows_</code> がJSONに <code>attachmentUrl</code> を載せる。公開ページ <code>cocola-site/dao/index.html</code> と GAS Webアプリ <code>dao-proposals.html</code> に <code>.attachment-link</code> ボタン（緑系・📄プレフィックス）を追加。Apps Script の制約でファイルアップロード項目はスクリプトから新規作成不可のため、DAOメニュー「企画提案書アップロード項目を追加」は<strong>フォーム編集URLと手動追加手順</strong>を案内する形（質問タイトル・許可ファイル種類・サイズ・必須オフを明示）。
