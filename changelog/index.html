@@ -118,6 +118,18 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-26</p>
+            <h2 class="cl-title">DAO提案フォームの設問タイトル変更に追従＋<strong>GHA endpoint切り替え</strong>（<code>cocola_topics v187 @351</code>＋<code>cocola-site cc376f1</code>）</h2>
+            <p class="cl-desc">
+              ユーザーがDAO提案フォームで設問タイトルを変更したのに合わせ、サイト側ラベル・コード側エイリアスを統一: 「理由・詳細」→「提案内容の概要」、「必要なもの」→「要調整事項・その他」。<code>dao-points.js</code> の <code>getFirstFromRowValues_</code> 検索エイリアスに新ラベルを追加（旧ラベルも維持＝過去回答との互換性確保）、<code>configureDaoProposalForm_</code> の新規作成タイトルと通知メール本文ラベルも統一、<code>cocola-site/dao/index.html</code> と GAS Webアプリ <code>dao-proposals.html</code> のカードラベルも置換。あわせて、GitHub Actions の <code>update-dao-data.yml</code>・<code>health-check.yml</code> が長らく別プロジェクト <code>cocola-dao-gas2</code>（v29 @77 古い）を叩いていた問題を発見・修正し、<code>cocola_topics</code> の最新 deployment（<code>AKfycbzVs...</code>）に統一。これによりv181〜v187 で追加した機能（attachmentUrl、カテゴリ説明文、メンバーニックネームリスト、五十音順ソート、即時更新エンドポイント等）が公開 data.json にも反映されるようになり、提案数も 12 → 14 に増加。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+              <span class="tag tag--improve">改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-26</p>
             <h2 class="cl-title">DAO提案・投票フォームを<strong>メンバーニックネームのリスト選択方式</strong>に変更・メンバー入会時に<strong>即時自動反映</strong>（<code>cocola_topics v186 @350</code>＋<code>cocola-gas v57 @69</code>）</h2>
             <p class="cl-desc">
               DAO提案フォーム「提案者」と DAO投票フォーム「投票者」を、自由テキスト入力からメンバーニックネームのドロップダウン選択方式に変更。表記ゆれ・スペル誤りがなくなり「保留」状態（メンバー確認できないため公開・集計外）になる提案が発生しなくなる。<code>dao-points.js</code> に <code>buildDaoMemberNicknameChoices_</code>（メンバー入会フォーム回答シートから取得・五十音順ソート：ひらがな/カタカナ→漢字→英字、カタカナはひらがな換算）／<code>ensureDaoMemberChoiceItem_</code>（TEXT型→ListItem 自動変換、既存回答と後方互換）／専用メニュー「提案者・投票者リストを更新」を追加。カテゴリ項目には6つのつくる分類の説明文を <code>setHelpText</code> で付与＋専用メニュー「カテゴリ説明文を更新」追加。メンバー新規入会時の即時反映のため、<code>cocola_topics</code> に Web App エンドポイント <code>?mode=refreshMemberChoices&amp;pw=...</code> を新設、<code>cocola-gas</code> の <code>onFormSubmit</code> から <code>UrlFetchApp</code> で呼び出す構成（失敗時も入会処理は止めず Logger に残し、DAO運営メニューから手動復旧可）。
