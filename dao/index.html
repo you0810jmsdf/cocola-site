@@ -567,6 +567,33 @@
       padding: 3px 10px;
     }
 
+    .attachment-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+      padding: 6px 12px;
+      border: 1px solid var(--green);
+      border-radius: 8px;
+      background: #f0faf6;
+      color: var(--green-deep);
+      font-size: 0.86rem;
+      font-weight: 700;
+      text-decoration: none;
+      min-height: 32px;
+    }
+
+    .attachment-link::before {
+      content: "📄";
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    .attachment-link:hover {
+      background: var(--green);
+      color: #ffffff;
+    }
+
     .voted-badge__clear {
       font-size: 0.74rem;
       font-weight: 400;
@@ -1245,6 +1272,7 @@
           '<div class="identity">' +
             '<span class="proposal-id">' + escapeHtml(proposal.id) + '</span>' +
             '<h3 class="proposal-title"><span class="proposal-title-text">' + escapeHtml(proposal.title) + '</span></h3>' +
+            (proposal.attachmentUrl ? '<a class="attachment-link" href="' + escapeHtml(proposal.attachmentUrl) + '" target="_blank" rel="noopener">企画提案書を見る</a>' : '') +
             (voted ? '<span class="voted-badge">✓ ' + escapeHtml(votedNickname || '') + 'さん 投票済み</span>' : '') +
           '</div>' +
           '<span class="status ' + statusClass(proposal.statusKey) + '">' + escapeHtml(proposal.status) + '</span>' +
