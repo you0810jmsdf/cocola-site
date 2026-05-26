@@ -117,6 +117,17 @@
         <ul class="changelog-list">
 
           <li class="cl-entry">
+            <p class="cl-date">2026-05-26</p>
+            <h2 class="cl-title">DAO提案フォームに<strong>企画提案書の添付機能</strong>を追加・カードに「📄 企画提案書を見る」ボタンを表示（<code>cocola_topics v179 @343</code>）</h2>
+            <p class="cl-desc">
+              DAO提案フォームに任意のファイルアップロード項目「企画提案書（任意・PDF/Word/スライドなど）」を追加。提案者がGoogleアカウントでログインしてPDF/Google ドキュメント/スライド/エクセル/画像を1ファイル（最大10MB）アップロードでき、保存先はマイドライブ直下の「COCoLa DAO 企画提案書」フォルダ。<code>dao-points.js</code> の <code>configureDaoProposalForm_</code> から呼ばれる <code>ensureDaoProposalAttachmentItem_</code> を新設（既存項目がある場合は重複追加を回避）。DAO提案シートに「企画提案書URL」列を追加し、<code>createDaoProposalRowFromResponse_</code> でフォーム回答からURLを抽出して転記、<code>collectDaoProposalPageRows_</code> がJSONに <code>attachmentUrl</code> を載せる。公開ページ <code>cocola-site/dao/index.html</code> と GAS Webアプリ <code>dao-proposals.html</code> の提案カードのタイトル下に「📄 企画提案書を見る」ボタン（attachmentUrl が存在する提案のみ表示）。本文の冗長化を抑えつつ詳細資料へ誘導できる。DAOメニューに「企画提案書アップロード項目を追加」を追加。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
             <p class="cl-date">2026-05-25</p>
             <h2 class="cl-title">Threads予約カレンダーを<strong>コース別に色分け</strong>（<code>sns-gas v7 @16</code>）</h2>
             <p class="cl-desc">
