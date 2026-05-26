@@ -24,7 +24,7 @@ jobs:
         id: fetch
         run: |
           HTTP_CODE=$(curl -sL \
-            "https://script.google.com/macros/s/AKfycbxM2ybpJqfWLL-MPnOwZqeBdHjN6IQh5QB-_LubZAG-bD0x8jLkgbUn7NYRzYLFOPfj7g/exec?mode=json&t=$(date +%s)" \
+            "https://script.google.com/macros/s/AKfycbzVs_W57Iphxcc5PHShXBNae63CKqjF5fB82tUkQwaf1vyuNWWLgtWZgglY7Qbuuft1/exec?mode=json&t=$(date +%s)" \
             -o dao/data_new.json \
             --max-time 30 \
             --retry 3 \

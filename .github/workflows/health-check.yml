@@ -15,7 +15,7 @@ jobs:
 
     env:
       GAS_TOPICS:  "https://script.google.com/macros/s/AKfycbycw2FBvcm34mS9R8SUNg28KscGqqGjR1zjz3hnLYq8ckgKCZObYaC9kbMs8R2SGXgC/exec"
-      GAS_DAO:     "https://script.google.com/macros/s/AKfycbxM2ybpJqfWLL-MPnOwZqeBdHjN6IQh5QB-_LubZAG-bD0x8jLkgbUn7NYRzYLFOPfj7g/exec"
+      GAS_DAO:     "https://script.google.com/macros/s/AKfycbzVs_W57Iphxcc5PHShXBNae63CKqjF5fB82tUkQwaf1vyuNWWLgtWZgglY7Qbuuft1/exec"
       GAS_MEMBERS: "https://script.google.com/macros/s/AKfycbyRVO7fLJx62HS6W3M2_bmPIP9y6stpiVJFM429NMKXzlV24_wGx97xms22QLb1VHsX/exec"
       PAGES_BASE:  "https://you0810jmsdf.github.io/cocola-site"
 
