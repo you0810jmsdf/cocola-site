@@ -118,6 +118,18 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-27</p>
+            <h2 class="cl-title"><strong>COCoLa研究室ページ新設</strong>（スマホ会員証SBT実証実験／視認性チェック／コメント収集）</h2>
+            <p class="cl-desc">
+              将来の「印西市民全員による投票」「地域ポイント導入」に向けた実証実験ページとして <code>lab/index.html</code> を新設。TOPナビに「🧪 研究室」リンクを追加。導入目的を①投票時の個人識別（なりすまし防止）②地域ポイント導入の2点に明示。<strong>機能</strong>: (1) <strong>SBT会員証モックアップ</strong>（<code>lab/sbt-mockup.html</code>）— 初回登録／JPKI認証／会員証発行／投票／履歴 の5画面を1ファイルでタブ切替表示、cocola-site/dao のブランドカラーを完全踏襲。(2) <strong>端末別プレビュー切替</strong> — スマホ縦横／タブレット／PC（375×812〜1280×800 の7プリセット）と表示倍率35〜100%で iframe スケーリング。(3) <strong>実機検証QRコード</strong> — qrcode.js でモックアップURLを即時QR化（実機での視認性確認用）。(4) <strong>視認性自動チェック</strong> — WCAG 2.1基準でコントラスト比・タップターゲット・最小フォントを4カード表示。(5) <strong>コメント収集機能</strong> — <code>cocola_topics_clasp_sync</code> の GAS に <code>mode=labComment</code> エンドポイント新設（<code>doPost</code>新規＋<code>研究室コメント</code>シート自動作成）、トピック分類（SBT/なりすまし/ポイント/UI/その他）・匿名投稿対応。<strong>GASデプロイ</strong>: v199 @365 として cocola_topics に反映済み（200バージョン上限到達のため旧バージョン整理を実施）。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+              <span class="tag tag--improve">実証実験</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-27</p>
             <h2 class="cl-title">DAO投票モーダルで<strong>「ニックネームを選択も変更もできない」事象を根本対処</strong>（メンバー一覧読込失敗のリトライ）</h2>
             <p class="cl-desc">
               利用者スクリーンショットから真因が判明。プルダウンに「-- 選択してください --」しか option が無い状態（=メンバー一覧の fetch が完了していない or 失敗）が原因だった。<code>loadMemberNicknames()</code> はページロード時に1回呼ばれるだけで、モバイル回線で完了前に投票ボタンが押されたケース・ネットワークエラーで <code>.catch(function(){})</code> に握りつぶされたケースで、選択肢ゼロの状態のまま固まっていた。<strong>対処</strong>: (1) <code>loadMemberNicknames()</code> を Promise 返却＋エラーを再 throw する構造に変更、<code>cache: 'no-store'</code> 指定。(2) <code>openVoteModal()</code> 内で <code>voteNicknameSelect.options.length &lt;= 1</code> を検出したら自動再 fetch、ローディング中は disabled＋「メンバー一覧を読み込み中…」表示、失敗時は「ページを再読み込みしてからもう一度お試しください。」と明示。(3) 投票モーダルの <code>&lt;label&gt;&lt;select/&gt;&lt;/label&gt;</code> 構造を <code>label[for]+select</code> に分離（iOS Safari の既知挙動回避、<code>autocomplete="off"</code> 追加）。(4) <code>openVoteModal()</code> 冒頭で <code>setVoteModalLoading(false)</code> を呼び disabled 残留も同時に解消。
