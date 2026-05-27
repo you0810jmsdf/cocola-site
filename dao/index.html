@@ -1935,6 +1935,8 @@
     }
 
     function openVoteModal(id, title) {
+      // 前回の投票中にモーダル外クリックや通信中断で disabled が残るのを防ぐため、毎回ローディング状態をリセットする。
+      setVoteModalLoading(false);
       pendingVoteId = id;
       pendingVoteTitle = title;
       voteModalTitle.textContent = title;
@@ -1942,7 +1944,6 @@
       var hasOption = storedNick && Array.from(voteNicknameSelect.options).some(function(o) { return o.value === storedNick; });
       voteNicknameSelect.value = hasOption ? storedNick : '';
       voteModalError.textContent = '';
-      document.querySelectorAll('.vote-choice-btn').forEach(function(b) { b.disabled = false; });
       voteModal.hidden = false;
     }
 

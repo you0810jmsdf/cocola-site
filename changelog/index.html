@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-27</p>
+            <h2 class="cl-title">DAO投票モーダルで<strong>「ニックネームを選択も変更もできない」事象を修正</strong></h2>
+            <p class="cl-desc">
+              ユーザー報告「投票時にニックネームを『-- 選択してください --』から変更できない」事象を修正。原因は <code>openVoteModal()</code> が <code>voteNicknameSelect.disabled</code> をリセットしていなかったため。投票送信中（<code>setVoteModalLoading(true)</code>）にモーダル外クリックで閉じたり、iOS Safari がバックグラウンドで fetch を中断したケースで、<code>disabled = true</code> 状態が残留し、次回モーダルを開いた際にプルダウン操作が一切できなくなっていた。<code>openVoteModal()</code> 冒頭で <code>setVoteModalLoading(false)</code> を呼ぶ修正で、開くたびに全UI要素（select／キャンセル／投票ボタン）の有効状態が保証される。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-27</p>
             <h2 class="cl-title">DAOページに<strong>「行政につなぐ／団体方針」区分タブ</strong>を追加（市民の関心と団体運営を分離表示）</h2>
             <p class="cl-desc">
               「市民から見れば団体方針なんて興味ないので」というユーザー要望を起点に、DAO提案一覧の上部に種別タブを新設。<code>cocola-dao-gas2/dao-points.js</code> の <code>DAO_PROPOSAL_HEADERS</code> に <code>'区分'</code> 列を追加（カテゴリ列の直後）、<code>getDaoProposals_()</code> の出力JSONに <code>proposalType</code>（<code>'dantai'</code>=団体方針 / <code>'gyousei'</code>=行政につなぐ）と <code>proposalTypeLabel</code> を付与。区分列が空欄の場合は <code>'gyousei'</code> をデフォルトとする。既存12件の初期値を一括設定する <code>menuApplyInitialProposalTypes()</code> 関数を新設し、DAO運営メニューに「既存提案に区分を初期設定」項目を追加。<code>cocola-site/dao/index.html</code> に <code>.type-tabs</code> セクションを追加し、「行政につなぐ（デフォルト）／団体方針／すべて」の3タブと種別ピル（橙＝団体方針／青＝行政につなぐ）を実装。<code>state.typeFilter</code> でフィルタロジックを拡張。GAS デプロイ前でも分類が機能するよう、フロント側に <code>FALLBACK_DANTAI_IDS = {P0176, P0123, P0122, P0066}</code> の暫定IDマップを実装。初期分類：<strong>団体方針 4件</strong>（団体パネル展／ココハレ出店／オリTシャツ／マスコット）、<strong>行政につなぐ 7件</strong>（その他全件）。
