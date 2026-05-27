@@ -118,6 +118,18 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-27</p>
+            <h2 class="cl-title">DAOページに<strong>「行政につなぐ／団体方針」区分タブ</strong>を追加（市民の関心と団体運営を分離表示）</h2>
+            <p class="cl-desc">
+              「市民から見れば団体方針なんて興味ないので」というユーザー要望を起点に、DAO提案一覧の上部に種別タブを新設。<code>cocola-dao-gas2/dao-points.js</code> の <code>DAO_PROPOSAL_HEADERS</code> に <code>'区分'</code> 列を追加（カテゴリ列の直後）、<code>getDaoProposals_()</code> の出力JSONに <code>proposalType</code>（<code>'dantai'</code>=団体方針 / <code>'gyousei'</code>=行政につなぐ）と <code>proposalTypeLabel</code> を付与。区分列が空欄の場合は <code>'gyousei'</code> をデフォルトとする。既存12件の初期値を一括設定する <code>menuApplyInitialProposalTypes()</code> 関数を新設し、DAO運営メニューに「既存提案に区分を初期設定」項目を追加。<code>cocola-site/dao/index.html</code> に <code>.type-tabs</code> セクションを追加し、「行政につなぐ（デフォルト）／団体方針／すべて」の3タブと種別ピル（橙＝団体方針／青＝行政につなぐ）を実装。<code>state.typeFilter</code> でフィルタロジックを拡張。GAS デプロイ前でも分類が機能するよう、フロント側に <code>FALLBACK_DANTAI_IDS = {P0176, P0123, P0122, P0066}</code> の暫定IDマップを実装。初期分類：<strong>団体方針 4件</strong>（団体パネル展／ココハレ出店／オリTシャツ／マスコット）、<strong>行政につなぐ 7件</strong>（その他全件）。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+              <span class="tag tag--improve">改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-27</p>
             <h2 class="cl-title">DAOページに<strong>「DAOメンバー一覧」テーブル</strong>を追加（投票権の可視化／未投票者把握の基礎）（<code>cocola_topics v198 @362</code>）</h2>
             <p class="cl-desc">
               「いずれ未投票者一覧を出すようになるかもしれないので、誰が投票権を有しているか把握するため」のユーザー要望を実装。<code>dao-points.js</code> に <code>collectDaoMembersForPage_(ss)</code> を新設し、DAOメンバーシート全行から <code>{nickname, totalPoints, recentPoints, lastActiveAt, status, weight}</code> を抽出（重み降順→直近pt降順→五十音順）。<code>getDaoProposalPageData()</code> の戻り値に <code>members</code> 配列と <code>stats.members</code>/<code>stats.eligibleMembers</code> を追加。<code>cocola-site/dao/index.html</code> に「DAOメンバー一覧」セクション追加：サマリ（総メンバー数／投票権あり／投票権なし／母数weight）＋「投票権あり」テーブル（ニックネーム／重み／直近6ヶ月pt／ステータス）＋「投票権なし」テーブル（折りたたみ）。ステータスバッジは <code>アクティブ</code>（緑）／<code>サポーター</code>（青）／<code>休眠</code>（茶）の3色。反映結果：総26人、全員アクティブ＝投票権あり、母数30.2。仕様: 最終活動6ヶ月以内→アクティブ（base weight 1.0）／6〜12ヶ月→サポーター（base 0.5）／12ヶ月以上 or null→休眠（weight 0）。シートから行は消えず、ステータスとweightが変わるのみ。新たな活動でポイント付与されれば自動でアクティブ復活。
