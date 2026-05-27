@@ -246,7 +246,7 @@
     </div>
 
     <!-- 目的 -->
-    <h2 class="section-title">CiDAO の目的</h2>
+    <h2 class="section-title" id="sec-purpose" data-cidao-section="CiDAOの目的">CiDAO の目的</h2>
     <div class="panel">
       <ol style="margin:0; padding-left:22px;">
         <li><strong>投票時の個人識別</strong>：マイナンバーカード（JPKI）認証＋Soulbound Token で他人のなりすまし防止</li>
@@ -256,7 +256,7 @@
     </div>
 
     <!-- フェーズ -->
-    <h2 class="section-title">5段階の開発フェーズ</h2>
+    <h2 class="section-title" id="sec-phases" data-cidao-section="5段階の開発フェーズ">5段階の開発フェーズ</h2>
 
     <div class="phase-grid">
       <div class="phase-card">
@@ -292,7 +292,7 @@
     </div>
 
     <!-- 累積予算 -->
-    <h2 class="section-title">想定累積予算</h2>
+    <h2 class="section-title" id="sec-budget" data-cidao-section="想定累積予算">想定累積予算</h2>
     <div class="panel">
       <table class="cost-table">
         <thead>
@@ -312,7 +312,7 @@
     </div>
 
     <!-- 外注必須 -->
-    <h2 class="section-title">外注必須項目（抜粋）</h2>
+    <h2 class="section-title" id="sec-outsourcing" data-cidao-section="外注必須項目">外注必須項目（抜粋）</h2>
     <div class="panel">
       <table>
         <thead>
@@ -337,7 +337,7 @@
     </div>
 
     <!-- 主要懸案 -->
-    <h2 class="section-title">主要懸案（リスクスコア順 上位10）</h2>
+    <h2 class="section-title" id="sec-risks" data-cidao-section="主要懸案">主要懸案（リスクスコア順 上位10）</h2>
     <div class="panel">
       <ul class="risk-list">
         <li><span class="risk-score rs-high">20</span><div><b>R-01 資金決済法 前払式支払手段該当</b><br><span style="color:var(--muted);font-size:0.85rem;">換金不可・2年失効設計＋関東財務局事前照会で対処</span></div></li>
@@ -355,7 +355,7 @@
     </div>
 
     <!-- 工程抜け補完 -->
-    <h2 class="section-title">通常開発工程との照合（抜け補完）</h2>
+    <h2 class="section-title" id="sec-process" data-cidao-section="通常開発工程との照合">通常開発工程との照合（抜け補完）</h2>
     <div class="panel">
       <p style="margin:0 0 10px;">通常の25工程と照合し、以下の抜けを補完しました：</p>
       <ol style="margin:0; padding-left:22px; font-size:0.92rem;">
@@ -379,7 +379,7 @@
     </div>
 
     <!-- 文書管理 -->
-    <h2 class="section-title">文書バージョン管理</h2>
+    <h2 class="section-title" id="sec-versioning" data-cidao-section="文書バージョン管理">文書バージョン管理</h2>
     <div class="panel">
       <table>
         <thead>
@@ -408,6 +408,262 @@
 
   </div>
 </main>
+
+<!-- ============================================
+     CiDAO ロードマップ コメント・調整履歴 機能
+     各セクション末尾に動的にコメント欄を挿入する
+     ============================================ -->
+<style>
+  .cidao-comment-area {
+    margin: 1.4rem 0 2rem;
+    padding: 1rem 1.2rem;
+    background: #f8fbf9;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: 0.9rem;
+  }
+  .cidao-comment-area h4 {
+    margin: 0 0 0.6rem;
+    color: var(--green-deep);
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .cidao-comment-area h4 .cidao-count {
+    background: var(--green);
+    color: white;
+    font-size: 0.7rem;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-weight: normal;
+  }
+  .cidao-comment-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  .cidao-comment-item {
+    padding: 0.65rem 0.2rem;
+    border-bottom: 1px dashed var(--line);
+  }
+  .cidao-comment-item:last-child { border-bottom: none; }
+  .cidao-comment-meta {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 0.3rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .cidao-comment-type {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+  .cidao-type-所見 { background: #e6f3ee; color: #12634e; }
+  .cidao-type-調整履歴 { background: #fff5d6; color: #8a6d12; }
+  .cidao-type-質問 { background: #fce4e0; color: #b8362b; }
+  .cidao-type-決定事項 { background: #e0e8ff; color: #3949ab; }
+  .cidao-comment-author { font-weight: 600; color: var(--ink); }
+  .cidao-comment-time { opacity: 0.75; }
+  .cidao-comment-body {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    line-height: 1.55;
+  }
+  .cidao-empty { color: var(--muted); font-style: italic; font-size: 0.85rem; padding: 0.4rem 0.2rem; }
+  .cidao-comment-form {
+    display: grid;
+    grid-template-columns: 140px 130px 1fr;
+    gap: 0.5rem;
+    align-items: start;
+    border-top: 1px solid var(--line);
+    padding-top: 0.8rem;
+  }
+  .cidao-comment-form textarea {
+    grid-column: 1 / -1;
+    min-height: 70px;
+    resize: vertical;
+  }
+  .cidao-comment-form input,
+  .cidao-comment-form select,
+  .cidao-comment-form textarea {
+    padding: 0.45rem 0.6rem;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    font-size: 0.88rem;
+    font-family: inherit;
+    background: white;
+  }
+  .cidao-comment-form button {
+    grid-column: 1 / -1;
+    justify-self: start;
+    background: var(--green);
+    color: white;
+    border: none;
+    padding: 0.55rem 1.4rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+  .cidao-comment-form button:hover { background: var(--green-deep); }
+  .cidao-comment-form button:disabled { background: var(--muted); cursor: not-allowed; }
+  @media (max-width: 600px) {
+    .cidao-comment-form { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+<script>
+(function(){
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbzVs_W57Iphxcc5PHShXBNae63CKqjF5fB82tUkQwaf1vyuNWWLgtWZgglY7Qbuuft1/exec';
+  const KIND_OPTIONS = ['所見', '調整履歴', '質問', '決定事項'];
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, m => (
+      { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m]
+    ));
+  }
+
+  function buildArea(sectionKey, sectionLabel) {
+    const area = document.createElement('div');
+    area.className = 'cidao-comment-area';
+    area.dataset.cidaoArea = sectionKey;
+    area.innerHTML = `
+      <h4>💬 メンバーコメント・調整履歴 <span class="cidao-count" data-count="${escapeHtml(sectionKey)}">…</span></h4>
+      <ul class="cidao-comment-list" data-list="${escapeHtml(sectionKey)}">
+        <li class="cidao-empty">読み込み中…</li>
+      </ul>
+      <form class="cidao-comment-form" data-form="${escapeHtml(sectionKey)}">
+        <input type="text" name="author" placeholder="投稿者名（必須）" required maxlength="60">
+        <select name="kind" required>
+          ${KIND_OPTIONS.map(k => `<option value="${k}">${k}</option>`).join('')}
+        </select>
+        <div></div>
+        <textarea name="body" placeholder="コメント・所見・調整履歴・質問・決定事項を入力（追記のみ・編集不可）" required maxlength="5000"></textarea>
+        <button type="submit">💾 投稿する</button>
+      </form>
+    `;
+    return area;
+  }
+
+  async function loadComments(sectionKey) {
+    const listEl = document.querySelector(`[data-list="${sectionKey}"]`);
+    const countEl = document.querySelector(`[data-count="${sectionKey}"]`);
+    if (!listEl) return;
+    try {
+      const url = `${GAS_URL}?mode=cidaoRoadmapComment&action=list&section=${encodeURIComponent(sectionKey)}`;
+      const res = await fetch(url);
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || 'unknown');
+      const comments = (json.comments || []).slice().sort((a, b) =>
+        String(b.timestamp || '').localeCompare(String(a.timestamp || ''))
+      );
+      if (countEl) countEl.textContent = comments.length;
+      if (comments.length === 0) {
+        listEl.innerHTML = '<li class="cidao-empty">まだコメントはありません。最初の投稿を残してみましょう。</li>';
+        return;
+      }
+      listEl.innerHTML = '';
+      comments.forEach(c => {
+        const li = document.createElement('li');
+        li.className = 'cidao-comment-item';
+        const kind = c.kind || '所見';
+        li.innerHTML = `
+          <div class="cidao-comment-meta">
+            <span class="cidao-comment-type cidao-type-${escapeHtml(kind)}">${escapeHtml(kind)}</span>
+            <span class="cidao-comment-author">${escapeHtml(c.author || '匿名')}</span>
+            <span class="cidao-comment-time">${escapeHtml(c.timestamp || '')}</span>
+          </div>
+          <div class="cidao-comment-body">${escapeHtml(c.body || '')}</div>
+        `;
+        listEl.appendChild(li);
+      });
+    } catch (err) {
+      listEl.innerHTML = `<li class="cidao-empty">読み込みエラー：${escapeHtml(err.message || err)}</li>`;
+      if (countEl) countEl.textContent = '?';
+    }
+  }
+
+  // 各セクション直後にコメント欄を挿入
+  function init() {
+    const headings = document.querySelectorAll('h2.section-title[data-cidao-section]');
+    headings.forEach(h => {
+      const sectionKey = h.dataset.cidaoSection;
+      // h2 の直後の panel/div の後にコメント欄を入れたい。
+      // 同じ親内の次の section-title または最後まで進む
+      let next = h.nextElementSibling;
+      let lastBeforeNext = h;
+      while (next) {
+        if (next.matches && next.matches('h2.section-title')) break;
+        lastBeforeNext = next;
+        next = next.nextElementSibling;
+      }
+      const area = buildArea(sectionKey, sectionKey);
+      lastBeforeNext.parentNode.insertBefore(area, lastBeforeNext.nextSibling);
+    });
+    // 初回ロード
+    headings.forEach(h => loadComments(h.dataset.cidaoSection));
+
+    // sessionStorage に投稿者名を保存して次回自動補完
+    const savedAuthor = sessionStorage.getItem('cidao_last_author') || '';
+    document.querySelectorAll('.cidao-comment-form input[name="author"]').forEach(inp => {
+      if (savedAuthor) inp.value = savedAuthor;
+    });
+  }
+
+  // 投稿処理
+  document.addEventListener('submit', async (e) => {
+    const form = e.target.closest('.cidao-comment-form');
+    if (!form) return;
+    e.preventDefault();
+    const sectionKey = form.dataset.form;
+    const author = form.author.value.trim();
+    const kind = form.kind.value;
+    const body = form.body.value.trim();
+    if (!author) { alert('投稿者名を入力してください'); return; }
+    if (!body) { alert('本文を入力してください'); return; }
+    const btn = form.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.textContent = '送信中…';
+    try {
+      const fd = new FormData();
+      fd.append('mode', 'cidaoRoadmapComment');
+      fd.append('action', 'submit');
+      fd.append('section', sectionKey);
+      fd.append('author', author);
+      fd.append('kind', kind);
+      fd.append('body', body);
+      const res = await fetch(GAS_URL, { method: 'POST', body: fd });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || 'unknown');
+      sessionStorage.setItem('cidao_last_author', author);
+      form.body.value = '';
+      btn.textContent = '✅ 投稿しました';
+      await loadComments(sectionKey);
+      setTimeout(() => { btn.textContent = '💾 投稿する'; btn.disabled = false; }, 1400);
+      // 他のフォームの author も同期
+      document.querySelectorAll('.cidao-comment-form input[name="author"]').forEach(inp => {
+        if (!inp.value) inp.value = author;
+      });
+    } catch (err) {
+      btn.textContent = `❌ エラー：${err.message || err}`;
+      setTimeout(() => { btn.textContent = '💾 投稿する'; btn.disabled = false; }, 2000);
+    }
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
 
 </body>
 </html>
