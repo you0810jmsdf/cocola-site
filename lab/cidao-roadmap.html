@@ -245,6 +245,26 @@
       <b>📌 注意：</b>本ロードマップは草案（v1.0 draft）です。期間・コストは想定値であり、確定値ではありません。法務監修・行政協議の結果により変更されます。
     </div>
 
+    <!-- セクション目次 -->
+    <nav id="cidao-toc" class="cidao-toc">
+      <div class="cidao-toc-header">
+        <strong>📑 セクション目次</strong>
+        <div class="cidao-toc-actions">
+          <button type="button" id="cidao-expand-all">💬 コメントを全て開く</button>
+          <button type="button" id="cidao-collapse-all">📕 コメントを全て閉じる</button>
+        </div>
+      </div>
+      <ol class="cidao-toc-list">
+        <li><a href="#sec-purpose">CiDAO の目的</a></li>
+        <li><a href="#sec-phases">5段階の開発フェーズ</a></li>
+        <li><a href="#sec-budget">想定累積予算</a></li>
+        <li><a href="#sec-outsourcing">外注必須項目（抜粋）</a></li>
+        <li><a href="#sec-risks">主要懸案（リスクスコア順 上位10）</a></li>
+        <li><a href="#sec-process">通常開発工程との照合（抜け補完）</a></li>
+        <li><a href="#sec-versioning">文書バージョン管理</a></li>
+      </ol>
+    </nav>
+
     <!-- 目的 -->
     <h2 class="section-title" id="sec-purpose" data-cidao-section="CiDAOの目的">CiDAO の目的</h2>
     <div class="panel">
@@ -410,33 +430,102 @@
 </main>
 
 <!-- ============================================
-     CiDAO ロードマップ コメント・調整履歴 機能
-     各セクション末尾に動的にコメント欄を挿入する
+     CiDAO ロードマップ 目次＋コメント・調整履歴 機能
      ============================================ -->
 <style>
+  /* セクション目次 */
+  .cidao-toc {
+    background: linear-gradient(135deg, #ffffff 0%, var(--green-soft) 100%);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    margin: 1.4rem 0 2rem;
+    font-size: 0.9rem;
+  }
+  .cidao-toc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: 0.7rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .cidao-toc-header strong {
+    color: var(--green-deep);
+    font-size: 1rem;
+  }
+  .cidao-toc-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .cidao-toc-actions button {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 0.35rem 0.7rem;
+    cursor: pointer;
+    font-size: 0.78rem;
+    color: var(--green-deep);
+  }
+  .cidao-toc-actions button:hover { background: var(--green-soft); border-color: var(--green); }
+  .cidao-toc-list {
+    margin: 0;
+    padding: 0 0 0 1.4rem;
+    columns: 2;
+    column-gap: 1.5rem;
+  }
+  .cidao-toc-list li { margin-bottom: 0.35rem; break-inside: avoid; }
+  .cidao-toc-list a {
+    color: var(--green-deep);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--green);
+  }
+  .cidao-toc-list a:hover { background: var(--green-soft); }
+  @media (max-width: 600px) {
+    .cidao-toc-list { columns: 1; }
+  }
+
+  /* コメント欄（details要素ベース） */
   .cidao-comment-area {
     margin: 1.4rem 0 2rem;
-    padding: 1rem 1.2rem;
     background: #f8fbf9;
     border: 1px solid var(--line);
     border-radius: 10px;
     font-size: 0.9rem;
   }
-  .cidao-comment-area h4 {
-    margin: 0 0 0.6rem;
+  .cidao-comment-area summary {
+    cursor: pointer;
+    padding: 0.75rem 1.2rem;
+    list-style: none;
+    user-select: none;
     color: var(--green-deep);
     font-size: 0.95rem;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+    border-radius: 10px;
   }
-  .cidao-comment-area h4 .cidao-count {
+  .cidao-comment-area summary::-webkit-details-marker { display: none; }
+  .cidao-comment-area summary::before {
+    content: '▶';
+    font-size: 0.75rem;
+    transition: transform 0.2s;
+    color: var(--green);
+  }
+  .cidao-comment-area[open] summary::before { transform: rotate(90deg); }
+  .cidao-comment-area summary:hover { background: var(--green-soft); }
+  .cidao-comment-area .cidao-body-wrap {
+    padding: 0 1.2rem 1rem;
+  }
+  .cidao-comment-area .cidao-count {
     background: var(--green);
     color: white;
     font-size: 0.7rem;
     padding: 1px 8px;
     border-radius: 10px;
     font-weight: normal;
+  }
+  .cidao-comment-area .cidao-count-zero {
+    background: var(--muted);
   }
   .cidao-comment-list {
     list-style: none;
@@ -531,23 +620,31 @@
   }
 
   function buildArea(sectionKey, sectionLabel) {
-    const area = document.createElement('div');
+    const area = document.createElement('details');
     area.className = 'cidao-comment-area';
     area.dataset.cidaoArea = sectionKey;
+    // sessionStorage に開閉状態を保存
+    const openKey = 'cidao_open_' + sectionKey;
+    if (sessionStorage.getItem(openKey) === '1') area.open = true;
+    area.addEventListener('toggle', () => {
+      sessionStorage.setItem(openKey, area.open ? '1' : '0');
+    });
     area.innerHTML = `
-      <h4>💬 メンバーコメント・調整履歴 <span class="cidao-count" data-count="${escapeHtml(sectionKey)}">…</span></h4>
-      <ul class="cidao-comment-list" data-list="${escapeHtml(sectionKey)}">
-        <li class="cidao-empty">読み込み中…</li>
-      </ul>
-      <form class="cidao-comment-form" data-form="${escapeHtml(sectionKey)}">
-        <input type="text" name="author" placeholder="投稿者名（必須）" required maxlength="60">
-        <select name="kind" required>
-          ${KIND_OPTIONS.map(k => `<option value="${k}">${k}</option>`).join('')}
-        </select>
-        <div></div>
-        <textarea name="body" placeholder="コメント・所見・調整履歴・質問・決定事項を入力（追記のみ・編集不可）" required maxlength="5000"></textarea>
-        <button type="submit">💾 投稿する</button>
-      </form>
+      <summary>💬 メンバーコメント・調整履歴 <span class="cidao-count cidao-count-zero" data-count="${escapeHtml(sectionKey)}">…</span></summary>
+      <div class="cidao-body-wrap">
+        <ul class="cidao-comment-list" data-list="${escapeHtml(sectionKey)}">
+          <li class="cidao-empty">読み込み中…</li>
+        </ul>
+        <form class="cidao-comment-form" data-form="${escapeHtml(sectionKey)}">
+          <input type="text" name="author" placeholder="投稿者名（必須）" required maxlength="60">
+          <select name="kind" required>
+            ${KIND_OPTIONS.map(k => `<option value="${k}">${k}</option>`).join('')}
+          </select>
+          <div></div>
+          <textarea name="body" placeholder="コメント・所見・調整履歴・質問・決定事項を入力（追記のみ・編集不可）" required maxlength="5000"></textarea>
+          <button type="submit">💾 投稿する</button>
+        </form>
+      </div>
     `;
     return area;
   }
@@ -564,7 +661,11 @@
       const comments = (json.comments || []).slice().sort((a, b) =>
         String(b.timestamp || '').localeCompare(String(a.timestamp || ''))
       );
-      if (countEl) countEl.textContent = comments.length;
+      if (countEl) {
+        countEl.textContent = comments.length;
+        if (comments.length > 0) countEl.classList.remove('cidao-count-zero');
+        else countEl.classList.add('cidao-count-zero');
+      }
       if (comments.length === 0) {
         listEl.innerHTML = '<li class="cidao-empty">まだコメントはありません。最初の投稿を残してみましょう。</li>';
         return;
@@ -615,6 +716,34 @@
     document.querySelectorAll('.cidao-comment-form input[name="author"]').forEach(inp => {
       if (savedAuthor) inp.value = savedAuthor;
     });
+
+    // 「全て開く / 全て閉じる」ボタン
+    const expandBtn = document.getElementById('cidao-expand-all');
+    const collapseBtn = document.getElementById('cidao-collapse-all');
+    if (expandBtn) expandBtn.addEventListener('click', () => {
+      document.querySelectorAll('.cidao-comment-area').forEach(a => {
+        a.open = true;
+        sessionStorage.setItem('cidao_open_' + a.dataset.cidaoArea, '1');
+      });
+    });
+    if (collapseBtn) collapseBtn.addEventListener('click', () => {
+      document.querySelectorAll('.cidao-comment-area').forEach(a => {
+        a.open = false;
+        sessionStorage.setItem('cidao_open_' + a.dataset.cidaoArea, '0');
+      });
+    });
+
+    // 目次リンクをクリックしたらそのセクションのコメント欄を自動展開（任意挙動：閉じる派の人が嫌がる可能性あるので無効化）
+    // 必要な場合は下記を有効化
+    // document.querySelectorAll('.cidao-toc-list a').forEach(a => {
+    //   a.addEventListener('click', () => {
+    //     const targetId = a.getAttribute('href').replace('#', '');
+    //     const h2 = document.getElementById(targetId);
+    //     if (!h2) return;
+    //     const next = h2.nextElementSibling;
+    //     // ... 必要なら自動展開ロジックを書く
+    //   });
+    // });
   }
 
   // 投稿処理

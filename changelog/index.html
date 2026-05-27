@@ -118,6 +118,18 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-27</p>
+            <h2 class="cl-title"><strong>CiDAO ロードマップにセクション目次＋コメント折りたたみ機能を追加</strong>（UX改善）</h2>
+            <p class="cl-desc">
+              コメント蓄積による可読性低下を解消するため、<strong>セクション目次（TOC）</strong> をページ上部に新設し、各セクションのコメント欄を <strong><code>&lt;details&gt;</code> ベースの折りたたみ式</strong>に変更。<strong>セクション目次</strong>: 7セクション全てを2カラム配置（モバイルは1カラム）でアンカーリンク表示、ジャンプ可能。さらに「💬 コメントを全て開く」「📕 コメントを全て閉じる」ボタンを目次右側に配置し、一括操作可能に。<strong>コメント折りたたみ</strong>: 各セクション末尾の「💬 メンバーコメント・調整履歴 (N件)」の summary をクリックで開閉。デフォルトは閉じた状態で、件数バッジは0件時にグレー・1件以上で緑色に変化し存在を可視化。<strong>開閉状態の記憶</strong>: 各セクションの開閉状態を <code>sessionStorage</code>（キー: <code>cidao_open_&lt;section&gt;</code>）に保存し、ページ内移動・リロードでも維持。<strong>UI仕様</strong>: summary は緑色のチェブロン（▶/▼）アニメーション付き、ホバーで背景がグリーンソフトに変化。目次パネルは <code>linear-gradient(135deg,#fff,green-soft)</code> の柔らかい背景＋ドット下線リンクで視認性向上。これにより、サマリ本文を「読む」状態とコメント・調整履歴を「議論する」状態を明確に切り分け、長期運用でもページが過度に伸びない。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--improve">UX改善</span>
+              <span class="tag tag--improve">情報整理</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-27</p>
             <h2 class="cl-title"><strong>CiDAO ロードマップ各セクションにコメント・調整履歴機能を追加</strong>（GAS v200 @366）</h2>
             <p class="cl-desc">
               <code>lab/cidao-roadmap.html</code> の7セクション（CiDAOの目的／5段階の開発フェーズ／想定累積予算／外注必須項目／主要懸案／通常開発工程との照合／文書バージョン管理）にメンバーのコメント・調整履歴を残せる機能を実装。<strong>4種類のラベル</strong>（所見・調整履歴・質問・決定事項）でカテゴライズし、それぞれ専用色で表示。投稿者名は自由入力（<code>sessionStorage</code> に直近の入力を保存して次回自動補完）、追記のみ（編集・削除不可）で履歴を完全保全。<strong>GAS側</strong>: <code>cocola_topics_clasp_sync</code> に <code>mode=cidaoRoadmapComment</code> エンドポイントを新設（<code>doGet</code> の <code>action=list</code> でセクション別取得、<code>doPost</code>＋<code>action=submit</code> で投稿）。スプレッドシートに「CiDAOロードマップコメント」シートを自動作成（列：timestamp / section / author / kind / body / visible）。本文は5,000文字まで、投稿者名60文字まで、XSS対策のためHTMLエスケープを徹底。<strong>UI</strong>: 各セクション末尾に投稿件数バッジ・コメント一覧（新しい順、最大320pxスクロール）・投稿フォーム（投稿者名・種別ドロップダウン・本文・投稿ボタン）を配置。レスポンシブ対応（600px以下で2列レイアウト）。<strong>GASデプロイ</strong>: v200 @366 として cocola_topics に反映済み。
