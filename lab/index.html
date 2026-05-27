@@ -215,7 +215,9 @@
       align-items: center;
       justify-content: center;
     }
-    .qr-box img, .qr-box canvas { width: 100%; height: 100%; }
+    .qr-box img, .qr-box canvas { width: 100%; height: 100%; display: block; }
+    #qrTarget { width: 160px; height: 160px; }
+    #qrTarget img, #qrTarget canvas { width: 160px !important; height: 160px !important; }
     .qr-text { flex: 1; min-width: 240px; font-size: 0.88rem; }
     .qr-text code {
       background: var(--wash);
@@ -409,7 +411,7 @@
         <p class="desc">下のQRをスマホで読み取り、実機での操作感・視認性を確認してください。</p>
         <div class="qr-row">
           <div class="qr-box">
-            <canvas id="qrCanvas" width="180" height="180"></canvas>
+            <div id="qrTarget"></div>
           </div>
           <div class="qr-text">
             <p style="margin:0 0 8px;">公開URL：</p>
@@ -485,8 +487,8 @@
     </div>
   </main>
 
-  <!-- QRコード生成（軽量ライブラリ） -->
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+  <!-- QRコード生成（davidshim qrcodejs） -->
+  <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
   <script>
     // ───────── 設定 ─────────
     const LAB_GAS_URL = "https://script.google.com/macros/s/AKfycbzVs_W57Iphxcc5PHShXBNae63CKqjF5fB82tUkQwaf1vyuNWWLgtWZgglY7Qbuuft1/exec";
@@ -519,9 +521,18 @@
     }
 
     // ───────── QRコード生成 ─────────
-    const qrCanvas = document.getElementById("qrCanvas");
-    if (window.QRCode && qrCanvas) {
-      QRCode.toCanvas(qrCanvas, PUBLIC_URL, { width: 180, margin: 1, color: { dark: "#12634e", light: "#ffffff" } });
+    const qrTarget = document.getElementById("qrTarget");
+    if (window.QRCode && qrTarget) {
+      new QRCode(qrTarget, {
+        text: PUBLIC_URL,
+        width: 160,
+        height: 160,
+        colorDark: "#12634e",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    } else if (qrTarget) {
+      qrTarget.textContent = "QRライブラリ読込失敗";
     }
 
     // ───────── コメント機能 ─────────
