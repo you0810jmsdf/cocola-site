@@ -595,6 +595,56 @@
       font-weight: 700;
     }
 
+    .type-tabs {
+      display: flex;
+      gap: 4px;
+      margin: 22px 0 6px;
+      border-bottom: 2px solid var(--line);
+      flex-wrap: wrap;
+    }
+
+    .type-tab {
+      min-height: 44px;
+      padding: 10px 18px;
+      border: 1px solid var(--line);
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      background: #f0f4f2;
+      color: var(--muted);
+      font: inherit;
+      font-size: 0.98rem;
+      font-weight: 600;
+      cursor: pointer;
+      position: relative;
+      top: 2px;
+    }
+
+    .type-tab.is-active {
+      background: var(--paper);
+      color: var(--green-deep);
+      border-color: var(--green);
+      border-bottom: 2px solid var(--paper);
+      font-weight: 700;
+    }
+
+    .type-tab-note {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .pill.pill-type-dantai {
+      background: #fff4e1;
+      color: #8a5a00;
+      border-color: #f0d6a3;
+    }
+
+    .pill.pill-type-gyousei {
+      background: #e2f1f7;
+      color: #1f5f78;
+      border-color: #b8dbe7;
+    }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1186,6 +1236,12 @@
       </details>
 
       <section aria-label="提案一覧">
+        <div class="type-tabs" role="tablist" aria-label="提案の種別">
+          <button class="type-tab is-active" type="button" role="tab" data-type-filter="gyousei">行政につなぐ</button>
+          <button class="type-tab" type="button" role="tab" data-type-filter="dantai">団体方針</button>
+          <button class="type-tab" type="button" role="tab" data-type-filter="all">すべて</button>
+        </div>
+        <p class="type-tab-note" id="typeTabNote">市民に関わる提案（行政連携・地域活動）を表示中。団体内部の運営方針は「団体方針」タブから。</p>
         <div class="toolbar">
           <h2>提案一覧</h2>
           <div class="filters" role="list" aria-label="絞り込み">
@@ -1288,11 +1344,27 @@
 
     var state = {
       filter: 'all',
+      typeFilter: 'gyousei',
       data: { stats: {}, proposals: [], eligibleWeight: 0 },
       loaded: false,
       cacheStale: false,
       nicknameHash: '',
     };
+
+    // data.json に proposalType が乗るまでの暫定フォールバック。
+    // GAS側の区分列が反映され次第、このマップは効力を失う（proposalType を優先）。
+    var FALLBACK_DANTAI_IDS = { 'P0176': 1, 'P0123': 1, 'P0122': 1, 'P0066': 1 };
+
+    function resolveProposalType(proposal) {
+      if (!proposal) return 'gyousei';
+      if (proposal.proposalType === 'dantai') return 'dantai';
+      if (proposal.proposalType === 'gyousei') return 'gyousei';
+      return FALLBACK_DANTAI_IDS[proposal.id] ? 'dantai' : 'gyousei';
+    }
+
+    function proposalTypeLabel(typeKey) {
+      return typeKey === 'dantai' ? '団体方針' : '行政につなぐ';
+    }
 
     var grid = document.getElementById('proposalGrid');
     var empty = document.getElementById('empty');
@@ -1385,6 +1457,10 @@
           '<span class="status ' + statusClass(proposal.statusKey) + '">' + escapeHtml(proposal.status) + '</span>' +
         '</div>' +
         '<div class="meta">' +
+          (function() {
+            var t = resolveProposalType(proposal);
+            return '<span class="pill pill-type-' + t + '">' + escapeHtml(proposalTypeLabel(t)) + '</span>';
+          })() +
           '<span class="pill">' + escapeHtml(proposal.category) + '</span>' +
           '<span class="pill">提案者: ' + escapeHtml(proposal.proposer) + '</span>' +
           (proposal.submittedAt ? '<span class="pill">' + escapeHtml(proposal.submittedAt) + '</span>' : '') +
@@ -1429,9 +1505,18 @@
       var proposals = state.data.proposals || [];
       var cancelled = getCancelledIds();
       var visible = proposals.filter(function(p) {
-        return !cancelled[p.id] && (state.filter === 'all' || p.statusKey === state.filter);
+        if (cancelled[p.id]) return false;
+        if (state.filter !== 'all' && p.statusKey !== state.filter) return false;
+        if (state.typeFilter !== 'all' && resolveProposalType(p) !== state.typeFilter) return false;
+        return true;
       });
       grid.innerHTML = visible.map(renderProposal).join('');
+      if (visible.length === 0) {
+        var emptyMsg = '該当する提案はありません。';
+        if (state.typeFilter === 'gyousei') emptyMsg = '「行政につなぐ」提案は現在ありません。「すべて」タブもご確認ください。';
+        if (state.typeFilter === 'dantai') emptyMsg = '「団体方針」提案は現在ありません。';
+        empty.textContent = emptyMsg;
+      }
       empty.hidden = visible.length > 0;
       renderUpdated();
 
@@ -1520,6 +1605,25 @@
           document.querySelectorAll('.filter').forEach(function(item) {
             item.classList.toggle('is-active', item === button);
           });
+          renderProposals();
+        });
+      });
+      var typeTabNote = document.getElementById('typeTabNote');
+      document.querySelectorAll('.type-tab').forEach(function(button) {
+        button.addEventListener('click', function() {
+          state.typeFilter = button.dataset.typeFilter;
+          document.querySelectorAll('.type-tab').forEach(function(item) {
+            item.classList.toggle('is-active', item === button);
+          });
+          if (typeTabNote) {
+            if (state.typeFilter === 'gyousei') {
+              typeTabNote.textContent = '市民に関わる提案（行政連携・地域活動）を表示中。団体内部の運営方針は「団体方針」タブから。';
+            } else if (state.typeFilter === 'dantai') {
+              typeTabNote.textContent = 'COCoLa団体の運営方針に関する提案を表示中（Tシャツ・出店・PR等）。市民向けの提案は「行政につなぐ」タブから。';
+            } else {
+              typeTabNote.textContent = '行政につなぐ提案と団体方針の両方を表示中。';
+            }
+          }
           renderProposals();
         });
       });
