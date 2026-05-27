@@ -1313,12 +1313,10 @@
   <div class="modal-box">
     <h3>投票する</h3>
     <p>提案: <strong id="voteModalTitle"></strong></p>
-    <label class="modal-label">
-      ニックネームを選択
-      <select class="modal-select" id="voteNicknameSelect">
-        <option value="">-- 選択してください --</option>
-      </select>
-    </label>
+    <label class="modal-label" for="voteNicknameSelect">ニックネームを選択</label>
+    <select class="modal-select" id="voteNicknameSelect" autocomplete="off">
+      <option value="">-- 選択してください --</option>
+    </select>
     <div class="vote-choices" id="voteChoices">
       <p class="modal-label">投票内容</p>
       <div class="vote-choice-btns">
