@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CiDAO 開発ロードマップ サマリ | COCoLa 研究室</title>
+  <meta name="description" content="印西市全市民向け市民DAO（CiDAO）と地域通貨の開発ロードマップ・外注計画・懸案事項のサマリです。">
+  <meta name="theme-color" content="#1d8f6f">
+  <link rel="icon" type="image/png" href="../assets/COCoLa_Logo_transparent.png">
+  <style>
+    :root {
+      --ink: #1e2522;
+      --muted: #66736e;
+      --line: #d8e1dc;
+      --paper: #ffffff;
+      --wash: #f5f8f6;
+      --green: #1d8f6f;
+      --green-deep: #12634e;
+      --green-soft: #e6f3ee;
+      --coral: #d4544a;
+      --yellow: #d5a628;
+      --cyan: #2f7f9a;
+      --violet: #6d79d8;
+      --shadow: 0 8px 24px rgba(29, 54, 45, 0.10);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--wash);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+    a { color: var(--green-deep); }
+    .site-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 18px;
+      background: var(--paper);
+      border-bottom: 1px solid var(--line);
+    }
+    .back-link {
+      display: inline-flex;
+      gap: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--green-deep);
+      text-decoration: none;
+    }
+    .back-link:hover { text-decoration: underline; }
+    .header-title { margin: 0; font-size: 1rem; font-weight: 700; }
+    .page { min-height: calc(100vh - 49px); padding: 28px 18px 80px; }
+    .shell { width: min(960px, 100%); margin: 0 auto; }
+
+    .hero {
+      background: linear-gradient(135deg, #ffffff 0%, var(--green-soft) 100%);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 32px 28px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--green-deep);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.4rem);
+      line-height: 1.25;
+    }
+    .lead { margin: 0; color: var(--muted); font-size: 1rem; max-width: 760px; }
+
+    .section-title {
+      margin: 36px 0 12px;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+    }
+    .section-title::before {
+      content: "";
+      width: 4px;
+      height: 20px;
+      background: var(--green);
+      border-radius: 2px;
+    }
+    .panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 22px 24px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+    }
+    .panel h2 { margin: 0 0 10px; font-size: 1.05rem; color: var(--green-deep); }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 10px 0;
+      font-size: 0.9rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: var(--green-soft);
+      color: var(--green-deep);
+      font-weight: 700;
+    }
+
+    .phase-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin: 14px 0;
+    }
+    .phase-card {
+      background: var(--wash);
+      border-left: 4px solid var(--green);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .phase-card .ph-num {
+      font-size: 0.75rem;
+      color: var(--green-deep);
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .phase-card h3 { margin: 4px 0 6px; font-size: 0.98rem; }
+    .phase-card .period { color: var(--muted); font-size: 0.8rem; margin-bottom: 6px; }
+    .phase-card p { margin: 0; font-size: 0.85rem; }
+
+    .risk-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .risk-list li {
+      padding: 8px 0;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .risk-list li:last-child { border-bottom: none; }
+    .risk-score {
+      flex-shrink: 0;
+      width: 38px;
+      text-align: center;
+      font-weight: 700;
+      padding: 2px 0;
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+    .rs-high { background: #fde6e3; color: var(--coral); }
+    .rs-mid { background: #fef5d8; color: #8a6817; }
+    .rs-low { background: var(--green-soft); color: var(--green-deep); }
+
+    .cost-table th:last-child, .cost-table td:last-child { text-align: right; }
+    .cost-table tfoot td { background: var(--green-soft); font-weight: 700; }
+
+    .caution {
+      background: #fef5d8;
+      border-left: 4px solid var(--yellow);
+      border-radius: 6px;
+      padding: 12px 14px;
+      font-size: 0.88rem;
+      margin: 14px 0;
+    }
+    .caution b { color: #8a6817; }
+
+    .meta-line {
+      background: var(--wash);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 24px;
+    }
+    .meta-line b { color: var(--ink); }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="back-link" href="./">← 研究室TOP</a>
+  <h1 class="header-title">📋 CiDAO 開発ロードマップ サマリ</h1>
+</header>
+
+<main class="page">
+  <div class="shell">
+
+    <!-- ヒーロー -->
+    <section class="hero">
+      <p class="eyebrow">CIDAO / CITIZEN DAO · 印西市民DAO構想</p>
+      <h1>全印西市民が参加する<br>市民DAOと地域通貨を、5年で実装する</h1>
+      <p class="lead">
+        本ページは CiDAO（Citizen DAO）開発の <strong>公開サマリ</strong> です。
+        完全な仕様書・外注計画・懸案事項管理表はローカル文書で管理しています。
+      </p>
+    </section>
+
+    <div class="caution">
+      <b>📌 注意：</b>本ロードマップは草案（v1.0 draft）です。期間・コストは想定値であり、確定値ではありません。法務監修・行政協議の結果により変更されます。
+    </div>
+
+    <!-- 目的 -->
+    <h2 class="section-title">CiDAO の目的</h2>
+    <div class="panel">
+      <ol style="margin:0; padding-left:22px;">
+        <li><strong>投票時の個人識別</strong>：マイナンバーカード（JPKI）認証＋Soulbound Token で他人のなりすまし防止</li>
+        <li><strong>地域通貨の導入</strong>：投票・活動参加で「COCoLa Coin（仮称）」を獲得、加盟店で利用可能</li>
+        <li><strong>段階展開</strong>：COCoLa会員 → 印西市民希望者 → 印西市民全員（94,000名）の3段階</li>
+      </ol>
+    </div>
+
+    <!-- フェーズ -->
+    <h2 class="section-title">5段階の開発フェーズ</h2>
+
+    <div class="phase-grid">
+      <div class="phase-card">
+        <div class="ph-num">PHASE 0</div>
+        <h3>実証実験準備</h3>
+        <p class="period">2026/04 〜 2026/06</p>
+        <p>モックアップ視認性確認、地域ポイント設計、関係者ヒアリング</p>
+      </div>
+      <div class="phase-card">
+        <div class="ph-num">PHASE 1</div>
+        <h3>COCoLa会員 PoC</h3>
+        <p class="period">2026/07 〜 2026/12</p>
+        <p>PWA化＋仮想ポイント、会員100名で動作検証、加盟店3店試験</p>
+      </div>
+      <div class="phase-card">
+        <div class="ph-num">PHASE 2</div>
+        <h3>希望市民 β</h3>
+        <p class="period">2027/01 〜 2027/06</p>
+        <p>JPKI 認証導入、SBT 発行（Soneium L2）、希望市民1,000名規模</p>
+      </div>
+      <div class="phase-card">
+        <div class="ph-num">PHASE 3</div>
+        <h3>通貨発行・加盟店連携</h3>
+        <p class="period">2027/07 〜 2027/12</p>
+        <p>ERC-20 通貨デプロイ、一般社団化、加盟店20店、月間100万円流通</p>
+      </div>
+      <div class="phase-card">
+        <div class="ph-num">PHASE 4</div>
+        <h3>全印西市民展開</h3>
+        <p class="period">2028/01 〜</p>
+        <p>印西市協定締結、住基連動、94,000名スケール対応、行政連携</p>
+      </div>
+    </div>
+
+    <!-- 累積予算 -->
+    <h2 class="section-title">想定累積予算</h2>
+    <div class="panel">
+      <table class="cost-table">
+        <thead>
+          <tr><th>Phase</th><th>主要外注内容</th><th>累積予算</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Phase 0</td><td>法律相談・モックアップ</td><td>5万円</td></tr>
+          <tr><td>Phase 1</td><td>PWA開発・試験運用</td><td>35万円</td></tr>
+          <tr><td>Phase 2</td><td>JPKI契約・SBT・モバイル・監査</td><td>約1,000万円</td></tr>
+          <tr><td>Phase 3</td><td>通貨開発・POS連携・法人化・営業</td><td>約3,000万円</td></tr>
+          <tr><td>Phase 4 初年</td><td>PR・広報・多言語・監視運用</td><td>約1.3億円</td></tr>
+        </tbody>
+        <tfoot>
+          <tr><td colspan="2">5年累計</td><td>約 1.5〜2 億円</td></tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- 外注必須 -->
+    <h2 class="section-title">外注必須項目（抜粋）</h2>
+    <div class="panel">
+      <table>
+        <thead>
+          <tr><th>項目</th><th>時期</th><th>費用目安</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>JPKI 署名検証者契約（xID 等）</td><td>2027/01</td><td>初期200万＋月20万</td></tr>
+          <tr><td>SBT スマートコントラクト開発</td><td>2027/02</td><td>300〜500万円</td></tr>
+          <tr><td>スマートコントラクト監査</td><td>2027/03, 2027/10</td><td>100〜300万/回</td></tr>
+          <tr><td>モバイルアプリ開発（Capacitor）</td><td>2027/03</td><td>300〜500万円</td></tr>
+          <tr><td>ERC-20 通貨コントラクト開発</td><td>2027/09</td><td>200〜400万円</td></tr>
+          <tr><td>法務顧問契約</td><td>2026/Q3〜継続</td><td>月10〜30万円</td></tr>
+          <tr><td>セキュリティ脆弱性診断</td><td>年2回</td><td>100〜300万/回</td></tr>
+          <tr><td>UI/UX デザイナー</td><td>Phase 1〜</td><td>月50〜100万円</td></tr>
+          <tr><td>司法書士（法人設立）</td><td>2027/07</td><td>30〜50万円</td></tr>
+          <tr><td>税理士契約</td><td>2027/08〜継続</td><td>月3〜10万円</td></tr>
+          <tr><td>PR・広報代理店</td><td>2028/01〜</td><td>月100〜300万円</td></tr>
+          <tr><td>多言語翻訳（4言語）</td><td>Phase 4 頭</td><td>100〜200万円</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.82rem;color:var(--muted);margin:8px 0 0;">※ 完全リストは外注計画 v1.0 文書（18項目）にあり。</p>
+    </div>
+
+    <!-- 主要懸案 -->
+    <h2 class="section-title">主要懸案（リスクスコア順 上位10）</h2>
+    <div class="panel">
+      <ul class="risk-list">
+        <li><span class="risk-score rs-high">20</span><div><b>R-01 資金決済法 前払式支払手段該当</b><br><span style="color:var(--muted);font-size:0.85rem;">換金不可・2年失効設計＋関東財務局事前照会で対処</span></div></li>
+        <li><span class="risk-score rs-high">15</span><div><b>R-02 公職選挙法・地方自治法との整合</b><br><span style="color:var(--muted);font-size:0.85rem;">「諮問的市民投票」と明確に位置づけ、選管へ事前説明</span></div></li>
+        <li><span class="risk-score rs-high">15</span><div><b>R-03 印西市との協定不成立</b><br><span style="color:var(--muted);font-size:0.85rem;">2026/Q2 から段階的協議。Plan B として民間運営継続</span></div></li>
+        <li><span class="risk-score rs-mid">12</span><div><b>R-05 マイナカード未所持者（25%）の排除</b><br><span style="color:var(--muted);font-size:0.85rem;">市役所窓口・自治会連帯保証・郵送ハガキの3経路を設計</span></div></li>
+        <li><span class="risk-score rs-mid">12</span><div><b>R-08 高齢者のデジタルデバイド</b><br><span style="color:var(--muted);font-size:0.85rem;">公民館スマホ教室・家族代理操作機能・紙投票券併用</span></div></li>
+        <li><span class="risk-score rs-mid">12</span><div><b>R-11 市議会の反対</b><br><span style="color:var(--muted);font-size:0.85rem;">議員個別説明、勉強会、補完的ツールとしての位置づけ</span></div></li>
+        <li><span class="risk-score rs-mid">12</span><div><b>R-13 DAO「偽物批判」への対応</b><br><span style="color:var(--muted);font-size:0.85rem;">スマコン公開・学術発表・「ハイブリッドDAO」明示</span></div></li>
+        <li><span class="risk-score rs-mid">12</span><div><b>R-15 加盟店参加率低迷</b><br><span style="color:var(--muted);font-size:0.85rem;">商工会議所連携・早期加入特典・月1回説明会</span></div></li>
+        <li><span class="risk-score rs-mid">12</span><div><b>R-16 ポイント不正取得（複アカ）</b><br><span style="color:var(--muted);font-size:0.85rem;">SBT一意制約・世帯確認・異常検知</span></div></li>
+        <li><span class="risk-score rs-mid">12</span><div><b>R-19 ウォレット紛失で投票権喪失</b><br><span style="color:var(--muted);font-size:0.85rem;">Web3Authソーシャルログイン・市役所リセット窓口</span></div></li>
+      </ul>
+      <p style="font-size:0.82rem;color:var(--muted);margin:12px 0 0;">※ 完全リスト25懸案は懸案事項管理表 v1.0 文書（月次レビュー）にあり。</p>
+    </div>
+
+    <!-- 工程抜け補完 -->
+    <h2 class="section-title">通常開発工程との照合（抜け補完）</h2>
+    <div class="panel">
+      <p style="margin:0 0 10px;">通常の25工程と照合し、以下の抜けを補完しました：</p>
+      <ol style="margin:0; padding-left:22px; font-size:0.92rem;">
+        <li>エンドオブライフ計画（事業終了時の SBT・通貨・個人情報の扱い）</li>
+        <li>SLA（サービス品質保証）の正式定義</li>
+        <li>インシデント対応プレイブック</li>
+        <li>ベンダー管理計画</li>
+        <li>利用規約・プライバシーポリシー</li>
+        <li>通貨設計の経済学的検証</li>
+        <li>アクセス権限管理（RBAC）</li>
+        <li>監査ログの長期保管（10年・3年・永続）</li>
+        <li>性能要件のベースライン（QPS・スループット）</li>
+        <li>環境構成管理（IaC：Terraform）</li>
+        <li>CI/CD パイプライン</li>
+        <li>ドキュメンテーション標準</li>
+        <li>ボランティア・コミュニティガバナンス</li>
+        <li>マーケットリサーチ・競合分析（会津若松等の事例）</li>
+        <li>KPI 計測・効果測定</li>
+      </ol>
+      <p style="font-size:0.82rem;color:var(--muted);margin:12px 0 0;">※ 詳細は工程定義 v1.0 文書にあり。</p>
+    </div>
+
+    <!-- 文書管理 -->
+    <h2 class="section-title">文書バージョン管理</h2>
+    <div class="panel">
+      <table>
+        <thead>
+          <tr><th>文書名</th><th>最新版</th><th>ステータス</th><th>次回レビュー</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>01 開発仕様書</td><td>v1.0</td><td>draft</td><td>2026/08（四半期）</td></tr>
+          <tr><td>02 開発ロードマップ</td><td>v1.0</td><td>draft</td><td>2026/08（四半期）</td></tr>
+          <tr><td>03 外注計画</td><td>v1.0</td><td>draft</td><td>2026/11（半期）</td></tr>
+          <tr><td>04 懸案事項管理表</td><td>v1.0</td><td>draft</td><td>2026/06（月次）</td></tr>
+          <tr><td>05 工程定義</td><td>v1.0</td><td>draft</td><td>2027/05（年次）</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.82rem;color:var(--muted);margin:12px 0 0;">
+        ※ 各文書はファイル名に <code>_vX.Y.md</code> を埋め込み、<code>C:\COCoLa\cidao\</code> でローカル管理。
+        <strong>README.md が Single Source of Truth</strong>。詳細閲覧は COCoLa 運営者へ問合せ。
+      </p>
+    </div>
+
+    <!-- メタ情報 -->
+    <div class="meta-line">
+      <b>本サマリの最終更新</b>: 2026-05-27<br>
+      <b>担当</b>: COCoLa 統括エージェント・CiDAO 担当エージェント<br>
+      <b>このサマリは draft であり、確定計画ではありません</b>
+    </div>
+
+  </div>
+</main>
+
+</body>
+</html>

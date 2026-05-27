@@ -118,6 +118,18 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-27</p>
+            <h2 class="cl-title"><strong>CiDAO 開発専用フォルダ新設＋初期文書 v1.0 群を整備</strong>（仕様書／ロードマップ／外注計画／懸案事項／工程定義）</h2>
+            <p class="cl-desc">
+              全印西市民向け市民DAO（CiDAO = Citizen DAO）と地域通貨「COCoLa Coin」の開発を本格化させるため、専用フォルダ <code>C:\COCoLa\cidao\</code> を新設し、担当エージェント定義（CLAUDE.md）と5本の主要文書を初版作成。<strong>バージョン管理規約</strong>（VERSIONING.md、セマンティックバージョニング準拠）に従い、各文書をファイル名 <code>NN_タイトル_vX.Y.md</code> 形式で命名、README.md を Single Source of Truth として運用。<strong>主要文書</strong>: (1) <strong>開発仕様書 v1.0</strong>（C1〜C13 の13コンポーネント、JPKI/SBT/ERC-20 アーキテクチャ、データモデル、法務8法令対応）。(2) <strong>開発ロードマップ v1.0</strong>（Phase 0〜4 の5段階、2026〜2029、累積予算1.5〜2億円、撤退条件＋Plan B 明記）。(3) <strong>外注計画 v1.0</strong>（O-01〜O-18 の18項目：JPKI事業者・スマコン開発・監査・モバイルアプリ・法務・PR等の選定基準と費用想定）。(4) <strong>懸案事項管理表 v1.0</strong>（25懸案を法務/政治/技術/運用/財務/倫理/災害/国際の8軸でリスクスコア化、上位R-01資金決済法・R-02公職選挙法・R-03印西市協定の対処計画）。(5) <strong>工程定義 v1.0</strong>（通常開発25工程との照合、15項目の抜けを補完：EOL計画・SLA定義・インシデント対応・IaC・CI/CD・経済モデル検証等）。研究室ページに <a href="../lab/cidao-roadmap.html">CiDAO サマリ公開ページ</a> を新設し、TOPからアクセス可能に。詳細文書はローカル管理。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+              <span class="tag tag--improve">戦略文書</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-27</p>
             <h2 class="cl-title"><strong>COCoLa研究室ページ新設</strong>（スマホ会員証SBT実証実験／視認性チェック／コメント収集）</h2>
             <p class="cl-desc">
               将来の「印西市民全員による投票」「地域ポイント導入」に向けた実証実験ページとして <code>lab/index.html</code> を新設。TOPナビに「🧪 研究室」リンクを追加。導入目的を①投票時の個人識別（なりすまし防止）②地域ポイント導入の2点に明示。<strong>機能</strong>: (1) <strong>SBT会員証モックアップ</strong>（<code>lab/sbt-mockup.html</code>）— 初回登録／JPKI認証／会員証発行／投票／履歴 の5画面を1ファイルでタブ切替表示、cocola-site/dao のブランドカラーを完全踏襲。(2) <strong>端末別プレビュー切替</strong> — スマホ縦横／タブレット／PC（375×812〜1280×800 の7プリセット）と表示倍率35〜100%で iframe スケーリング。(3) <strong>実機検証QRコード</strong> — qrcode.js でモックアップURLを即時QR化（実機での視認性確認用）。(4) <strong>視認性自動チェック</strong> — WCAG 2.1基準でコントラスト比・タップターゲット・最小フォントを4カード表示。(5) <strong>コメント収集機能</strong> — <code>cocola_topics_clasp_sync</code> の GAS に <code>mode=labComment</code> エンドポイント新設（<code>doPost</code>新規＋<code>研究室コメント</code>シート自動作成）、トピック分類（SBT/なりすまし/ポイント/UI/その他）・匿名投稿対応。<strong>GASデプロイ</strong>: v199 @365 として cocola_topics に反映済み（200バージョン上限到達のため旧バージョン整理を実施）。
