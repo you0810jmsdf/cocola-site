@@ -118,6 +118,18 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-27</p>
+            <h2 class="cl-title"><strong>CiDAO ロードマップ各セクションにコメント・調整履歴機能を追加</strong>（GAS v200 @366）</h2>
+            <p class="cl-desc">
+              <code>lab/cidao-roadmap.html</code> の7セクション（CiDAOの目的／5段階の開発フェーズ／想定累積予算／外注必須項目／主要懸案／通常開発工程との照合／文書バージョン管理）にメンバーのコメント・調整履歴を残せる機能を実装。<strong>4種類のラベル</strong>（所見・調整履歴・質問・決定事項）でカテゴライズし、それぞれ専用色で表示。投稿者名は自由入力（<code>sessionStorage</code> に直近の入力を保存して次回自動補完）、追記のみ（編集・削除不可）で履歴を完全保全。<strong>GAS側</strong>: <code>cocola_topics_clasp_sync</code> に <code>mode=cidaoRoadmapComment</code> エンドポイントを新設（<code>doGet</code> の <code>action=list</code> でセクション別取得、<code>doPost</code>＋<code>action=submit</code> で投稿）。スプレッドシートに「CiDAOロードマップコメント」シートを自動作成（列：timestamp / section / author / kind / body / visible）。本文は5,000文字まで、投稿者名60文字まで、XSS対策のためHTMLエスケープを徹底。<strong>UI</strong>: 各セクション末尾に投稿件数バッジ・コメント一覧（新しい順、最大320pxスクロール）・投稿フォーム（投稿者名・種別ドロップダウン・本文・投稿ボタン）を配置。レスポンシブ対応（600px以下で2列レイアウト）。<strong>GASデプロイ</strong>: v200 @366 として cocola_topics に反映済み。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+              <span class="tag tag--improve">コラボレーション</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-27</p>
             <h2 class="cl-title"><strong>CiDAO 開発計画サマリページに部外秘パスワード保護を追加</strong></h2>
             <p class="cl-desc">
               研究室ページ（<code>lab/index.html</code>）の「CiDAO 開発計画」セクションに <strong>🔒 部外秘バッジ（赤色）</strong> と注意文を表示。サマリページ（<code>lab/cidao-roadmap.html</code>）へのアクセスにパスワード認証を導入。「サマリを見る」ボタン押下時に <code>prompt()</code> で入力を促し、<strong>SHA-256ハッシュ</strong>で照合（プレーンテキストパスワードはソースに含めない設計）。直接URLアクセスにも対応するため <code>cidao-roadmap.html</code> 冒頭で <code>document.write</code> によりbodyを即時非表示化し、<code>DOMContentLoaded</code> 時に認証チェック → 不正・キャンセル時は研究室TOPへリダイレクト、認証成功時のみマスクを除去して内容表示。認証フラグは <code>sessionStorage</code> に保存し、同一セッション内で再入力不要。今後の外注先・関係者には別途パスワードを伝達。
