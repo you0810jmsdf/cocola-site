@@ -1912,9 +1912,14 @@
     var pendingVoteTitle = null;
     var MEMBERS_JSON_URL = 'https://you0810jmsdf.github.io/cocola-site/members/data.json';
 
+    var memberLoadPromise = null;
+
     function loadMemberNicknames() {
-      fetch(MEMBERS_JSON_URL)
-        .then(function(r) { return r.json(); })
+      memberLoadPromise = fetch(MEMBERS_JSON_URL, { cache: 'no-store' })
+        .then(function(r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
         .then(function(data) {
           var rows = (data && data.rows) ? data.rows : [];
           var existing = Array.from(voteNicknameSelect.options).map(function(o) { return o.value; });
@@ -1928,8 +1933,20 @@
               existing.push(nick);
             }
           });
+          return voteNicknameSelect.options.length;
         })
-        .catch(function() {});
+        .catch(function(error) {
+          // 失敗を握りつぶさず Promise を reject させる。openVoteModal 側でユーザーに表示する。
+          memberLoadPromise = null;
+          throw error;
+        });
+      return memberLoadPromise;
+    }
+
+    function applyStoredNicknameSelection() {
+      var storedNick = getStoredNickname();
+      var hasOption = storedNick && Array.from(voteNicknameSelect.options).some(function(o) { return o.value === storedNick; });
+      voteNicknameSelect.value = hasOption ? storedNick : '';
     }
 
     function openVoteModal(id, title) {
@@ -1938,11 +1955,25 @@
       pendingVoteId = id;
       pendingVoteTitle = title;
       voteModalTitle.textContent = title;
-      var storedNick = getStoredNickname();
-      var hasOption = storedNick && Array.from(voteNicknameSelect.options).some(function(o) { return o.value === storedNick; });
-      voteNicknameSelect.value = hasOption ? storedNick : '';
+      applyStoredNicknameSelection();
       voteModalError.textContent = '';
       voteModal.hidden = false;
+
+      // メンバー名がまだ1件も読み込めていなければ、開いたタイミングで再取得する（モバイル回線で初回fetchが間に合わなかったケース対策）。
+      if (voteNicknameSelect.options.length <= 1) {
+        voteNicknameSelect.disabled = true;
+        voteModalError.textContent = 'メンバー一覧を読み込み中…';
+        (memberLoadPromise || loadMemberNicknames())
+          .then(function() {
+            voteNicknameSelect.disabled = false;
+            voteModalError.textContent = '';
+            applyStoredNicknameSelection();
+          })
+          .catch(function() {
+            voteNicknameSelect.disabled = false;
+            voteModalError.textContent = 'メンバー一覧を読み込めませんでした。ページを再読み込みしてからもう一度お試しください。';
+          });
+      }
     }
 
     function closeVoteModal() {

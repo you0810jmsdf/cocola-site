@@ -118,9 +118,9 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-27</p>
-            <h2 class="cl-title">DAO投票モーダルで<strong>「ニックネームを選択も変更もできない」事象を修正</strong></h2>
+            <h2 class="cl-title">DAO投票モーダルで<strong>「ニックネームを選択も変更もできない」事象を根本対処</strong>（メンバー一覧読込失敗のリトライ）</h2>
             <p class="cl-desc">
-              ユーザー報告「投票時にニックネームを『-- 選択してください --』から変更できない」事象を修正。原因は <code>openVoteModal()</code> が <code>voteNicknameSelect.disabled</code> をリセットしていなかったため。投票送信中（<code>setVoteModalLoading(true)</code>）にモーダル外クリックで閉じたり、iOS Safari がバックグラウンドで fetch を中断したケースで、<code>disabled = true</code> 状態が残留し、次回モーダルを開いた際にプルダウン操作が一切できなくなっていた。<code>openVoteModal()</code> 冒頭で <code>setVoteModalLoading(false)</code> を呼ぶ修正で、開くたびに全UI要素（select／キャンセル／投票ボタン）の有効状態が保証される。
+              利用者スクリーンショットから真因が判明。プルダウンに「-- 選択してください --」しか option が無い状態（=メンバー一覧の fetch が完了していない or 失敗）が原因だった。<code>loadMemberNicknames()</code> はページロード時に1回呼ばれるだけで、モバイル回線で完了前に投票ボタンが押されたケース・ネットワークエラーで <code>.catch(function(){})</code> に握りつぶされたケースで、選択肢ゼロの状態のまま固まっていた。<strong>対処</strong>: (1) <code>loadMemberNicknames()</code> を Promise 返却＋エラーを再 throw する構造に変更、<code>cache: 'no-store'</code> 指定。(2) <code>openVoteModal()</code> 内で <code>voteNicknameSelect.options.length &lt;= 1</code> を検出したら自動再 fetch、ローディング中は disabled＋「メンバー一覧を読み込み中…」表示、失敗時は「ページを再読み込みしてからもう一度お試しください。」と明示。(3) 投票モーダルの <code>&lt;label&gt;&lt;select/&gt;&lt;/label&gt;</code> 構造を <code>label[for]+select</code> に分離（iOS Safari の既知挙動回避、<code>autocomplete="off"</code> 追加）。(4) <code>openVoteModal()</code> 冒頭で <code>setVoteModalLoading(false)</code> を呼び disabled 残留も同時に解消。
             </p>
             <div class="cl-tags">
               <span class="tag tag--fix">不具合修正</span>
