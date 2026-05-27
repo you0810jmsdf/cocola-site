@@ -7,6 +7,36 @@
   <meta name="description" content="印西市全市民向け市民DAO（CiDAO）と地域通貨の開発ロードマップ・外注計画・懸案事項のサマリです。">
   <meta name="theme-color" content="#1d8f6f">
   <link rel="icon" type="image/png" href="../assets/COCoLa_Logo_transparent.png">
+  <!-- 部外秘：パスワード保護 -->
+  <script>
+    (function(){
+      // 既に認証済みなら何もしない
+      if (sessionStorage.getItem('cidao_auth') === 'ok') return;
+      // 未認証時：body を即時非表示
+      document.write('<style id="cidao-mask">body{display:none !important;}</style>');
+    })();
+    const CIDAO_PW_HASH = '0bf8ecf73ca01bbd74ff4dbfbc9dc1709a8125d702c35799a6bc5978043acd58';
+    async function cidaoSha256(text){
+      const buf = new TextEncoder().encode(text);
+      const hash = await crypto.subtle.digest('SHA-256', buf);
+      return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    }
+    async function cidaoCheckAuth(){
+      if (sessionStorage.getItem('cidao_auth') === 'ok') return;
+      const pw = prompt('🔒 部外秘資料です。\n閲覧パスワードを入力してください：');
+      if (pw === null || !pw) { location.href = './index.html'; return; }
+      const h = await cidaoSha256(pw);
+      if (h === CIDAO_PW_HASH) {
+        sessionStorage.setItem('cidao_auth', 'ok');
+        const mask = document.getElementById('cidao-mask');
+        if (mask) mask.remove();
+      } else {
+        alert('❌ パスワードが正しくありません');
+        location.href = './index.html';
+      }
+    }
+    window.addEventListener('DOMContentLoaded', cidaoCheckAuth);
+  </script>
   <style>
     :root {
       --ink: #1e2522;

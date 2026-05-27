@@ -368,8 +368,9 @@
       </section>
 
       <!-- CiDAO 開発計画サマリ -->
-      <h2 class="section-title">📋 CiDAO 開発計画</h2>
-      <div class="panel" style="background:linear-gradient(135deg,#ffffff 0%,var(--green-soft) 100%);">
+      <h2 class="section-title">📋 CiDAO 開発計画 <span style="background:#d4544a;color:#fff;font-size:0.7em;padding:3px 10px;border-radius:4px;margin-left:8px;font-weight:bold;letter-spacing:0.05em;">🔒 部外秘</span></h2>
+      <div class="panel" style="background:linear-gradient(135deg,#ffffff 0%,var(--green-soft) 100%);border:2px solid #d4544a;">
+        <p style="margin:0 0 12px;color:#d4544a;font-size:0.9rem;font-weight:bold;">⚠ 本資料は部外秘です。閲覧にはパスワードが必要です。</p>
         <h2>全印西市民向け 市民DAO＋地域通貨 ロードマップ</h2>
         <p class="desc">
           スマホ会員証SBTと地域通貨「COCoLa Coin」を5年で実装する開発計画のサマリです。
@@ -379,10 +380,37 @@
           <strong>Phase 0</strong>（実証実験）→ <strong>Phase 1</strong>（COCoLa会員PoC）→ <strong>Phase 2</strong>（希望市民β）→ <strong>Phase 3</strong>（通貨発行）→ <strong>Phase 4</strong>（全市民展開）
         </p>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <a href="./cidao-roadmap.html" style="background:var(--green); color:white; text-decoration:none; padding:10px 18px; border-radius:8px; font-size:0.92rem; font-weight:600;">📄 サマリを見る</a>
+          <button type="button" onclick="cidaoUnlock('./cidao-roadmap.html')" style="background:var(--green); color:white; border:none; cursor:pointer; padding:10px 18px; border-radius:8px; font-size:0.92rem; font-weight:600;">🔒 サマリを見る（要パスワード）</button>
           <span style="color:var(--muted); font-size:0.82rem; align-self:center;">※ 詳細仕様書・外注計画・懸案管理表はローカル管理（v1.0 draft）</span>
         </div>
       </div>
+
+      <script>
+        // CiDAO 開発計画 部外秘パスワード保護
+        // パスワード: cocola2026（SHA-256ハッシュで比較）
+        const CIDAO_PW_HASH = '0bf8ecf73ca01bbd74ff4dbfbc9dc1709a8125d702c35799a6bc5978043acd58';
+        async function cidaoSha256(text) {
+          const buf = new TextEncoder().encode(text);
+          const hash = await crypto.subtle.digest('SHA-256', buf);
+          return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2,'0')).join('');
+        }
+        async function cidaoUnlock(targetUrl) {
+          if (sessionStorage.getItem('cidao_auth') === 'ok') {
+            location.href = targetUrl;
+            return;
+          }
+          const pw = prompt('🔒 部外秘資料です。\n閲覧パスワードを入力してください：');
+          if (pw === null) return; // キャンセル
+          if (!pw) { alert('パスワードを入力してください'); return; }
+          const h = await cidaoSha256(pw);
+          if (h === CIDAO_PW_HASH) {
+            sessionStorage.setItem('cidao_auth', 'ok');
+            location.href = targetUrl;
+          } else {
+            alert('❌ パスワードが正しくありません');
+          }
+        }
+      </script>
 
       <!-- 実証中のモックアップ -->
       <h2 class="section-title">実証中のモックアップ</h2>
