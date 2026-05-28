@@ -3,7 +3,7 @@
    - 通知クリック時にアプリを前面化
    実証段階のため Web Push（VAPID）は未使用。通知はページ側のポーリングから出す。 */
 
-var CACHE_NAME = 'cocola-dao-v1';
+var CACHE_NAME = 'cocola-dao-v2';
 var CORE_ASSETS = [
   './',
   './index.html',
@@ -57,6 +57,43 @@ self.addEventListener('fetch', function (event) {
       });
     })
   );
+});
+
+/* バックグラウンド通知：サーバー(Web Push)からの push を受信して通知を表示する。
+   アプリ／ブラウザが閉じていてもOSが起動して通知を出せる。 */
+self.addEventListener('push', function (event) {
+  var payload = { title: 'COCoLa DAO', body: '新しいお知らせがあります', url: './index.html', tag: 'cocola-push' };
+  if (event.data) {
+    try {
+      var json = event.data.json();
+      if (json && typeof json === 'object') {
+        if (json.title) payload.title = json.title;
+        if (json.body) payload.body = json.body;
+        if (json.url) payload.url = json.url;
+        if (json.tag) payload.tag = json.tag;
+      }
+    } catch (e) {
+      var text = event.data.text();
+      if (text) payload.body = text;
+    }
+  }
+  event.waitUntil(
+    self.registration.showNotification(payload.title, {
+      body: payload.body,
+      icon: '../assets/icons/icon-192.png',
+      badge: '../assets/icons/icon-192.png',
+      tag: payload.tag,
+      renotify: true,
+      data: { url: payload.url }
+    })
+  );
+});
+
+/* 購読がブラウザ側で更新された場合に再購読する（endpoint失効対策の足がかり）。
+   再購読後のサーバー再登録はページ側で行うため、ここでは最小限。 */
+self.addEventListener('pushsubscriptionchange', function (event) {
+  // 詳細な再購読処理はページ側（VAPID公開鍵を持つ）に委ねる。
+  // ここではログ目的のみ（将来 Background Sync 連携の拡張点）。
 });
 
 /* ページから postMessage('SHOW_NOTIFICATION', payload) を受けて通知を出す

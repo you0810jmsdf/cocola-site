@@ -1206,6 +1206,285 @@
       color: var(--muted);
     }
 
+    /* ===== ビュー切替 & ボトムナビ ===== */
+    body {
+      padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.is-active {
+      display: block;
+    }
+
+    .view-head {
+      margin: 4px 0 16px;
+    }
+
+    .view-head h2 {
+      margin: 0 0 6px;
+      font-size: clamp(1.5rem, 1.2rem + 1vw, 2.1rem);
+      line-height: 1.25;
+    }
+
+    .view-lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 90;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: saturate(140%) blur(8px);
+      border-top: 1px solid var(--line);
+      box-shadow: 0 -4px 16px rgba(29, 54, 45, 0.08);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    .bottom-nav__item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      min-height: 60px;
+      padding: 8px 4px;
+      border: none;
+      background: none;
+      color: var(--muted);
+      font: inherit;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: color 120ms;
+    }
+
+    .bottom-nav__item svg {
+      width: 23px;
+      height: 23px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.9;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .bottom-nav__item.is-active {
+      color: var(--green-deep);
+    }
+
+    .bottom-nav__badge {
+      position: absolute;
+      transform: translate(14px, -10px);
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px;
+      border-radius: 8px;
+      background: var(--coral);
+      color: #fff;
+      font-size: 0.62rem;
+      line-height: 16px;
+      text-align: center;
+    }
+
+    /* ===== 印西イベント ===== */
+    .seg {
+      display: inline-flex;
+      gap: 4px;
+      margin-bottom: 14px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .seg-btn {
+      min-height: 36px;
+      padding: 6px 16px;
+      border: none;
+      border-radius: 7px;
+      background: none;
+      color: var(--muted);
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .seg-btn.is-active {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .event-list,
+    .cal-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .event-card {
+      display: block;
+      padding: 16px 18px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .event-card.is-past {
+      opacity: 0.62;
+    }
+
+    a.event-card:hover {
+      border-color: var(--green);
+    }
+
+    .event-card__date {
+      display: inline-block;
+      margin-bottom: 6px;
+      color: var(--green-deep);
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
+    .event-card__title {
+      margin: 0 0 8px;
+      font-size: 1.12rem;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+
+    .event-card__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .event-card__meta .pill {
+      padding: 3px 8px;
+    }
+
+    .event-card__desc {
+      margin: 0;
+      color: #4a564f;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .event-card__src {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    /* ===== COCoLaカレンダー ===== */
+    .cal-month {
+      margin: 18px 0 4px;
+      padding-bottom: 4px;
+      color: var(--green-deep);
+      font-size: 1.05rem;
+      font-weight: 800;
+      border-bottom: 2px solid var(--line);
+    }
+
+    .cal-month:first-child {
+      margin-top: 0;
+    }
+
+    .cal-item {
+      display: grid;
+      grid-template-columns: 64px minmax(0, 1fr);
+      gap: 14px;
+      padding: 14px 16px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .cal-item__when {
+      display: grid;
+      align-content: start;
+      gap: 2px;
+      text-align: center;
+    }
+
+    .cal-item__day {
+      font-size: 1.5rem;
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--ink);
+    }
+
+    .cal-item__wday {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .cal-item__time {
+      font-size: 0.74rem;
+      color: var(--green-deep);
+      font-weight: 700;
+    }
+
+    .cal-item__body {
+      min-width: 0;
+    }
+
+    .cal-item__title {
+      margin: 0 0 6px;
+      font-size: 1.06rem;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+
+    .cal-item__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 0.83rem;
+    }
+
+    .cal-item__memo {
+      margin: 0;
+      color: #4a564f;
+      font-size: 0.88rem;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .cal-item__cat {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: #e7f5f0;
+      color: var(--green-deep);
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+
   </style>
 </head>
 <body>
@@ -1216,6 +1495,7 @@
 
   <main class="page">
     <div class="shell">
+      <div class="view is-active" data-view="proposals">
       <section class="top" aria-label="提案と投票">
         <div class="intro">
           <p class="eyebrow">COCoLa DAO</p>
@@ -1313,6 +1593,10 @@
         <div class="empty" id="empty" hidden>公開中の提案はまだありません。</div>
       </section>
 
+      <p class="updated" id="updated"></p>
+      </div><!-- /view proposals -->
+
+      <div class="view" data-view="points">
       <section class="members-band" id="membersBand" aria-label="DAOメンバー一覧" hidden>
         <div class="members-band__head">
           <h2>DAOメンバー一覧</h2>
@@ -1343,10 +1627,54 @@
           <li><span>DAO投票参加</span><strong>1pt</strong></li>
         </ul>
       </section>
+      </div><!-- /view points -->
 
-      <p class="updated" id="updated"></p>
+      <div class="view" data-view="events">
+        <section aria-label="印西市イベント">
+          <div class="view-head">
+            <h2>印西市のイベント</h2>
+            <p class="view-lead">いんざい市民情報サイトなどから集めた、印西市周辺の地域イベント情報です。</p>
+          </div>
+          <div class="seg" role="tablist" aria-label="表示期間">
+            <button class="seg-btn is-active" type="button" data-event-filter="upcoming">これから</button>
+            <button class="seg-btn" type="button" data-event-filter="all">すべて</button>
+          </div>
+          <div class="event-list" id="eventList"></div>
+          <div class="empty" id="eventEmpty" hidden>イベント情報を読み込み中です。</div>
+        </section>
+      </div><!-- /view events -->
+
+      <div class="view" data-view="calendar">
+        <section aria-label="COCoLaの予定">
+          <div class="view-head">
+            <h2>COCoLaの予定</h2>
+            <p class="view-lead">COCoLaが主催・関係するイベントや講座などの予定です。</p>
+          </div>
+          <div class="cal-list" id="calList"></div>
+          <div class="empty" id="calEmpty" hidden>予定を読み込み中です。</div>
+        </section>
+      </div><!-- /view calendar -->
     </div>
   </main>
+
+  <nav class="bottom-nav" aria-label="メインメニュー">
+    <button class="bottom-nav__item is-active" type="button" data-nav="proposals" aria-current="page">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M9.5 5a2.5 2.5 0 0 1 5 0"/><path d="M9 11h6M9 15h4"/></svg>
+      <span>提案・投票</span>
+    </button>
+    <button class="bottom-nav__item" type="button" data-nav="points">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.7 5.5 6 .9-4.35 4.2 1.03 6L12 17.3 6.62 20.1l1.03-6L3.3 9.9l6-.9L12 3.5z"/></svg>
+      <span>ポイント</span>
+    </button>
+    <button class="bottom-nav__item" type="button" data-nav="events">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5l8-5 8 5M5.5 9v9a1.5 1.5 0 0 0 1.5 1.5h10a1.5 1.5 0 0 0 1.5-1.5V9"/><path d="M9.5 19.5v-5.5h5v5.5"/></svg>
+      <span>印西イベント</span>
+    </button>
+    <button class="bottom-nav__item" type="button" data-nav="calendar">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 9.5h17M8 3.2v3.6M16 3.2v3.6"/></svg>
+      <span>予定</span>
+    </button>
+  </nav>
 
 
 <!-- 取消モーダル -->
@@ -2283,6 +2611,50 @@
       var NOTIFY_STATE_KEY = 'COCOLA_DAO_NOTIFY_STATE';
       var swReg = null;
 
+      // Web Push（バックグラウンド通知）設定
+      var VAPID_PUBLIC_KEY = 'BK_onmIYE7EjgqATO3MUMina4_7NfOZzzpFPPyJsXsuzbpK4IDh630og3yXMlRDr18ZZpjY5sm6kLoANeY8QbIw';
+      var PUSH_GAS_URL = 'https://script.google.com/macros/s/AKfycbxZuTTyB_hlKYBLNhy4LXRIv-trPz0DL4dpyGS6hzqAiIgKtLnERiIcFIE-yxT_frRAWA/exec';
+
+      function urlBase64ToUint8Array(base64String) {
+        var padding = '='.repeat((4 - base64String.length % 4) % 4);
+        var base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+        var raw = atob(base64);
+        var arr = new Uint8Array(raw.length);
+        for (var i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+        return arr;
+      }
+
+      function sendSubscription(sub) {
+        if (!sub) return;
+        var j = sub.toJSON();
+        if (!j.endpoint || !j.keys) return;
+        var url = PUSH_GAS_URL + '?mode=subscribe'
+          + '&endpoint=' + encodeURIComponent(j.endpoint)
+          + '&p256dh=' + encodeURIComponent(j.keys.p256dh)
+          + '&auth=' + encodeURIComponent(j.keys.auth)
+          + '&ua=' + encodeURIComponent((navigator.userAgent || '').slice(0, 100));
+        fetch(url).then(function (r) { return r.json(); }).then(function (res) {
+          if (notifyStatus && res && res.ok) {
+            notifyStatus.textContent = 'バックグラウンド通知も登録しました。アプリを閉じていても届きます。';
+          }
+        }).catch(function () {});
+      }
+
+      function subscribeToPush() {
+        if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+        navigator.serviceWorker.ready.then(function (reg) {
+          return reg.pushManager.getSubscription().then(function (existing) {
+            if (existing) { sendSubscription(existing); return; }
+            return reg.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+            }).then(sendSubscription);
+          });
+        }).catch(function () {
+          if (notifyStatus) notifyStatus.textContent = 'バックグラウンド通知の登録に失敗しました（端末が未対応の可能性があります）。';
+        });
+      }
+
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('service-worker.js')
           .then(function (reg) { swReg = reg; })
@@ -2356,6 +2728,7 @@
             refreshNotifyUI();
             if (perm === 'granted') {
               writeNotifyState(currentSnapshot());
+              subscribeToPush();
               showNotification({ title: 'COCoLa DAO', body: '通知をオンにしました。新しい提案やメンバーをお知らせします。', tag: 'cocola-welcome' });
             }
           });
