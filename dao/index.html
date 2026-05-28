@@ -7,6 +7,12 @@
   <meta name="description" content="COCoLa DAOの提案一覧と投票状況を確認できるページです。">
   <meta name="theme-color" content="#1d8f6f">
   <link rel="icon" type="image/png" href="../assets/COCoLa_Logo_transparent.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="COCoLa DAO">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-180.png">
   <style>
     :root {
       --ink: #1e2522;
@@ -1159,6 +1165,40 @@
       font-weight: 700;
     }
 
+    .notify-box {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid var(--green-soft, #e6f3ee);
+      border-radius: 12px;
+      background: var(--wash);
+    }
+    .notify-box__lead {
+      margin: 0 0 10px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--ink);
+    }
+    .notify-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 999px;
+      background: var(--green);
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .notify-btn:hover { background: var(--green-deep); }
+    .notify-btn:disabled { opacity: .5; cursor: default; }
+    .notify-box__status {
+      margin: 8px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
   </style>
 </head>
 <body>
@@ -1184,6 +1224,11 @@
             <a class="button" id="proposalForm" href="https://docs.google.com/forms/d/e/1FAIpQLSdxfz3OyN2FJ6x89viHAyKU57glOMPMuFGdXNjp2O6motziWQ/viewform" target="_blank" rel="noopener">提案する</a>
           </div>
           <p class="sync-note">投票は各提案カードの「投票する」ボタンから行えます。投票後、数値への反映に最大5分かかります（自動更新）。</p>
+          <div class="notify-box" id="notifyBox" hidden>
+            <p class="notify-box__lead">🔔 新しい提案やメンバーが加わったらお知らせします。</p>
+            <button class="notify-btn" id="notifyBtn" type="button">通知をオンにする</button>
+            <p class="notify-box__status" id="notifyStatus"></p>
+          </div>
         </aside>
       </section>
 
@@ -2078,6 +2123,7 @@
       renderStats();
       renderProposals();
       renderMembers();
+      if (window.checkForUpdatesAndNotify) window.checkForUpdatesAndNotify();
     }
 
     function mergeLocalCivicLikeCounts() {
@@ -2221,6 +2267,119 @@
     setInterval(fetchActionsStatus, 5 * 60 * 1000);
     window.addEventListener('focus', function() { _retryCount = 0; loadDaoData(); fetchActionsStatus(); });
     setInterval(function() { if (!state.loaded) fetchFromGas(); }, 10000);
+
+    /* ===== PWA & 通知（実証段階：ポーリング＋ローカル通知） ===== */
+    (function () {
+      var NOTIFY_STATE_KEY = 'COCOLA_DAO_NOTIFY_STATE';
+      var swReg = null;
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(function (reg) { swReg = reg; })
+          .catch(function () {});
+      }
+
+      var notifyBox = document.getElementById('notifyBox');
+      var notifyBtn = document.getElementById('notifyBtn');
+      var notifyStatus = document.getElementById('notifyStatus');
+
+      function supportsNotify() {
+        return ('Notification' in window) && ('serviceWorker' in navigator);
+      }
+
+      function refreshNotifyUI() {
+        if (!notifyBox) return;
+        if (!supportsNotify()) {
+          notifyBox.hidden = false;
+          notifyBtn.disabled = true;
+          notifyBtn.textContent = '通知に未対応';
+          notifyStatus.textContent = 'この端末／ブラウザは通知に対応していません。';
+          return;
+        }
+        notifyBox.hidden = false;
+        var p = Notification.permission;
+        if (p === 'granted') {
+          notifyBtn.disabled = true;
+          notifyBtn.textContent = '✓ 通知オン';
+          notifyStatus.textContent = '新しい提案やメンバーが加わるとお知らせします。';
+        } else if (p === 'denied') {
+          notifyBtn.disabled = true;
+          notifyBtn.textContent = '通知はブロック中';
+          notifyStatus.textContent = 'ブラウザの設定でこのサイトの通知を許可してください。';
+        } else {
+          notifyBtn.disabled = false;
+          notifyBtn.textContent = '通知をオンにする';
+          notifyStatus.textContent = '';
+        }
+      }
+
+      function showNotification(payload) {
+        if (!supportsNotify() || Notification.permission !== 'granted') return;
+        if (swReg && swReg.active) {
+          swReg.active.postMessage({ type: 'SHOW_NOTIFICATION', payload: payload });
+        } else if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({ type: 'SHOW_NOTIFICATION', payload: payload });
+        } else {
+          try { new Notification(payload.title, { body: payload.body, icon: '../assets/icons/icon-192.png' }); } catch (e) {}
+        }
+      }
+
+      function readNotifyState() {
+        try { return JSON.parse(localStorage.getItem(NOTIFY_STATE_KEY)) || null; } catch (e) { return null; }
+      }
+      function writeNotifyState(s) {
+        try { localStorage.setItem(NOTIFY_STATE_KEY, JSON.stringify(s)); } catch (e) {}
+      }
+      function currentSnapshot() {
+        var d = state.data || {};
+        var ids = (d.proposals || []).map(function (p) { return p.id; });
+        var members = (d.stats && d.stats.members) || 0;
+        return { proposalIds: ids, members: members };
+      }
+
+      if (notifyBtn) {
+        notifyBtn.addEventListener('click', function () {
+          if (!supportsNotify()) return;
+          Notification.requestPermission().then(function (perm) {
+            refreshNotifyUI();
+            if (perm === 'granted') {
+              writeNotifyState(currentSnapshot());
+              showNotification({ title: 'COCoLa DAO', body: '通知をオンにしました。新しい提案やメンバーをお知らせします。', tag: 'cocola-welcome' });
+            }
+          });
+        });
+      }
+
+      window.checkForUpdatesAndNotify = function () {
+        if (!supportsNotify() || Notification.permission !== 'granted') return;
+        var now = currentSnapshot();
+        var prev = readNotifyState();
+        if (!prev) { writeNotifyState(now); return; }
+
+        var newProposals = now.proposalIds.filter(function (id) { return prev.proposalIds.indexOf(id) === -1; });
+        if (newProposals.length === 1) {
+          var np = (state.data.proposals || []).filter(function (p) { return p.id === newProposals[0]; })[0];
+          showNotification({ title: '新しい提案があります', body: np ? np.title : '新しい提案が公開されました', tag: 'p-' + newProposals[0], url: './index.html' });
+        } else if (newProposals.length > 1) {
+          showNotification({ title: '新しい提案が' + newProposals.length + '件', body: 'タップして提案一覧を確認できます', tag: 'p-multi', url: './index.html' });
+        }
+
+        if (now.members > prev.members) {
+          var diff = now.members - prev.members;
+          showNotification({ title: 'メンバーが増えました', body: '新しく' + diff + '名が加わりました（現在 ' + now.members + ' 名）', tag: 'members', url: './index.html' });
+        }
+
+        writeNotifyState(now);
+      };
+
+      refreshNotifyUI();
+      window.addEventListener('focus', refreshNotifyUI);
+
+      // 実証用：3分ごとに data.json を取り直し、差分があれば通知
+      setInterval(function () {
+        if (typeof loadDaoData === 'function') loadDaoData();
+      }, 3 * 60 * 1000);
+    })();
   </script>
   <script src="../assets/site-config.js?v=20260424"></script>
   <script src="../assets/page-tracker.js" data-page="DAO投票"></script>
