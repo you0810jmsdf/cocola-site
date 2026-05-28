@@ -2451,7 +2451,12 @@
     });
 
     function applyDaoData(data) {
-      state.data = data || { stats: {}, proposals: [], eligibleWeight: 0 };
+      data = data || { stats: {}, proposals: [], eligibleWeight: 0 };
+      // GAS の mode=json は members を返さないため、取得済み（static data.json 由来）の members を保持する。
+      if ((!data.members || data.members.length === 0) && state.data && state.data.members && state.data.members.length) {
+        data.members = state.data.members;
+      }
+      state.data = data;
       state.loaded = true;
       state.cacheStale = false;
       mergeLocalCivicLikeCounts();

@@ -118,6 +118,18 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-28</p>
+            <h2 class="cl-title"><strong>DAOアプリに画面切替メニューを追加</strong>（提案・投票／DAOポイント／印西イベント／予定）</h2>
+            <p class="cl-desc">
+              <code>dao/index.html</code> の画面下部に<strong>ボトムナビ（4タブ）</strong>を新設し、1つのアプリ内で4つの画面を切り替えられるようにした。<strong>提案・投票</strong>（従来の提案一覧・投票）、<strong>DAOポイント</strong>（メンバー一覧と投票権・ポイント付与基準）、<strong>印西イベント</strong>（<code>events/data.json</code> から印西市周辺の地域イベントを「これから／すべて」で表示）、<strong>予定</strong>（<code>schedule/data.json</code> から COCoLa の予定を月別・日付順に表示）。印西イベント・予定はタブを開いたときに読み込む（遅延読込）。あわせて、GAS応答に <code>members</code> が含まれない場合でも取得済みのメンバー一覧を保持するよう修正し、DAOポイント画面が空にならないようにした。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+              <span class="tag tag--improve">改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-28</p>
             <h2 class="cl-title"><strong>DAO提案・投票ページをPWA化＋新着通知機能を追加</strong>（スマホアプリ実証）</h2>
             <p class="cl-desc">
               <code>dao/index.html</code> を <strong>PWA（Progressive Web App）</strong>化し、スマホのホーム画面に「アプリ」として追加できるようにした。<strong>追加要素</strong>: <code>dao/manifest.webmanifest</code>（standalone表示・テーマカラー <code>#1d8f6f</code>・COCoLaロゴアイコン 192/512/maskable）、<code>dao/service-worker.js</code>（アプリシェルのオフラインキャッシュ＋通知表示＋通知タップでアプリを前面化）、Apple Touch Icon／iOS用メタタグ。<strong>新着通知</strong>: 「🔔 通知をオンにする」ボタンを提案・投票フォーム欄に新設。許可すると <code>data.json</code>（GitHub Actions が5分毎更新）を3分間隔でポーリングし、<strong>新しい提案</strong>・<strong>新しいメンバー</strong>を検知して端末に通知する。前回表示分は <code>localStorage</code> に記録し差分のみ通知（初回・既存分は通知しない）。実証段階のため Web Push（VAPID）は未使用＝アプリ／ブラウザ起動中の通知に限定。<strong>テスト通知</strong>: 動作確認用に「テスト通知を出す」ボタンを設置（通知オン時のみ表示）。押すたびに「新しい提案」「メンバー増加」の見本通知を交互に表示し、その場で通知の見え方を確認できる。<strong>注記</strong>: iOS はホーム画面に追加した PWA でのみ通知可（iOS 16.4 以降）、Android はブラウザでも可。既存の提案一覧・投票・DAOポイント・メンバー一覧の機能には影響なし。
