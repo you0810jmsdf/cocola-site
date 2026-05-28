@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-28</p>
+            <h2 class="cl-title"><strong>DAOポイント画面のメンバー一覧が消える不具合を解消</strong>（GAS本体を修正）</h2>
+            <p class="cl-desc">
+              DAOアプリは初回に公開JSON（<code>dao/data.json</code>）で<strong>メンバー一覧（26名）</strong>を表示した後、5分経過すると GAS エンドポイントを直接読み込む。この直叩き応答（<code>mode=json</code>）に <code>members</code> が含まれておらず、<strong>DAOポイント画面のメンバー一覧が空になる</strong>不整合があった。GAS本体（cocola-dao-gas2）の <code>mode=json</code> 応答にメンバー一覧（ニックネーム・ステータス・投票権重み・ポイント）と <code>stats.members</code> / <code>stats.eligibleMembers</code> を追加し、公開JSONと同じ内容を返すよう修正。直叩き後もメンバー一覧（26名・有効投票権26名・合計重み30.2）が表示され続けるようにした。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-28</p>
             <h2 class="cl-title"><strong>DAOアプリに画面切替メニューを追加</strong>（提案・投票／DAOポイント／印西イベント／予定）</h2>
             <p class="cl-desc">
               <code>dao/index.html</code> の画面下部に<strong>ボトムナビ（4タブ）</strong>を新設し、1つのアプリ内で4つの画面を切り替えられるようにした。<strong>提案・投票</strong>（従来の提案一覧・投票）、<strong>DAOポイント</strong>（メンバー一覧と投票権・ポイント付与基準）、<strong>印西イベント</strong>（<code>events/data.json</code> から印西市周辺の地域イベントを「これから／すべて」で表示）、<strong>予定</strong>（<code>schedule/data.json</code> から COCoLa の予定を月別・日付順に表示）。印西イベント・予定はタブを開いたときに読み込む（遅延読込）。あわせて、GAS応答に <code>members</code> が含まれない場合でも取得済みのメンバー一覧を保持するよう修正し、DAOポイント画面が空にならないようにした。
