@@ -2762,6 +2762,9 @@
       window.checkForUpdatesAndNotify = function () {
         if (!supportsNotify() || Notification.permission !== 'granted') return;
         var now = currentSnapshot();
+        // データ未取得（空）のタイミングでは判定しない。
+        // 取得元（GitHub Pages版 / GAS版）の切替で値が一時的に0になり誤検知するのを防ぐ。
+        if (now.members === 0 && now.proposalIds.length === 0) return;
         var prev = readNotifyState();
         if (!prev) { writeNotifyState(now); return; }
 
@@ -2773,12 +2776,18 @@
           showNotification({ title: '新しい提案が' + newProposals.length + '件', body: 'タップして提案一覧を確認できます', tag: 'p-multi', url: './index.html' });
         }
 
-        if (now.members > prev.members) {
+        // メンバー増加：過去最大(prev.members)より増えたときのみ通知。
+        // prev.members===0（初期化途中）からの増加は誤検知が多いため通知しない。
+        if (prev.members > 0 && now.members > prev.members) {
           var diff = now.members - prev.members;
           showNotification({ title: 'メンバーが増えました', body: '新しく' + diff + '名が加わりました（現在 ' + now.members + ' 名）', tag: 'members', url: './index.html' });
         }
 
-        writeNotifyState(now);
+        // 記録は単調増加で保持する。取得元の揺れで値が下がっても記録を減らさず、
+        // 「下がってまた上がる」たびに再通知してしまう不具合を防ぐ。
+        var mergedIds = prev.proposalIds.slice();
+        now.proposalIds.forEach(function (id) { if (mergedIds.indexOf(id) === -1) mergedIds.push(id); });
+        writeNotifyState({ proposalIds: mergedIds, members: Math.max(prev.members, now.members) });
       };
 
       refreshNotifyUI();

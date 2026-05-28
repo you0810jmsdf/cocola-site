@@ -103,7 +103,8 @@ function buildMessages() {
 
   const prevMembers = (prev.stats && prev.stats.members) || 0;
   const curMembers = (cur.stats && cur.stats.members) || 0;
-  if (curMembers > prevMembers) {
+  // prevMembers===0（パース失敗や初期状態）からの増加は誤検知のため通知しない。
+  if (prevMembers > 0 && curMembers > prevMembers) {
     messages.push({
       title: 'メンバーが増えました',
       body: `新しく${curMembers - prevMembers}名が加わりました（現在 ${curMembers} 名）`,
