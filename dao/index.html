@@ -2784,10 +2784,200 @@
       refreshNotifyUI();
       window.addEventListener('focus', refreshNotifyUI);
 
+      // 既に通知を許可済みのユーザーもバックグラウンド購読を登録する。
+      // （Web Pushを後から追加したため、過去にオンにした人は未購読のまま。
+      //   購読は冪等：既存購読があれば再利用し、GAS側で重複は更新扱いになる）
+      if (('Notification' in window) && Notification.permission === 'granted') {
+        subscribeToPush();
+      }
+
       // 実証用：3分ごとに data.json を取り直し、差分があれば通知
       setInterval(function () {
         if (typeof loadDaoData === 'function') loadDaoData();
       }, 3 * 60 * 1000);
+    })();
+
+    /* ===== ビュー切替（ボトムナビ）& 印西イベント / COCoLaカレンダー ===== */
+    (function () {
+      var EVENTS_JSON_URL = 'https://you0810jmsdf.github.io/cocola-site/events/data.json';
+      var SCHEDULE_JSON_URL = 'https://you0810jmsdf.github.io/cocola-site/schedule/data.json';
+
+      var viewState = {
+        eventFilter: 'upcoming',
+        eventsLoaded: false,
+        eventsRows: [],
+        calLoaded: false,
+        calItems: []
+      };
+
+      var navButtons = document.querySelectorAll('.bottom-nav__item');
+      var views = document.querySelectorAll('.view');
+      var VIEW_NAMES = ['proposals', 'points', 'events', 'calendar'];
+
+      function switchView(name) {
+        if (VIEW_NAMES.indexOf(name) === -1) name = 'proposals';
+        views.forEach(function (v) {
+          v.classList.toggle('is-active', v.getAttribute('data-view') === name);
+        });
+        navButtons.forEach(function (b) {
+          var active = b.getAttribute('data-nav') === name;
+          b.classList.toggle('is-active', active);
+          if (active) { b.setAttribute('aria-current', 'page'); } else { b.removeAttribute('aria-current'); }
+        });
+        window.scrollTo(0, 0);
+        if (name === 'events' && !viewState.eventsLoaded) loadEvents();
+        if (name === 'calendar' && !viewState.calLoaded) loadCalendar();
+        try { history.replaceState(null, '', '#' + name); } catch (e) {}
+      }
+
+      navButtons.forEach(function (b) {
+        b.addEventListener('click', function () { switchView(b.getAttribute('data-nav')); });
+      });
+
+      /* ---- 印西イベント ---- */
+      var eventList = document.getElementById('eventList');
+      var eventEmpty = document.getElementById('eventEmpty');
+
+      function loadEvents() {
+        viewState.eventsLoaded = true;
+        eventEmpty.hidden = false;
+        eventEmpty.textContent = 'イベント情報を読み込み中です。';
+        fetch(EVENTS_JSON_URL + '?t=' + Date.now(), { cache: 'no-store' })
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (data) {
+            viewState.eventsRows = (data && Array.isArray(data.rows)) ? data.rows : [];
+            renderEvents();
+          })
+          .catch(function () {
+            viewState.eventsLoaded = false;
+            eventList.innerHTML = '';
+            eventEmpty.hidden = false;
+            eventEmpty.textContent = 'イベント情報を読み込めませんでした。通信環境をご確認のうえ、もう一度お試しください。';
+          });
+      }
+
+      function renderEvents() {
+        var rows = viewState.eventsRows || [];
+        var list = viewState.eventFilter === 'upcoming'
+          ? rows.filter(function (r) { return !r.past; })
+          : rows.slice();
+        list.sort(function (a, b) {
+          var ta = Number(a.ts) || Infinity;
+          var tb = Number(b.ts) || Infinity;
+          return ta - tb;
+        });
+        eventList.innerHTML = list.map(function (r) {
+          var href = r.u ? ' href="' + escapeHtml(r.u) + '" target="_blank" rel="noopener"' : '';
+          var tag = r.u ? 'a' : 'div';
+          return '<' + tag + ' class="event-card' + (r.past ? ' is-past' : '') + '"' + href + '>' +
+            (r.d ? '<span class="event-card__date">' + escapeHtml(r.d) + '</span>' : '') +
+            '<h3 class="event-card__title">' + escapeHtml(r.t || '（無題）') + '</h3>' +
+            (r.l ? '<div class="event-card__meta"><span class="pill">会場: ' + escapeHtml(r.l) + '</span></div>' : '') +
+            (r.desc ? '<p class="event-card__desc">' + escapeHtml(r.desc) + '</p>' : '') +
+            (r.s ? '<p class="event-card__src">出典: ' + escapeHtml(r.s) + '</p>' : '') +
+            '</' + tag + '>';
+        }).join('');
+        eventEmpty.hidden = list.length > 0;
+        if (list.length === 0) {
+          eventEmpty.textContent = viewState.eventFilter === 'upcoming'
+            ? 'これから開催されるイベント情報はありません。「すべて」もご確認ください。'
+            : 'イベント情報がありません。';
+        }
+      }
+
+      document.querySelectorAll('[data-event-filter]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          viewState.eventFilter = btn.getAttribute('data-event-filter');
+          document.querySelectorAll('[data-event-filter]').forEach(function (b) {
+            b.classList.toggle('is-active', b === btn);
+          });
+          renderEvents();
+        });
+      });
+
+      /* ---- COCoLaカレンダー ---- */
+      var calList = document.getElementById('calList');
+      var calEmpty = document.getElementById('calEmpty');
+      var WDAY = ['日', '月', '火', '水', '木', '金', '土'];
+
+      function loadCalendar() {
+        viewState.calLoaded = true;
+        calEmpty.hidden = false;
+        calEmpty.textContent = '予定を読み込み中です。';
+        fetch(SCHEDULE_JSON_URL + '?t=' + Date.now(), { cache: 'no-store' })
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (data) {
+            viewState.calItems = (data && Array.isArray(data.items)) ? data.items : [];
+            renderCalendar();
+          })
+          .catch(function () {
+            viewState.calLoaded = false;
+            calList.innerHTML = '';
+            calEmpty.hidden = false;
+            calEmpty.textContent = '予定を読み込めませんでした。通信環境をご確認のうえ、もう一度お試しください。';
+          });
+      }
+
+      function parseCalDate(s) {
+        var m = String(s || '').match(/(\d{4})\/(\d{1,2})\/(\d{1,2})/);
+        if (!m) return null;
+        return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+      }
+
+      function renderCalendar() {
+        var items = (viewState.calItems || []).filter(function (it) {
+          return it && it.isPublic !== false && it.title;
+        });
+        items.forEach(function (it) { it._d = parseCalDate(it.date); });
+        items.sort(function (a, b) {
+          var ta = a._d ? a._d.getTime() : Infinity;
+          var tb = b._d ? b._d.getTime() : Infinity;
+          return ta - tb;
+        });
+        var today = new Date(); today.setHours(0, 0, 0, 0);
+        var upcoming = items.filter(function (it) { return it._d && it._d.getTime() >= today.getTime(); });
+        var render = upcoming.length > 0 ? upcoming : items;
+
+        var html = '';
+        var lastMonth = '';
+        render.forEach(function (it) {
+          var d = it._d;
+          var monthLabel = d ? (d.getFullYear() + '年' + (d.getMonth() + 1) + '月') : '日付未定';
+          if (monthLabel !== lastMonth) {
+            html += '<div class="cal-month">' + escapeHtml(monthLabel) + '</div>';
+            lastMonth = monthLabel;
+          }
+          var dayNum = d ? d.getDate() : '–';
+          var wday = d ? WDAY[d.getDay()] : '';
+          var timeText = '';
+          if (it.startTime) {
+            timeText = escapeHtml(it.startTime) + (it.endTime ? '〜' + escapeHtml(it.endTime) : '');
+          }
+          html += '<div class="cal-item">' +
+            '<div class="cal-item__when">' +
+              '<span class="cal-item__day">' + escapeHtml(dayNum) + '</span>' +
+              '<span class="cal-item__wday">' + escapeHtml(wday) + '</span>' +
+              (timeText ? '<span class="cal-item__time">' + timeText + '</span>' : '') +
+            '</div>' +
+            '<div class="cal-item__body">' +
+              '<h3 class="cal-item__title">' + escapeHtml(it.title) + '</h3>' +
+              '<div class="cal-item__meta">' +
+                (it.category ? '<span class="cal-item__cat">' + escapeHtml(it.category) + '</span>' : '') +
+                (it.place ? '<span class="pill">会場: ' + escapeHtml(it.place) + '</span>' : '') +
+                (it.organizer ? '<span class="pill">主催: ' + escapeHtml(it.organizer) + '</span>' : '') +
+              '</div>' +
+              (it.memo ? '<p class="cal-item__memo">' + escapeHtml(it.memo) + '</p>' : '') +
+            '</div>' +
+          '</div>';
+        });
+        calList.innerHTML = html;
+        calEmpty.hidden = render.length > 0;
+        if (render.length === 0) calEmpty.textContent = '公開中の予定はありません。';
+      }
+
+      /* 初期ビュー：URLハッシュを反映 */
+      var initial = (location.hash || '').replace('#', '');
+      if (initial && initial !== 'proposals') switchView(initial);
     })();
   </script>
   <script src="../assets/site-config.js?v=20260424"></script>
