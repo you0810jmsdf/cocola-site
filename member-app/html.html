@@ -1657,15 +1657,20 @@ async function copyMailingList() {
     return;
   }
 
-  const emails = [];
-  allMembers.forEach((member) => {
-    [member.emailPublic, member.emailForm].forEach((value) => {
-      const email = String(value || "").trim();
-      if (email) emails.push(email);
-    });
-  });
+  // メールアドレスは公開JSON(members/data.json)に含めない方針のため、
+  // 運営用エンドポイント(mode=memberEmails・要key)から取得する。
+  let unique = [];
+  try {
+    const res = await fetch(APP_URL + "?mode=memberEmails&key=" + encodeURIComponent(password) + "&t=" + Date.now(), { credentials: 'omit' });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    unique = Array.isArray(data.emails) ? data.emails : [];
+  } catch (error) {
+    window.alert("メールアドレスの取得に失敗しました。(" + error.message + ")");
+    return;
+  }
 
-  const unique = [...new Set(emails)];
   if (!unique.length) {
     window.alert("コピーできるメールアドレスがありません。");
     return;

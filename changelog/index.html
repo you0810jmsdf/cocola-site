@@ -118,6 +118,18 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-29</p>
+            <h2 class="cl-title"><strong>会員名簿の公開データからメールアドレスを非公開化</strong>（プライバシー保護）</h2>
+            <p class="cl-desc">
+              メンバー一覧の公開データ（members/data.json）に含まれていた登録メールアドレスを除去し、誰でも閲覧できる状態を解消しました。運営によるメーリングリストのコピー機能は、パスワードで保護された専用窓口から取得する方式に変更しています。本人ログイン（メール照合）には影響ありません。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+              <span class="tag tag--infra">基盤</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-29</p>
             <h2 class="cl-title"><strong>DAO提案をアプリ内で完結（Googleアカウント不要に）</strong></h2>
             <p class="cl-desc">
               これまでDAO提案は外部のGoogleフォームに飛ぶ作りで、フォームが<strong>Googleログイン必須</strong>だったため、<strong>Googleアカウントを持たないメンバーは提案できなかった</strong>。これを解消し、<strong>アプリ内の入力画面から直接提案できる</strong>ようにした。「提案する」ボタンを押すと、ログイン中の本人として提案フォーム（提案タイトル／区分〈行政につなぐ・団体方針〉／カテゴリ／理由・詳細／必要なもの）が開き、送信すると一覧に反映される。提案者はログイン中のニックネームで自動設定され、Googleアカウントは不要。サーバー側（cocola-dao-gas2）に <code>mode=submitProposal</code> を新設し、既存のフォーム送信と同じ仕組みで提案を登録・<strong>提案ポイント（3pt）を付与</strong>・重複チェックも行う。投票に続いて提案もアプリ内で完結するようになり、外部の有料サービスやメール送信APIは使用していない（追加費用なし）。
