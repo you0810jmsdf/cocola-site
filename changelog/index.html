@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-29</p>
+            <h2 class="cl-title"><strong>イベント受付でQRスキャン→DAOポイント付与</strong>（受付ページを追加）</h2>
+            <p class="cl-desc">
+              会員証の<strong>QRコード（ニックネーム）</strong>を受付スタッフがスキャンして、その場で<strong>DAOポイントを付与</strong>できる受付ページ（<strong>dao/checkin.html</strong>）を追加した。受付ページは<strong>受付パスワード</strong>で保護し、対象イベントは受付URLで指定（手入力も可）。<strong>1イベント参加につき固定2ポイント</strong>を付与し、<strong>同一会員×同一イベントの二重付与は防止</strong>（台帳キーで冪等管理）。会員名簿と照合するため、非会員や誤読のニックネームには付与されない。カメラが使えない場合はニックネームの手入力でも受付できる。外部の有料サービスは使用していない（GitHub Pages＋Google Apps Scriptの無料枠のみ・追加費用なし）。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-29</p>
             <h2 class="cl-title"><strong>DAOアプリに「メンバー」タブ（メンバー検索・マッチング）を追加</strong></h2>
             <p class="cl-desc">
               DAOアプリのボトムナビに5つ目の<strong>「メンバー」タブ</strong>を追加し、COCoLaメンバーを<strong>検索・マッチング</strong>できるようにした。名前・職業・<strong>できること（スキル）・今後やりたいこと</strong>・保有資格・所属で<strong>キーワード検索</strong>でき、「ものをつくる」「まちをつくる」などの<strong>カテゴリで絞り込み</strong>も可能。各メンバーのカードには、できること・やりたいこと・保有資格・SNS/Webリンクを表示し、関心の近い仲間を見つけて各自のSNS等から連絡できる。メールアドレスは表示しない（プライバシー保護）。データは会員名簿（members/data.json）を利用し、メンバータブを開いたときに読み込む（遅延読込）。外部の有料サービスは使用していない（追加費用なし）。
