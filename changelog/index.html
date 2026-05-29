@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-29</p>
+            <h2 class="cl-title"><strong>DAOアプリに「メンバー」タブ（メンバー検索・マッチング）を追加</strong></h2>
+            <p class="cl-desc">
+              DAOアプリのボトムナビに5つ目の<strong>「メンバー」タブ</strong>を追加し、COCoLaメンバーを<strong>検索・マッチング</strong>できるようにした。名前・職業・<strong>できること（スキル）・今後やりたいこと</strong>・保有資格・所属で<strong>キーワード検索</strong>でき、「ものをつくる」「まちをつくる」などの<strong>カテゴリで絞り込み</strong>も可能。各メンバーのカードには、できること・やりたいこと・保有資格・SNS/Webリンクを表示し、関心の近い仲間を見つけて各自のSNS等から連絡できる。メールアドレスは表示しない（プライバシー保護）。データは会員名簿（members/data.json）を利用し、メンバータブを開いたときに読み込む（遅延読込）。外部の有料サービスは使用していない（追加費用なし）。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-29</p>
             <h2 class="cl-title"><strong>ログイン後のTOPを「マイカード」（会員証）に</strong>（QRコード付き）</h2>
             <p class="cl-desc">
               DAOアプリにログインすると、最初に<strong>自分専用の会員証「マイカード」</strong>が表示されるようにした。ボトムナビの先頭を「マイカード」にし、ニックネーム・ステータス・<strong>貢献度ポイント（累計／直近6ヶ月）・COCoLaメンバー内での順位</strong>を会員証デザインのカードで表示。あわせて<strong>本人確認用のQRコード</strong>を表示する（中身は当面ニックネーム。将来の各種サービス連携の入口）。QRは外部API不要のローカルJSライブラリ（qrcode-generator・MIT）で生成し、追加費用はかからない。ポイントランキングは会員証の下に引き続き表示。※QRをかざしてポイントを使う（消費）仕組みは今後のフェーズで検討。

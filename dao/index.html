@@ -1268,7 +1268,7 @@
       bottom: 0;
       z-index: 90;
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       background: rgba(255, 255, 255, 0.96);
       backdrop-filter: saturate(140%) blur(8px);
       border-top: 1px solid var(--line);
@@ -1283,20 +1283,20 @@
       justify-content: center;
       gap: 3px;
       min-height: 60px;
-      padding: 8px 4px;
+      padding: 8px 2px;
       border: none;
       background: none;
       color: var(--muted);
       font: inherit;
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       font-weight: 700;
       cursor: pointer;
       transition: color 120ms;
     }
 
     .bottom-nav__item svg {
-      width: 23px;
-      height: 23px;
+      width: 22px;
+      height: 22px;
       stroke: currentColor;
       fill: none;
       stroke-width: 1.9;
@@ -1598,6 +1598,127 @@
       color: var(--ink);
       font-variant-numeric: tabular-nums;
       line-height: 1.2;
+    }
+
+    /* ===== メンバー検索 ===== */
+    .member-search {
+      display: block;
+      margin-bottom: 12px;
+    }
+    .member-search input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      font: inherit;
+      font-size: 1rem;
+      background: #fff;
+    }
+    .member-search input:focus {
+      outline: none;
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(29, 143, 111, 0.15);
+    }
+    .member-cats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .member-cat {
+      min-height: 34px;
+      padding: 6px 12px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      font-size: 0.84rem;
+      cursor: pointer;
+    }
+    .member-cat.is-active {
+      border-color: var(--green);
+      background: #e7f5f0;
+      color: var(--green-deep);
+      font-weight: 700;
+    }
+    .member-count {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+    .member-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    @media (max-width: 560px) {
+      .member-list { grid-template-columns: 1fr; }
+    }
+    .member-item {
+      display: grid;
+      gap: 8px;
+      padding: 16px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+    }
+    .member-item__name {
+      margin: 0;
+      font-size: 1.12rem;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+    .member-item__job {
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 600;
+    }
+    .member-item__cats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .member-item__cat {
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: #e7f5f0;
+      color: var(--green-deep);
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+    .member-item__block strong {
+      display: block;
+      font-size: 0.74rem;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+    .member-item__block p {
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+    .member-item__links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .member-item__links a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 4px 10px;
+      border: 1px solid var(--green);
+      border-radius: 8px;
+      color: var(--green-deep);
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .member-item__links a:hover {
+      background: #e7f5f0;
     }
 
     /* ===== 会員証（メンバーズカード） ===== */
@@ -2068,6 +2189,22 @@
           <div class="empty" id="calEmpty" hidden>予定を読み込み中です。</div>
         </section>
       </div><!-- /view calendar -->
+
+      <div class="view" data-view="members">
+        <section aria-label="メンバー検索">
+          <div class="view-head">
+            <h2>メンバーを探す</h2>
+            <p class="view-lead">COCoLaメンバーのスキルや「やりたいこと」から、つながりたい人を見つけられます。</p>
+          </div>
+          <label class="member-search">
+            <input type="text" id="memberSearch" placeholder="名前・スキル・やりたいこと・所属で検索" autocomplete="off">
+          </label>
+          <div class="member-cats" id="memberCats"></div>
+          <p class="member-count" id="memberCount"></p>
+          <div class="member-list" id="memberList"></div>
+          <div class="empty" id="memberEmpty" hidden>メンバー情報を読み込み中です。</div>
+        </section>
+      </div><!-- /view members -->
     </div>
   </main>
 
@@ -2080,9 +2217,13 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M9.5 5a2.5 2.5 0 0 1 5 0"/><path d="M9 11h6M9 15h4"/></svg>
       <span>提案・投票</span>
     </button>
+    <button class="bottom-nav__item" type="button" data-nav="members">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M16 6.5a2.7 2.7 0 0 1 0 5.2M17 14.5a5 5 0 0 1 3.5 4.5"/></svg>
+      <span>メンバー</span>
+    </button>
     <button class="bottom-nav__item" type="button" data-nav="events">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5l8-5 8 5M5.5 9v9a1.5 1.5 0 0 0 1.5 1.5h10a1.5 1.5 0 0 0 1.5-1.5V9"/><path d="M9.5 19.5v-5.5h5v5.5"/></svg>
-      <span>印西イベント</span>
+      <span>イベント</span>
     </button>
     <button class="bottom-nav__item" type="button" data-nav="calendar">
       <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 9.5h17M8 3.2v3.6M16 3.2v3.6"/></svg>
@@ -3409,12 +3550,16 @@
         eventsLoaded: false,
         eventsRows: [],
         calLoaded: false,
-        calItems: []
+        calItems: [],
+        membersLoaded: false,
+        memberRows: [],
+        memberSearch: '',
+        memberCat: 'all'
       };
 
       var navButtons = document.querySelectorAll('.bottom-nav__item');
       var views = document.querySelectorAll('.view');
-      var VIEW_NAMES = ['proposals', 'points', 'events', 'calendar'];
+      var VIEW_NAMES = ['proposals', 'points', 'events', 'calendar', 'members'];
 
       function switchView(name) {
         if (VIEW_NAMES.indexOf(name) === -1) name = 'proposals';
@@ -3429,6 +3574,7 @@
         window.scrollTo(0, 0);
         if (name === 'events' && !viewState.eventsLoaded) loadEvents();
         if (name === 'calendar' && !viewState.calLoaded) loadCalendar();
+        if (name === 'members' && !viewState.membersLoaded) loadMembersList();
         try { history.replaceState(null, '', '#' + name); } catch (e) {}
       }
 
@@ -3590,6 +3736,121 @@
         calList.innerHTML = html;
         calEmpty.hidden = render.length > 0;
         if (render.length === 0) calEmpty.textContent = '公開中の予定はありません。';
+      }
+
+      /* ---- メンバー検索（マッチング） ---- */
+      var MEMBERS_LIST_URL = 'https://you0810jmsdf.github.io/cocola-site/members/data.json';
+      var MEMBER_COL = { nickname: 3, name: 4, job: 5, sns1: 8, sns2: 9, url1: 10, url2: 11, license: 12, skills: 13, goals: 14, comment: 15, cats: 16 };
+      var memberSearchInput = document.getElementById('memberSearch');
+      var memberCatsBox = document.getElementById('memberCats');
+      var memberCountEl = document.getElementById('memberCount');
+      var memberListEl = document.getElementById('memberList');
+      var memberEmptyEl = document.getElementById('memberEmpty');
+
+      function cleanMemberUrl(v) {
+        var s = String(v || '').trim();
+        if (!s) return '';
+        if (!/^https?:\/\//i.test(s)) {
+          if (/^[\w.-]+\.[a-z]{2,}/i.test(s)) s = 'https://' + s; else return '';
+        }
+        return s;
+      }
+      function parseMemberCats(v) {
+        return String(v || '').split(/[,、\/／\n]+/).map(function (s) { return s.trim(); }).filter(Boolean);
+      }
+      function memberLinkLabel(url) {
+        var u = url.toLowerCase();
+        if (u.indexOf('facebook') !== -1) return 'Facebook';
+        if (u.indexOf('instagram') !== -1) return 'Instagram';
+        if (u.indexOf('twitter') !== -1 || u.indexOf('x.com') !== -1) return 'X';
+        if (u.indexOf('line') !== -1) return 'LINE';
+        if (u.indexOf('note.com') !== -1) return 'note';
+        return 'リンク';
+      }
+
+      function loadMembersList() {
+        viewState.membersLoaded = true;
+        memberEmptyEl.hidden = false;
+        memberEmptyEl.textContent = 'メンバー情報を読み込み中です。';
+        fetch(MEMBERS_LIST_URL + '?t=' + Date.now(), { cache: 'no-store' })
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (data) {
+            var rows = (data && Array.isArray(data.rows)) ? data.rows : [];
+            viewState.memberRows = rows.map(function (row) {
+              var links = [row[MEMBER_COL.sns1], row[MEMBER_COL.sns2], row[MEMBER_COL.url1], row[MEMBER_COL.url2]]
+                .map(cleanMemberUrl).filter(Boolean)
+                .map(function (url) { return { label: memberLinkLabel(url), url: url }; });
+              return {
+                nickname: String(row[MEMBER_COL.nickname] || '').trim(),
+                name: String(row[MEMBER_COL.name] || '').trim(),
+                job: String(row[MEMBER_COL.job] || '').trim(),
+                license: String(row[MEMBER_COL.license] || '').trim(),
+                skills: String(row[MEMBER_COL.skills] || '').trim(),
+                goals: String(row[MEMBER_COL.goals] || '').trim(),
+                cats: parseMemberCats(row[MEMBER_COL.cats]),
+                links: links.slice(0, 3)
+              };
+            }).filter(function (m) { return m.nickname; });
+            renderMemberCats();
+            renderMemberList();
+          })
+          .catch(function () {
+            viewState.membersLoaded = false;
+            memberListEl.innerHTML = '';
+            memberEmptyEl.hidden = false;
+            memberEmptyEl.textContent = 'メンバー情報を読み込めませんでした。通信環境をご確認のうえ、もう一度お試しください。';
+          });
+      }
+
+      function renderMemberCats() {
+        var set = {};
+        viewState.memberRows.forEach(function (m) { m.cats.forEach(function (c) { set[c] = true; }); });
+        var cats = ['all'].concat(Object.keys(set).sort(function (a, b) { return a.localeCompare(b, 'ja'); }));
+        memberCatsBox.innerHTML = cats.map(function (c) {
+          var active = (c === viewState.memberCat) ? ' is-active' : '';
+          var label = (c === 'all') ? 'すべて' : c;
+          return '<button class="member-cat' + active + '" type="button" data-member-cat="' + escapeHtml(c) + '">' + escapeHtml(label) + '</button>';
+        }).join('');
+      }
+
+      function renderMemberList() {
+        var q = (viewState.memberSearch || '').toLowerCase();
+        var cat = viewState.memberCat;
+        var list = viewState.memberRows.filter(function (m) {
+          if (cat !== 'all' && m.cats.indexOf(cat) === -1) return false;
+          if (!q) return true;
+          var hay = [m.nickname, m.name, m.job, m.skills, m.goals, m.license, m.cats.join(' ')].join(' ').toLowerCase();
+          return hay.indexOf(q) !== -1;
+        });
+        memberCountEl.textContent = viewState.memberRows.length + '人中 ' + list.length + '人を表示';
+        memberListEl.innerHTML = list.map(function (m) {
+          return '<article class="member-item">' +
+            '<h3 class="member-item__name">' + escapeHtml(m.nickname) + (m.job ? '<span class="member-item__job"> / ' + escapeHtml(m.job) + '</span>' : '') + '</h3>' +
+            (m.cats.length ? '<div class="member-item__cats">' + m.cats.map(function (c) { return '<span class="member-item__cat">' + escapeHtml(c) + '</span>'; }).join('') + '</div>' : '') +
+            (m.skills ? '<div class="member-item__block"><strong>できること・得意なこと</strong><p>' + escapeHtml(m.skills) + '</p></div>' : '') +
+            (m.goals ? '<div class="member-item__block"><strong>今後やりたいこと</strong><p>' + escapeHtml(m.goals) + '</p></div>' : '') +
+            (m.license ? '<div class="member-item__block"><strong>保有資格</strong><p>' + escapeHtml(m.license) + '</p></div>' : '') +
+            (m.links.length ? '<div class="member-item__links">' + m.links.map(function (l) { return '<a href="' + escapeHtml(l.url) + '" target="_blank" rel="noopener">' + escapeHtml(l.label) + '</a>'; }).join('') + '</div>' : '') +
+            '</article>';
+        }).join('');
+        memberEmptyEl.hidden = list.length > 0;
+        if (list.length === 0) memberEmptyEl.textContent = '条件に合うメンバーが見つかりませんでした。';
+      }
+
+      if (memberSearchInput) {
+        memberSearchInput.addEventListener('input', function () {
+          viewState.memberSearch = memberSearchInput.value || '';
+          renderMemberList();
+        });
+      }
+      if (memberCatsBox) {
+        memberCatsBox.addEventListener('click', function (e) {
+          var btn = e.target.closest('[data-member-cat]');
+          if (!btn) return;
+          viewState.memberCat = btn.getAttribute('data-member-cat');
+          renderMemberCats();
+          renderMemberList();
+        });
       }
 
       /* 初期ビュー：URLハッシュを反映 */
