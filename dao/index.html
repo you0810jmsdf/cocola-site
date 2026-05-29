@@ -1036,6 +1036,26 @@
       font-weight: 700;
       color: var(--green-deep);
     }
+    .proposal-modal-box {
+      max-height: 88vh;
+      overflow-y: auto;
+    }
+    .proposal-modal-box textarea.modal-input {
+      resize: vertical;
+      font-family: inherit;
+      line-height: 1.5;
+    }
+    .req {
+      display: inline-block;
+      margin-left: 4px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: var(--coral);
+      color: #fff;
+      font-size: 0.66rem;
+      font-weight: 700;
+      vertical-align: middle;
+    }
     .modal-input {
       width: 100%;
       padding: 10px 12px;
@@ -1775,7 +1795,7 @@
           <h2>提案・投票フォーム</h2>
           <p>思いついたことは提案へ。応援したいものには投票へ。投票参加もDAOポイントの対象です。</p>
           <div class="actions">
-            <a class="button" id="proposalForm" href="https://docs.google.com/forms/d/e/1FAIpQLSdxfz3OyN2FJ6x89viHAyKU57glOMPMuFGdXNjp2O6motziWQ/viewform" target="_blank" rel="noopener">提案する</a>
+            <button class="button" id="proposalForm" type="button">提案する</button>
           </div>
           <p class="sync-note">投票は各提案カードの「投票する」ボタンから行えます。投票後、数値への反映に最大5分かかります（自動更新）。</p>
           <div class="notify-box" id="notifyBox" hidden>
@@ -1985,6 +2005,39 @@
     <p class="modal-error" id="voteModalError"></p>
     <div class="modal-actions">
       <button class="button secondary" type="button" id="voteModalCancel">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- 提案モーダル -->
+<div class="modal-overlay" id="proposalModal" hidden aria-modal="true" role="dialog">
+  <div class="modal-box proposal-modal-box">
+    <h3>DAOに提案する</h3>
+    <p>提案者: <strong id="proposalAsName"></strong></p>
+    <label class="modal-label" for="proposalTitleInput">提案タイトル <span class="req">必須</span></label>
+    <input class="modal-input" type="text" id="proposalTitleInput" maxlength="60" placeholder="例：印西駅前にベンチを増やしたい">
+    <label class="modal-label" for="proposalTypeSelect">区分 <span class="req">必須</span></label>
+    <select class="modal-select" id="proposalTypeSelect">
+      <option value="行政につなぐ">行政につなぐ（行政・地域・市民に関わる提案）</option>
+      <option value="団体方針">団体方針（COCoLa内部の運営・PR・出店・グッズ等）</option>
+    </select>
+    <label class="modal-label" for="proposalCategorySelect">カテゴリ <span class="req">必須</span></label>
+    <select class="modal-select" id="proposalCategorySelect">
+      <option value="イベント">イベント</option>
+      <option value="場づくり">場づくり</option>
+      <option value="広報">広報</option>
+      <option value="学び">学び</option>
+      <option value="制作">制作</option>
+      <option value="その他">その他</option>
+    </select>
+    <label class="modal-label" for="proposalDetailInput">理由・詳細 <span class="req">必須</span></label>
+    <textarea class="modal-input" id="proposalDetailInput" rows="4" maxlength="1000" placeholder="どんなことを、なぜやりたいかを書いてください。"></textarea>
+    <label class="modal-label" for="proposalNeedsInput">必要なもの（任意）</label>
+    <textarea class="modal-input" id="proposalNeedsInput" rows="2" maxlength="500" placeholder="人・場所・費用・協力など、必要になりそうなもの。"></textarea>
+    <p class="modal-error" id="proposalModalError"></p>
+    <div class="modal-actions">
+      <button class="button secondary" type="button" id="proposalModalCancel">キャンセル</button>
+      <button class="button" type="button" id="proposalModalSubmit">提案する</button>
     </div>
   </div>
 </div>
@@ -2773,6 +2826,81 @@
         renderMembers();
       });
     })();
+
+    // ---- 提案モーダル（アプリ内提案・本人ログイン） ----
+    (function bindProposalModal() {
+      var proposalModal = document.getElementById('proposalModal');
+      var proposalBtn = document.getElementById('proposalForm');
+      var proposalAsName = document.getElementById('proposalAsName');
+      var titleInput = document.getElementById('proposalTitleInput');
+      var typeSelect = document.getElementById('proposalTypeSelect');
+      var categorySelect = document.getElementById('proposalCategorySelect');
+      var detailInput = document.getElementById('proposalDetailInput');
+      var needsInput = document.getElementById('proposalNeedsInput');
+      var errorEl = document.getElementById('proposalModalError');
+      var cancelBtn = document.getElementById('proposalModalCancel');
+      var submitBtn = document.getElementById('proposalModalSubmit');
+      if (!proposalModal || !proposalBtn) return;
+
+      function openProposalModal() {
+        var me = getStoredNickname();
+        if (!me) { window.alert('提案するにはログインしてください。'); return; }
+        proposalAsName.textContent = me + ' さん';
+        errorEl.textContent = '';
+        proposalModal.hidden = false;
+      }
+      function closeProposalModal() { proposalModal.hidden = true; }
+
+      proposalBtn.addEventListener('click', openProposalModal);
+      cancelBtn.addEventListener('click', closeProposalModal);
+      proposalModal.addEventListener('click', function (e) { if (e.target === proposalModal) closeProposalModal(); });
+
+      submitBtn.addEventListener('click', function () {
+        var me = getStoredNickname();
+        if (!me) { errorEl.textContent = 'ログインしてから提案してください。'; return; }
+        var title = (titleInput.value || '').trim();
+        var detail = (detailInput.value || '').trim();
+        if (!title) { errorEl.textContent = '提案タイトルを入力してください。'; return; }
+        if (!detail) { errorEl.textContent = '理由・詳細を入力してください。'; return; }
+        submitBtn.disabled = true;
+        submitBtn.textContent = '送信中…';
+        errorEl.textContent = '';
+        var url = GAS_URL + '?mode=submitProposal'
+          + '&title=' + encodeURIComponent(title)
+          + '&type=' + encodeURIComponent(typeSelect.value)
+          + '&category=' + encodeURIComponent(categorySelect.value)
+          + '&detail=' + encodeURIComponent(detail)
+          + '&needs=' + encodeURIComponent((needsInput.value || '').trim())
+          + '&proposer=' + encodeURIComponent(me);
+        fetch(url)
+          .then(function (r) { return r.json(); })
+          .then(function (res) {
+            if (res && res.ok) {
+              closeProposalModal();
+              titleInput.value = '';
+              detailInput.value = '';
+              needsInput.value = '';
+              var notice = document.createElement('div');
+              notice.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#2d7a2d;color:#fff;padding:.75rem 1.5rem;border-radius:8px;font-size:.95rem;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,.3)';
+              notice.textContent = '提案を受け付けました！一覧への反映に最大5分かかります。';
+              document.body.appendChild(notice);
+              setTimeout(function () { notice.remove(); }, 5000);
+              _gasInFlight = false;
+              fetchFromGas();
+            } else {
+              errorEl.textContent = (res && res.error === 'duplicate')
+                ? '同じ内容の提案が直近に登録されています。'
+                : '提案の送信に失敗しました。少し待ってからもう一度お試しください。';
+            }
+          })
+          .catch(function () { errorEl.textContent = '通信エラーが発生しました。'; })
+          .finally(function () {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '提案する';
+          });
+      });
+    })();
+
     refreshStoredNicknameHash().then(function() {
       if (state.loaded) renderProposals();
     });
@@ -2788,8 +2916,6 @@
       state.cacheStale = false;
       mergeLocalCivicLikeCounts();
       saveToLocalStorage();
-      setFormLink(proposalForm, state.data.proposalFormUrl);
-      setFormLink(voteForm, state.data.voteFormUrl);
       renderStats();
       renderProposals();
       renderMembers();
