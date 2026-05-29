@@ -1600,6 +1600,125 @@
       line-height: 1.2;
     }
 
+    /* ===== 会員証（メンバーズカード） ===== */
+    .member-card {
+      position: relative;
+      padding: 20px;
+      border-radius: 16px;
+      color: #fff;
+      background: linear-gradient(135deg, #1d8f6f 0%, #12634e 100%);
+      box-shadow: 0 10px 28px rgba(18, 99, 78, 0.28);
+      overflow: hidden;
+    }
+
+    .member-card[hidden] {
+      display: none;
+    }
+
+    .member-card::after {
+      content: "";
+      position: absolute;
+      right: -40px;
+      top: -40px;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .member-card__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .member-card__brand {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      opacity: 0.92;
+    }
+
+    .member-card__head .member-status {
+      background: rgba(255, 255, 255, 0.92);
+    }
+
+    .member-card__name {
+      margin: 0 0 16px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      line-height: 1.2;
+      overflow-wrap: anywhere;
+      position: relative;
+      z-index: 1;
+    }
+
+    .member-card__body {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .member-card__stats {
+      display: grid;
+      gap: 10px;
+    }
+
+    .member-card__stats div {
+      font-size: 0.76rem;
+      opacity: 0.9;
+    }
+
+    .member-card__stats b {
+      display: block;
+      font-size: 1.3rem;
+      font-weight: 800;
+      line-height: 1.2;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .member-card__qr {
+      flex: 0 0 auto;
+      display: grid;
+      gap: 4px;
+      justify-items: center;
+      padding: 8px;
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .member-card__qr svg,
+    .member-card__qr img {
+      display: block;
+      width: 92px;
+      height: 92px;
+    }
+
+    .member-card__qr-label {
+      color: var(--green-deep);
+      font-size: 0.64rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    @media (max-width: 420px) {
+      .member-card__qr svg,
+      .member-card__qr img {
+        width: 76px;
+        height: 76px;
+      }
+      .member-card__name {
+        font-size: 1.4rem;
+      }
+    }
+
     .members-table td.rank {
       text-align: center;
       font-weight: 800;
@@ -1782,7 +1901,7 @@
 
   <main class="page">
     <div class="shell">
-      <div class="view is-active" data-view="proposals">
+      <div class="view" data-view="proposals">
       <section class="top" aria-label="提案と投票">
         <div class="intro">
           <p class="eyebrow">COCoLa DAO</p>
@@ -1883,15 +2002,15 @@
       <p class="updated" id="updated"></p>
       </div><!-- /view proposals -->
 
-      <div class="view" data-view="points">
+      <div class="view is-active" data-view="points">
         <div class="view-head">
-          <h2>DAOポイント</h2>
-          <p class="view-lead">あなたのポイントと、COCoLaメンバー内での順位を確認できます。ポイントは活動の見える化のためのもので、報酬や優劣ではありません。</p>
+          <h2>マイカード</h2>
+          <p class="view-lead">あなたのCOCoLa DAO会員証です。貢献度ポイントとメンバー内での順位、本人確認用のQRコードを表示します。ポイントは活動の見える化のためのもので、報酬や優劣ではありません。</p>
         </div>
 
-        <section class="my-point" aria-label="あなたのDAOポイント">
-          <div class="my-point-card" id="myPointCard" hidden></div>
-          <p class="my-point-empty" id="myPointEmpty">ログインすると、あなたのポイントと順位が表示されます。</p>
+        <section class="my-point" aria-label="あなたの会員証">
+          <div class="member-card" id="myPointCard" hidden></div>
+          <p class="my-point-empty" id="myPointEmpty">ログインすると、あなたの会員証（ポイント・順位・QR）が表示されます。</p>
         </section>
 
         <section class="members-band" id="membersBand" aria-label="ポイントランキング" hidden>
@@ -1953,13 +2072,13 @@
   </main>
 
   <nav class="bottom-nav" aria-label="メインメニュー">
-    <button class="bottom-nav__item is-active" type="button" data-nav="proposals" aria-current="page">
+    <button class="bottom-nav__item is-active" type="button" data-nav="points" aria-current="page">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3 9.5h18M6.5 15h4M14.5 15h3"/></svg>
+      <span>マイカード</span>
+    </button>
+    <button class="bottom-nav__item" type="button" data-nav="proposals">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M9.5 5a2.5 2.5 0 0 1 5 0"/><path d="M9 11h6M9 15h4"/></svg>
       <span>提案・投票</span>
-    </button>
-    <button class="bottom-nav__item" type="button" data-nav="points">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.7 5.5 6 .9-4.35 4.2 1.03 6L12 17.3 6.62 20.1l1.03-6L3.3 9.9l6-.9L12 3.5z"/></svg>
-      <span>ポイント</span>
     </button>
     <button class="bottom-nav__item" type="button" data-nav="events">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5l8-5 8 5M5.5 9v9a1.5 1.5 0 0 0 1.5 1.5h10a1.5 1.5 0 0 0 1.5-1.5V9"/><path d="M9.5 19.5v-5.5h5v5.5"/></svg>
@@ -2042,6 +2161,7 @@
   </div>
 </div>
 
+<script src="../assets/qrcode-generator.js"></script>
 <script>
     var GAS_URL = 'https://script.google.com/macros/s/AKfycbxM2ybpJqfWLL-MPnOwZqeBdHjN6IQh5QB-_LubZAG-bD0x8jLkgbUn7NYRzYLFOPfj7g/exec';
     var STATIC_JSON_URL = 'https://you0810jmsdf.github.io/cocola-site/dao/data.json';
@@ -2340,16 +2460,31 @@
       }
       if (emptyMsg) emptyMsg.hidden = true;
       card.hidden = false;
+      // 本人識別用QR（外部API不要のローカルライブラリで生成）。中身は当面ニックネーム。
+      var qrHtml = '';
+      try {
+        if (typeof qrcode === 'function') {
+          var qr = qrcode(0, 'M');
+          qr.addData(String(mine.nickname || ''));
+          qr.make();
+          qrHtml = qr.createSvgTag({ cellSize: 3, margin: 0, scalable: true });
+        }
+      } catch (e) {
+        qrHtml = '';
+      }
       card.innerHTML =
-        '<div class="my-point-card__rank"><b>' + escapeHtml(mine.rank) + '位</b><span>' + escapeHtml(total) + '人中</span></div>' +
-        '<div class="my-point-card__body">' +
-          '<p class="my-point-card__name">' + escapeHtml(mine.nickname) +
-            '<span class="my-point-card__status member-status ' + statusClassMember(mine.status) + '">' + escapeHtml(mine.status || '未設定') + '</span>' +
-          '</p>' +
-          '<div class="my-point-card__nums">' +
+        '<div class="member-card__head">' +
+          '<span class="member-card__brand">COCoLa DAO 会員証</span>' +
+          '<span class="member-status ' + statusClassMember(mine.status) + '">' + escapeHtml(mine.status || '未設定') + '</span>' +
+        '</div>' +
+        '<p class="member-card__name">' + escapeHtml(mine.nickname) + ' さん</p>' +
+        '<div class="member-card__body">' +
+          '<div class="member-card__stats">' +
             '<div>累計ポイント<b>' + escapeHtml(mine.totalPoints) + '</b></div>' +
             '<div>直近6ヶ月<b>' + escapeHtml(mine.recentPoints) + '</b></div>' +
+            '<div>順位<b>' + escapeHtml(mine.rank) + '位 / ' + escapeHtml(total) + '人</b></div>' +
           '</div>' +
+          (qrHtml ? '<div class="member-card__qr">' + qrHtml + '<span class="member-card__qr-label">会員QR</span></div>' : '') +
         '</div>';
     }
 
@@ -3459,7 +3594,7 @@
 
       /* 初期ビュー：URLハッシュを反映 */
       var initial = (location.hash || '').replace('#', '');
-      if (initial && initial !== 'proposals') switchView(initial);
+      if (initial && initial !== 'points') switchView(initial);
     })();
 
     /* ===== 本人認証（メール照合・アプリ全体ログイン） ===== */

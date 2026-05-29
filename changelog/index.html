@@ -118,6 +118,18 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-29</p>
+            <h2 class="cl-title"><strong>ログイン後のTOPを「マイカード」（会員証）に</strong>（QRコード付き）</h2>
+            <p class="cl-desc">
+              DAOアプリにログインすると、最初に<strong>自分専用の会員証「マイカード」</strong>が表示されるようにした。ボトムナビの先頭を「マイカード」にし、ニックネーム・ステータス・<strong>貢献度ポイント（累計／直近6ヶ月）・COCoLaメンバー内での順位</strong>を会員証デザインのカードで表示。あわせて<strong>本人確認用のQRコード</strong>を表示する（中身は当面ニックネーム。将来の各種サービス連携の入口）。QRは外部API不要のローカルJSライブラリ（qrcode-generator・MIT）で生成し、追加費用はかからない。ポイントランキングは会員証の下に引き続き表示。※QRをかざしてポイントを使う（消費）仕組みは今後のフェーズで検討。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+              <span class="tag tag--improve">改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-29</p>
             <h2 class="cl-title"><strong>会員名簿の公開データからメールアドレスを非公開化</strong>（プライバシー保護）</h2>
             <p class="cl-desc">
               メンバー一覧の公開データ（members/data.json）に含まれていた登録メールアドレスを除去し、誰でも閲覧できる状態を解消しました。運営によるメーリングリストのコピー機能は、パスワードで保護された専用窓口から取得する方式に変更しています。本人ログイン（メール照合）には影響ありません。
