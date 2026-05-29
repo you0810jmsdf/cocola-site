@@ -1910,7 +1910,8 @@
             <p class="view-lead">いんざい市民情報サイトなどから集めた、印西市周辺の地域イベント情報です。</p>
           </div>
           <div class="seg" role="tablist" aria-label="表示期間">
-            <button class="seg-btn is-active" type="button" data-event-filter="upcoming">これから</button>
+            <button class="seg-btn is-active" type="button" data-event-filter="single">当日イベント</button>
+            <button class="seg-btn" type="button" data-event-filter="period">期間イベント</button>
             <button class="seg-btn" type="button" data-event-filter="all">すべて</button>
           </div>
           <div class="event-list" id="eventList"></div>
@@ -3143,7 +3144,7 @@
       var SCHEDULE_JSON_URL = 'https://you0810jmsdf.github.io/cocola-site/schedule/data.json';
 
       var viewState = {
-        eventFilter: 'upcoming',
+        eventFilter: 'single',
         eventsLoaded: false,
         eventsRows: [],
         calLoaded: false,
@@ -3196,11 +3197,22 @@
           });
       }
 
+      // 日付欄に日付範囲（「日〜」「月〜」「年〜」）を含むものを期間イベントとみなす。
+      // 「13:00〜17:00」のような時間の〜は日付直後ではないため誤検出しない。
+      function isPeriodEvent(r) {
+        return /[日月年]\s*[〜～]/.test(String((r && r.d) || ''));
+      }
+
       function renderEvents() {
         var rows = viewState.eventsRows || [];
-        var list = viewState.eventFilter === 'upcoming'
-          ? rows.filter(function (r) { return !r.past; })
-          : rows.slice();
+        var list;
+        if (viewState.eventFilter === 'all') {
+          list = rows.slice();
+        } else if (viewState.eventFilter === 'period') {
+          list = rows.filter(function (r) { return !r.past && isPeriodEvent(r); });
+        } else { // 'single' = 当日（単発）イベント
+          list = rows.filter(function (r) { return !r.past && !isPeriodEvent(r); });
+        }
         list.sort(function (a, b) {
           var ta = Number(a.ts) || Infinity;
           var tb = Number(b.ts) || Infinity;
@@ -3219,9 +3231,13 @@
         }).join('');
         eventEmpty.hidden = list.length > 0;
         if (list.length === 0) {
-          eventEmpty.textContent = viewState.eventFilter === 'upcoming'
-            ? 'これから開催されるイベント情報はありません。「すべて」もご確認ください。'
-            : 'イベント情報がありません。';
+          if (viewState.eventFilter === 'single') {
+            eventEmpty.textContent = 'これから開催される当日イベントはありません。「期間イベント」「すべて」もご確認ください。';
+          } else if (viewState.eventFilter === 'period') {
+            eventEmpty.textContent = 'これから開催される期間イベントはありません。「当日イベント」もご確認ください。';
+          } else {
+            eventEmpty.textContent = 'イベント情報がありません。';
+          }
         }
       }
 

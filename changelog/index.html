@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-29</p>
+            <h2 class="cl-title"><strong>印西イベントを「当日／期間」で切り替え表示</strong>（長期講座が混ざらないように）</h2>
+            <p class="cl-desc">
+              DAOアプリの<strong>「印西イベント」タブ</strong>に、イベントの種類で切り替えられるボタンを追加した。「2026年1月11日〜6月28日」のような<strong>長期講座（期間イベント）</strong>が一覧の上に溜まり、1日だけの<strong>当日イベント</strong>を見るのにスクロールが大変だった問題を解消。切替は<strong>「当日イベント」（既定・113件）／「期間イベント」（12件）／「すべて」（過去含む全件）</strong>の3つ。日付欄が「○月○日〜○月○日」のように日付範囲になっているものを期間イベントとして自動判別する（「13:00〜17:00」のような時間の表記は誤判定しない）。既定表示が「当日イベント」になったため、開いてすぐ直近の単発イベントが見られる。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--improve">改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-29</p>
             <h2 class="cl-title"><strong>DAOアプリを本人ログイン制にし、自分専用画面に</strong>（メール照合・全タブ本人モード）</h2>
             <p class="cl-desc">
               DAOアプリ（<code>dao/index.html</code>）を<strong>個人認証アプリ</strong>化した。起動時に<strong>COCoLaに登録したメールアドレスでログイン</strong>すると、以降は全タブが「あなた専用」の表示になる。<strong>ログイン方式</strong>: 入力されたメールアドレスを Google Apps Script（cocola-gas に新設した <code>mode=verifyMember</code>）がサーバー側で会員名簿と照合し、一致すればニックネームだけを返す。<strong>メールアドレスは端末にも公開データにも保存されない</strong>（照合のみ）。退会者・未登録のメールではログインできない。<strong>DAOポイント画面</strong>: ニックネーム選択式をやめ、ログイン中の本人のポイント（累計・直近6ヶ月）と<strong>COCoLaメンバー全体での順位</strong>（会員名簿の全員を分母に集計）を本人カードとして表示。ランキング表では自分の行をハイライトする。<strong>投票</strong>: 投票時のニックネーム選択を廃止し、ログイン中の本人として投票する。ヘッダーにログイン中のニックネームと「ログアウト」ボタンを追加。<strong>追加費用なし</strong>: GitHub Pages と Google Apps Script の無料枠のみで動作し、外部の有料認証サービスやメール送信APIは使用していない。
