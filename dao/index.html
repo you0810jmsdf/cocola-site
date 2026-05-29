@@ -2601,17 +2601,26 @@
       }
       if (emptyMsg) emptyMsg.hidden = true;
       card.hidden = false;
-      // 本人識別用QR（外部API不要のローカルライブラリで生成）。中身は当面ニックネーム。
+      // 本人識別用QR：COCOLA-{memberId}（SHA256(email)先頭12文字）。
+      // memberId はログイン時の verifyMember レスポンスから取得し localStorage に保存済み。
       var qrHtml = '';
-      try {
-        if (typeof qrcode === 'function') {
-          var qr = qrcode(0, 'M');
-          qr.addData(String(mine.nickname || ''));
-          qr.make();
-          qrHtml = qr.createSvgTag({ cellSize: 3, margin: 0, scalable: true });
+      var qrNote = '';
+      var auth = null;
+      try { auth = JSON.parse(localStorage.getItem('COCOLA_DAO_AUTH') || 'null'); } catch (e) { auth = null; }
+      var memberId = (auth && auth.memberId) ? String(auth.memberId) : '';
+      if (memberId) {
+        try {
+          if (typeof qrcode === 'function') {
+            var qr = qrcode(0, 'M');
+            qr.addData('COCOLA-' + memberId);
+            qr.make();
+            qrHtml = qr.createSvgTag({ cellSize: 3, margin: 0, scalable: true });
+          }
+        } catch (e) {
+          qrHtml = '';
         }
-      } catch (e) {
-        qrHtml = '';
+      } else {
+        qrNote = 'QRを表示するには、一度ログアウトして再ログインしてください。';
       }
       card.innerHTML =
         '<div class="member-card__head">' +
@@ -2625,7 +2634,9 @@
             '<div>直近6ヶ月<b>' + escapeHtml(mine.recentPoints) + '</b></div>' +
             '<div>順位<b>' + escapeHtml(mine.rank) + '位 / ' + escapeHtml(total) + '人</b></div>' +
           '</div>' +
-          (qrHtml ? '<div class="member-card__qr">' + qrHtml + '<span class="member-card__qr-label">会員QR</span></div>' : '') +
+          (qrHtml
+            ? '<div class="member-card__qr">' + qrHtml + '<span class="member-card__qr-label">会員QR（グッズ交換用）</span></div>'
+            : (qrNote ? '<div class="member-card__qr"><span class="member-card__qr-label">' + escapeHtml(qrNote) + '</span></div>' : '')) +
         '</div>';
     }
 
@@ -3912,7 +3923,11 @@
           .then(function (r) { return r.json(); })
           .then(function (res) {
             if (res && res.ok && res.nickname) {
-              setAuth({ nickname: res.nickname, verifiedAt: Date.now() });
+              setAuth({
+                nickname: res.nickname,
+                memberId: res.memberId || '',
+                verifiedAt: Date.now()
+              });
               if (typeof setStoredNickname === 'function') setStoredNickname(res.nickname);
               emailInput.value = '';
               refreshAuthUI();

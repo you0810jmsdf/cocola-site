@@ -117,6 +117,17 @@
         <ul class="changelog-list">
 
           <li class="cl-entry">
+            <p class="cl-date">2026-05-30</p>
+            <h2 class="cl-title"><strong>グッズ交換キャンペーン用QRと、スタッフ用スキャナを追加</strong></h2>
+            <p class="cl-desc">
+              市民の方にもCOCoLa DAOアプリを開放するプロモーションとして、<strong>マイページの画面提示でグッズと引き換えできるキャンペーン</strong>を運用するための仕組みを追加した。会員QRは<strong>登録メールアドレスから生成される永続ID（COCOLA-12文字、SHA256短縮ハッシュ）</strong>に変更し、<strong>キャンペーンを跨いで使い回せる</strong>ようにした（毎回QRを差し替える必要なし）。生メールはQRに含まないので、スクリーンショット流出時の漏洩・迷惑メール標的化のリスクを排除している。スタッフ側は新設の <strong>staff/scan.html</strong>（URLパスワード保護）で、キャンペーンを選んでQRをスキャンするだけ。<strong>同一メンバー×同一キャンペーンの重複交換はサーバ側で自動拒否</strong>し、「いつ・どのスタッフが渡したか」を返却するので二重交換を防止できる。キャンペーンは「キャンペーンマスタ」シートで複数並行管理可能（期間・1人あたり回数を設定）。外部の有料サービスは使用していない（追加費用なし）。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
             <p class="cl-date">2026-05-29</p>
             <h2 class="cl-title"><strong>イベント受付でQRスキャン→DAOポイント付与</strong>（受付ページを追加）</h2>
             <p class="cl-desc">
