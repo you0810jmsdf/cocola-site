@@ -117,6 +117,18 @@
         <ul class="changelog-list">
 
           <li class="cl-entry">
+            <p class="cl-date">2026-05-29</p>
+            <h2 class="cl-title"><strong>DAOアプリを本人ログイン制にし、自分専用画面に</strong>（メール照合・全タブ本人モード）</h2>
+            <p class="cl-desc">
+              DAOアプリ（<code>dao/index.html</code>）を<strong>個人認証アプリ</strong>化した。起動時に<strong>COCoLaに登録したメールアドレスでログイン</strong>すると、以降は全タブが「あなた専用」の表示になる。<strong>ログイン方式</strong>: 入力されたメールアドレスを Google Apps Script（cocola-gas に新設した <code>mode=verifyMember</code>）がサーバー側で会員名簿と照合し、一致すればニックネームだけを返す。<strong>メールアドレスは端末にも公開データにも保存されない</strong>（照合のみ）。退会者・未登録のメールではログインできない。<strong>DAOポイント画面</strong>: ニックネーム選択式をやめ、ログイン中の本人のポイント（累計・直近6ヶ月）と<strong>COCoLaメンバー全体での順位</strong>（会員名簿の全員を分母に集計）を本人カードとして表示。ランキング表では自分の行をハイライトする。<strong>投票</strong>: 投票時のニックネーム選択を廃止し、ログイン中の本人として投票する。ヘッダーにログイン中のニックネームと「ログアウト」ボタンを追加。<strong>追加費用なし</strong>: GitHub Pages と Google Apps Script の無料枠のみで動作し、外部の有料認証サービスやメール送信APIは使用していない。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+              <span class="tag tag--improve">改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
             <p class="cl-date">2026-05-28</p>
             <h2 class="cl-title"><strong>DAOポイント画面のメンバー一覧が消える不具合を解消</strong>（GAS本体を修正）</h2>
             <p class="cl-desc">

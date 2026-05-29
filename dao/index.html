@@ -1030,6 +1030,12 @@
       font-weight: 700;
       color: var(--ink);
     }
+    .vote-as {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--green-deep);
+    }
     .modal-input {
       width: 100%;
       padding: 10px 12px;
@@ -1485,12 +1491,273 @@
       font-weight: 700;
     }
 
+    /* ===== DAOポイント（本人カード＋ランキング） ===== */
+    .my-point {
+      display: grid;
+      gap: 12px;
+      padding: 18px;
+      margin-bottom: 18px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .my-point-empty {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .my-point-card {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 16px;
+      align-items: center;
+      padding: 16px;
+      border: 1px solid var(--green);
+      border-radius: 10px;
+      background: #f0faf6;
+    }
+
+    .my-point-card__rank {
+      text-align: center;
+      padding: 0 6px;
+      min-width: 84px;
+    }
+
+    .my-point-card__rank b {
+      display: block;
+      font-size: 2.1rem;
+      font-weight: 800;
+      line-height: 1.05;
+      color: var(--green-deep);
+    }
+
+    .my-point-card__rank span {
+      display: block;
+      font-size: 0.76rem;
+      color: var(--muted);
+    }
+
+    .my-point-card__body {
+      min-width: 0;
+    }
+
+    .my-point-card__name {
+      margin: 0 0 8px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .my-point-card__status {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      vertical-align: middle;
+    }
+
+    .my-point-card__nums {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
+
+    .my-point-card__nums div {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .my-point-card__nums b {
+      display: block;
+      font-size: 1.4rem;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+      line-height: 1.2;
+    }
+
+    .members-table td.rank {
+      text-align: center;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: var(--green-deep);
+      white-space: nowrap;
+    }
+
+    .members-table tr.is-me td {
+      background: #fff7e6;
+      font-weight: 700;
+    }
+
+    @media (max-width: 520px) {
+      .my-point-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .my-point-card__nums {
+        justify-content: center;
+      }
+    }
+
+    /* ===== ログイン（本人認証） ===== */
+    .login-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: linear-gradient(160deg, #1d8f6f 0%, #12634e 100%);
+    }
+
+    .login-overlay[hidden] {
+      display: none;
+    }
+
+    .login-box {
+      width: min(420px, 100%);
+      display: grid;
+      gap: 14px;
+      padding: 28px 24px;
+      background: var(--paper);
+      border-radius: 14px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.28);
+      text-align: center;
+    }
+
+    .login-box img {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto;
+      object-fit: contain;
+    }
+
+    .login-box h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      color: var(--green-deep);
+    }
+
+    .login-box p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+
+    .login-input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      font: inherit;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .login-input:focus {
+      outline: none;
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(29, 143, 111, 0.15);
+    }
+
+    .login-btn {
+      min-height: 48px;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 9px;
+      background: var(--green);
+      color: #fff;
+      font: inherit;
+      font-size: 1.02rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .login-btn:hover {
+      background: var(--green-deep);
+    }
+
+    .login-btn:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    .login-error {
+      margin: 0;
+      min-height: 1.2em;
+      color: var(--coral);
+      font-size: 0.88rem;
+    }
+
+    .login-note {
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .user-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+      padding: 4px 6px 4px 12px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: #fbfdfc;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--green-deep);
+    }
+
+    .user-chip[hidden] {
+      display: none;
+    }
+
+    .user-chip__logout {
+      min-height: 28px;
+      padding: 4px 10px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      color: var(--muted);
+      font: inherit;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .user-chip__logout:hover {
+      background: #f3efe3;
+      color: var(--ink);
+    }
+
   </style>
 </head>
 <body>
+  <div class="login-overlay" id="loginOverlay" hidden>
+    <div class="login-box">
+      <img src="../assets/COCoLa_Logo_transparent.png" alt="COCoLa">
+      <h2>COCoLa DAO ログイン</h2>
+      <p>COCoLaに登録したメールアドレスを入力してください。あなた専用の画面が開きます。</p>
+      <input class="login-input" type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email" inputmode="email">
+      <p class="login-error" id="loginError"></p>
+      <button class="login-btn" type="button" id="loginBtn">ログイン</button>
+      <p class="login-note">※COCoLaメンバー限定です。登録メールアドレスと照合します。メールアドレスは端末外に保存されません。</p>
+    </div>
+  </div>
+
   <header class="site-header">
     <a class="back-link" href="../">&#8592; COCoLa トップへ</a>
     <h1 class="header-title">DAO 提案と投票</h1>
+    <div class="user-chip" id="userChip" hidden>
+      <span id="userChipName"></span>
+      <button class="user-chip__logout" type="button" id="logoutBtn">ログアウト</button>
+    </div>
   </header>
 
   <main class="page">
@@ -1597,36 +1864,43 @@
       </div><!-- /view proposals -->
 
       <div class="view" data-view="points">
-      <section class="members-band" id="membersBand" aria-label="DAOメンバー一覧" hidden>
-        <div class="members-band__head">
-          <h2>DAOメンバー一覧</h2>
+        <div class="view-head">
+          <h2>DAOポイント</h2>
+          <p class="view-lead">あなたのポイントと、COCoLaメンバー内での順位を確認できます。ポイントは活動の見える化のためのもので、報酬や優劣ではありません。</p>
         </div>
-        <div class="members-summary" id="membersSummary"></div>
-        <p class="members-subtitle">投票権あり</p>
-        <table class="members-table" id="membersEligibleTable"></table>
-        <button class="members-toggle" id="membersToggle" type="button" hidden>投票権なしメンバーを表示</button>
-        <div id="membersInactiveWrap" hidden>
-          <p class="members-subtitle">投票権なし（新規入会・活動が少ない・支援者ステータス等）</p>
-          <table class="members-table" id="membersInactiveTable"></table>
-        </div>
-      </section>
 
-      <section class="points-band" aria-label="DAOポイントとは">
-        <div class="points-copy">
-          <p class="eyebrow">DAOポイントとは</p>
-          <h2>参加や協力を、みんなで見える形にします。</h2>
-          <p>DAOポイントは、COCoLaでの参加・主催・提案・投票などの活動を見える化するためのものです。報酬や順位づけではなく、誰がどんな形で関わってくれているかを分かりやすくします。</p>
-          <p class="points-note">投票参加ポイントは、回答内容に関わらず、1つの提案につき1回まで付与されます。</p>
-        </div>
-        <ul class="points-list" aria-label="ポイント付与基準">
-          <li><span>入会</span><strong>1pt</strong></li>
-          <li><span>イベント主催</span><strong>8pt</strong></li>
-          <li><span>イベント参加</span><strong>1pt</strong></li>
-          <li><span>DAO提案</span><strong>3pt</strong></li>
-          <li><span>承認された提案</span><strong>追加5pt</strong></li>
-          <li><span>DAO投票参加</span><strong>1pt</strong></li>
-        </ul>
-      </section>
+        <section class="my-point" aria-label="あなたのDAOポイント">
+          <div class="my-point-card" id="myPointCard" hidden></div>
+          <p class="my-point-empty" id="myPointEmpty">ログインすると、あなたのポイントと順位が表示されます。</p>
+        </section>
+
+        <section class="members-band" id="membersBand" aria-label="ポイントランキング" hidden>
+          <div class="members-band__head">
+            <h2>ポイントランキング</h2>
+          </div>
+          <div class="members-summary" id="membersSummary"></div>
+          <table class="members-table" id="rankingTable"></table>
+        </section>
+
+        <details class="dao-details">
+          <summary>
+            <span class="summary-text">
+              <span>ポイント付与の基準を見る</span>
+              <small>どんな活動で何ポイントもらえるか</small>
+            </span>
+          </summary>
+          <div class="dao-details__content">
+            <p class="points-note" style="margin: 0 0 12px;">DAOポイントは、COCoLaでの参加・主催・提案・投票などの活動を見える化するためのものです。投票参加ポイントは、回答内容に関わらず、1つの提案につき1回まで付与されます。</p>
+            <ul class="points-list" aria-label="ポイント付与基準">
+              <li><span>入会</span><strong>1pt</strong></li>
+              <li><span>イベント主催</span><strong>8pt</strong></li>
+              <li><span>イベント参加</span><strong>1pt</strong></li>
+              <li><span>DAO提案</span><strong>3pt</strong></li>
+              <li><span>承認された提案</span><strong>追加5pt</strong></li>
+              <li><span>DAO投票参加</span><strong>1pt</strong></li>
+            </ul>
+          </div>
+        </details>
       </div><!-- /view points -->
 
       <div class="view" data-view="events">
@@ -1696,10 +1970,8 @@
   <div class="modal-box">
     <h3>投票する</h3>
     <p>提案: <strong id="voteModalTitle"></strong></p>
-    <label class="modal-label" for="voteNicknameSelect">ニックネームを選択</label>
-    <select class="modal-select" id="voteNicknameSelect" autocomplete="off">
-      <option value="">-- 選択してください --</option>
-    </select>
+    <p class="modal-label">投票者</p>
+    <p class="vote-as" id="voteAsName"></p>
     <div class="vote-choices" id="voteChoices">
       <p class="modal-label">投票内容</p>
       <div class="vote-choice-btns">
@@ -1917,66 +2189,114 @@
       return 'member-status--inactive';
     }
 
-    function renderMembersTable(tableEl, list) {
-      if (!list || list.length === 0) {
-        tableEl.innerHTML = '<tr><td colspan="4" style="color: var(--muted); padding: 12px;">該当メンバーはいません</td></tr>';
-        return;
-      }
-      var head = '<thead><tr>' +
-        '<th>ニックネーム</th>' +
-        '<th class="num">投票権重み</th>' +
-        '<th class="num">直近6ヶ月pt</th>' +
-        '<th>ステータス</th>' +
-        '</tr></thead>';
-      var body = '<tbody>' + list.map(function(m) {
-        return '<tr>' +
-          '<td>' + escapeHtml(m.nickname) + '</td>' +
-          '<td class="num">' + (m.weight ? escapeHtml(m.weight) : '-') + '</td>' +
-          '<td class="num">' + escapeHtml(m.recentPoints || 0) + '</td>' +
-          '<td><span class="member-status ' + statusClassMember(m.status) + '">' + escapeHtml(m.status || '未設定') + '</span></td>' +
-          '</tr>';
-      }).join('') + '</tbody>';
-      tableEl.innerHTML = head + body;
+    // 会員名簿（members/data.json）のニックネーム配列。loadMemberNicknames で設定。
+    var rosterNicknames = [];
+
+    // 会員名簿(全会員) ∪ DAOポイント(活動メンバー) を結合し、累計ポイント降順で順位付けしたランキングを返す。
+    function buildPointRanking() {
+      var pointMap = {};
+      ((state.data && state.data.members) || []).forEach(function(m) {
+        if (m && m.nickname) pointMap[m.nickname] = m;
+      });
+      var names = {};
+      rosterNicknames.forEach(function(n) { if (n) names[n] = true; });
+      Object.keys(pointMap).forEach(function(n) { names[n] = true; });
+      var list = Object.keys(names).map(function(name) {
+        var p = pointMap[name];
+        return {
+          nickname: name,
+          totalPoints: p ? (Number(p.totalPoints) || 0) : 0,
+          recentPoints: p ? (Number(p.recentPoints) || 0) : 0,
+          status: p ? (p.status || '休眠') : '休眠',
+          hasPoints: !!p
+        };
+      });
+      list.sort(function(a, b) {
+        if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
+        return a.nickname.localeCompare(b.nickname, 'ja');
+      });
+      // 標準競技順位（同点は同順位、次は人数分飛ぶ）
+      var rank = 0, prev = null, idx = 0;
+      list.forEach(function(item) {
+        idx++;
+        if (item.totalPoints !== prev) { rank = idx; prev = item.totalPoints; }
+        item.rank = rank;
+      });
+      return list;
     }
 
     function renderMembers() {
       var band = document.getElementById('membersBand');
       var summary = document.getElementById('membersSummary');
-      var eligibleTable = document.getElementById('membersEligibleTable');
-      var inactiveTable = document.getElementById('membersInactiveTable');
-      var toggle = document.getElementById('membersToggle');
-      var inactiveWrap = document.getElementById('membersInactiveWrap');
-      var members = (state.data && state.data.members) || [];
-      if (!band) return;
-      if (members.length === 0) {
+      var table = document.getElementById('rankingTable');
+      if (!band || !table) return;
+      var ranking = buildPointRanking();
+      if (ranking.length === 0) {
         band.hidden = true;
+        renderMyPointCard();
         return;
       }
       band.hidden = false;
-      var eligible = members.filter(function(m) { return m.weight > 0; });
-      var inactive = members.filter(function(m) { return m.weight <= 0; });
-      var totalWeight = eligible.reduce(function(acc, m) { return acc + (Number(m.weight) || 0); }, 0);
+      var withPoints = ranking.filter(function(m) { return m.totalPoints > 0; }).length;
       summary.innerHTML =
-        '<span>総メンバー: <strong>' + escapeHtml(members.length) + '</strong>人</span>' +
-        '<span>投票権あり: <strong>' + escapeHtml(eligible.length) + '</strong>人</span>' +
-        '<span>投票権なし: <strong>' + escapeHtml(inactive.length) + '</strong>人</span>' +
-        '<span>母数(eligibleWeight): <strong>' + escapeHtml(Math.round(totalWeight * 10) / 10) + '</strong></span>';
-      renderMembersTable(eligibleTable, eligible);
-      renderMembersTable(inactiveTable, inactive);
-      toggle.hidden = inactive.length === 0;
-      toggle.textContent = inactiveWrap.hidden
-        ? ('投票権なしメンバーを表示 (' + inactive.length + '人)')
-        : ('投票権なしメンバーを隠す');
+        '<span>COCoLaメンバー: <strong>' + escapeHtml(ranking.length) + '</strong>人</span>' +
+        '<span>ポイント保有: <strong>' + escapeHtml(withPoints) + '</strong>人</span>';
+      var me = getStoredNickname();
+      var head = '<thead><tr>' +
+        '<th class="num">順位</th>' +
+        '<th>ニックネーム</th>' +
+        '<th class="num">累計pt</th>' +
+        '<th class="num">直近6ヶ月</th>' +
+        '<th>ステータス</th>' +
+        '</tr></thead>';
+      var body = '<tbody>' + ranking.map(function(m) {
+        var isMe = me && m.nickname === me;
+        return '<tr' + (isMe ? ' class="is-me"' : '') + '>' +
+          '<td class="rank">' + escapeHtml(m.rank) + '</td>' +
+          '<td>' + escapeHtml(m.nickname) + (isMe ? '（あなた）' : '') + '</td>' +
+          '<td class="num">' + escapeHtml(m.totalPoints) + '</td>' +
+          '<td class="num">' + escapeHtml(m.recentPoints) + '</td>' +
+          '<td><span class="member-status ' + statusClassMember(m.status) + '">' + escapeHtml(m.status || '未設定') + '</span></td>' +
+          '</tr>';
+      }).join('') + '</tbody>';
+      table.innerHTML = head + body;
+      renderMyPointCard();
     }
 
-    function bindMembersToggle() {
-      var toggle = document.getElementById('membersToggle');
-      var wrap = document.getElementById('membersInactiveWrap');
-      if (!toggle || !wrap) return;
-      toggle.addEventListener('click', function() {
-        wrap.hidden = !wrap.hidden;
-        renderMembers();
-      });
+    function renderMyPointCard() {
+      var card = document.getElementById('myPointCard');
+      var emptyMsg = document.getElementById('myPointEmpty');
+      if (!card) return;
+      var me = getStoredNickname();
+      var ranking = buildPointRanking();
+      var total = ranking.length;
+      var mine = null;
+      for (var i = 0; i < ranking.length; i++) {
+        if (ranking[i].nickname === me) { mine = ranking[i]; break; }
+      }
+      if (!me || !mine) {
+        card.hidden = true;
+        if (emptyMsg) {
+          emptyMsg.hidden = false;
+          emptyMsg.textContent = me
+            ? ('「' + me + '」さんはまだポイント記録がありません。イベント参加や投票で貯まります。')
+            : 'ログインすると、あなたのポイントと順位が表示されます。';
+        }
+        return;
+      }
+      if (emptyMsg) emptyMsg.hidden = true;
+      card.hidden = false;
+      card.innerHTML =
+        '<div class="my-point-card__rank"><b>' + escapeHtml(mine.rank) + '位</b><span>' + escapeHtml(total) + '人中</span></div>' +
+        '<div class="my-point-card__body">' +
+          '<p class="my-point-card__name">' + escapeHtml(mine.nickname) +
+            '<span class="my-point-card__status member-status ' + statusClassMember(mine.status) + '">' + escapeHtml(mine.status || '未設定') + '</span>' +
+          '</p>' +
+          '<div class="my-point-card__nums">' +
+            '<div>累計ポイント<b>' + escapeHtml(mine.totalPoints) + '</b></div>' +
+            '<div>直近6ヶ月<b>' + escapeHtml(mine.recentPoints) + '</b></div>' +
+          '</div>' +
+        '</div>';
     }
 
     function bindFilters() {
@@ -2288,9 +2608,9 @@
     // ---- 投票モーダル ----
     var voteModal = document.getElementById('voteModal');
     var voteModalTitle = document.getElementById('voteModalTitle');
-    var voteNicknameSelect = document.getElementById('voteNicknameSelect');
     var voteModalError = document.getElementById('voteModalError');
     var voteModalCancel = document.getElementById('voteModalCancel');
+    var voteAsName = document.getElementById('voteAsName');
     var pendingVoteId = null;
     var pendingVoteTitle = null;
     var MEMBERS_JSON_URL = 'https://you0810jmsdf.github.io/cocola-site/members/data.json';
@@ -2305,18 +2625,13 @@
         })
         .then(function(data) {
           var rows = (data && data.rows) ? data.rows : [];
-          var existing = Array.from(voteNicknameSelect.options).map(function(o) { return o.value; });
-          rows.forEach(function(row) {
-            var nick = row[3] || '';
-            if (nick && existing.indexOf(nick) === -1) {
-              var opt = document.createElement('option');
-              opt.value = nick;
-              opt.textContent = nick;
-              voteNicknameSelect.appendChild(opt);
-              existing.push(nick);
-            }
-          });
-          return voteNicknameSelect.options.length;
+          // 会員名簿（全会員）のニックネームを保持。ランキングの母集団・分母に使う。
+          rosterNicknames = rows.map(function(row) { return (row[3] || '').toString().trim(); })
+            .filter(function(n) { return Boolean(n); });
+          // 会員名簿が揃ったらランキング・本人カードを更新
+          if (state.loaded) renderMembers();
+          renderMyPointCard();
+          return rosterNicknames.length;
         })
         .catch(function(error) {
           // 失敗を握りつぶさず Promise を reject させる。openVoteModal 側でユーザーに表示する。
@@ -2326,10 +2641,28 @@
       return memberLoadPromise;
     }
 
-    function applyStoredNicknameSelection() {
+    function applyMyNicknameSelection() {
+      var sel = document.getElementById('myNicknameSelect');
+      if (!sel) return;
       var storedNick = getStoredNickname();
-      var hasOption = storedNick && Array.from(voteNicknameSelect.options).some(function(o) { return o.value === storedNick; });
-      voteNicknameSelect.value = hasOption ? storedNick : '';
+      var hasOption = storedNick && Array.from(sel.options).some(function(o) { return o.value === storedNick; });
+      sel.value = hasOption ? storedNick : '';
+    }
+
+    // 本人選択セレクトを「ランキングに載る全員（会員名簿∪DAO）」で五十音順に再構築
+    function populateMyNicknameSelect() {
+      var sel = document.getElementById('myNicknameSelect');
+      if (!sel) return;
+      var names = buildPointRanking().map(function(m) { return m.nickname; })
+        .sort(function(a, b) { return a.localeCompare(b, 'ja'); });
+      sel.innerHTML = '<option value="">-- 選択してください --</option>';
+      names.forEach(function(n) {
+        var opt = document.createElement('option');
+        opt.value = n;
+        opt.textContent = n;
+        sel.appendChild(opt);
+      });
+      applyMyNicknameSelection();
     }
 
     function openVoteModal(id, title) {
@@ -2338,25 +2671,11 @@
       pendingVoteId = id;
       pendingVoteTitle = title;
       voteModalTitle.textContent = title;
-      applyStoredNicknameSelection();
-      voteModalError.textContent = '';
+      // ログイン中の本人として投票する（ニックネーム選択は廃止）。
+      var me = getStoredNickname();
+      if (voteAsName) voteAsName.textContent = me ? (me + ' さん') : '';
+      voteModalError.textContent = me ? '' : 'ログインしてから投票してください。';
       voteModal.hidden = false;
-
-      // メンバー名がまだ1件も読み込めていなければ、開いたタイミングで再取得する（モバイル回線で初回fetchが間に合わなかったケース対策）。
-      if (voteNicknameSelect.options.length <= 1) {
-        voteNicknameSelect.disabled = true;
-        voteModalError.textContent = 'メンバー一覧を読み込み中…';
-        (memberLoadPromise || loadMemberNicknames())
-          .then(function() {
-            voteNicknameSelect.disabled = false;
-            voteModalError.textContent = '';
-            applyStoredNicknameSelection();
-          })
-          .catch(function() {
-            voteNicknameSelect.disabled = false;
-            voteModalError.textContent = 'メンバー一覧を読み込めませんでした。ページを再読み込みしてからもう一度お試しください。';
-          });
-      }
     }
 
     function closeVoteModal() {
@@ -2373,7 +2692,6 @@
 
     function setVoteModalLoading(loading) {
       document.querySelectorAll('.vote-choice-btn').forEach(function(b) { b.disabled = loading; });
-      voteNicknameSelect.disabled = loading;
       voteModalCancel.disabled = loading;
       voteModalError.textContent = loading ? '送信中…しばらくお待ちください' : '';
     }
@@ -2381,8 +2699,8 @@
     document.getElementById('voteChoices').addEventListener('click', function(e) {
       var btn = e.target.closest('.vote-choice-btn');
       if (!btn || btn.disabled) return;
-      var nick = voteNicknameSelect.value;
-      if (!nick) { voteModalError.textContent = 'ニックネームを選択してください。'; return; }
+      var nick = getStoredNickname();
+      if (!nick) { voteModalError.textContent = 'ログインしてから投票してください。'; return; }
       var vote = btn.dataset.vote;
       var id = pendingVoteId;
       var title = pendingVoteTitle;
@@ -2445,7 +2763,15 @@
     renderProposals();
     renderMembers();
     bindFilters();
-    bindMembersToggle();
+    (function bindMyNicknameSelect() {
+      var sel = document.getElementById('myNicknameSelect');
+      if (!sel) return;
+      sel.addEventListener('change', function() {
+        setStoredNickname(sel.value);
+        renderMyPointCard();
+        renderMembers();
+      });
+    })();
     refreshStoredNicknameHash().then(function() {
       if (state.loaded) renderProposals();
     });
@@ -2992,6 +3318,92 @@
       /* 初期ビュー：URLハッシュを反映 */
       var initial = (location.hash || '').replace('#', '');
       if (initial && initial !== 'proposals') switchView(initial);
+    })();
+
+    /* ===== 本人認証（メール照合・アプリ全体ログイン） ===== */
+    (function () {
+      var MEMBER_VERIFY_URL = 'https://script.google.com/macros/s/AKfycbyRVO7fLJx62HS6W3M2_bmPIP9y6stpiVJFM429NMKXzlV24_wGx97xms22QLb1VHsX/exec';
+      var AUTH_KEY = 'COCOLA_DAO_AUTH';
+      var overlay = document.getElementById('loginOverlay');
+      var emailInput = document.getElementById('loginEmail');
+      var loginBtn = document.getElementById('loginBtn');
+      var loginError = document.getElementById('loginError');
+      var userChip = document.getElementById('userChip');
+      var userChipName = document.getElementById('userChipName');
+      var logoutBtn = document.getElementById('logoutBtn');
+
+      function getAuth() {
+        try { return JSON.parse(localStorage.getItem(AUTH_KEY) || 'null'); } catch (e) { return null; }
+      }
+      function setAuth(a) {
+        try { localStorage.setItem(AUTH_KEY, JSON.stringify(a)); } catch (e) {}
+      }
+      function clearAuthData() {
+        try { localStorage.removeItem(AUTH_KEY); } catch (e) {}
+      }
+
+      function refreshAuthUI() {
+        var auth = getAuth();
+        var loggedIn = !!(auth && auth.nickname);
+        if (overlay) overlay.hidden = loggedIn;
+        if (userChip) userChip.hidden = !loggedIn;
+        if (loggedIn && userChipName) userChipName.textContent = auth.nickname + 'さん';
+        // 未ログイン中は背面スクロールを止める
+        document.body.style.overflow = loggedIn ? '' : 'hidden';
+      }
+
+      function rerenderAsMember() {
+        if (typeof renderProposals === 'function') renderProposals();
+        if (typeof renderMembers === 'function') renderMembers();
+        if (typeof renderMyPointCard === 'function') renderMyPointCard();
+        if (typeof refreshStoredNicknameHash === 'function') {
+          refreshStoredNicknameHash().then(function () { if (state.loaded) renderProposals(); });
+        }
+      }
+
+      function doLogin() {
+        var email = (emailInput.value || '').trim();
+        if (!email || email.indexOf('@') === -1) {
+          loginError.textContent = 'メールアドレスを入力してください。';
+          return;
+        }
+        loginBtn.disabled = true;
+        loginBtn.textContent = '確認中…';
+        loginError.textContent = '';
+        fetch(MEMBER_VERIFY_URL + '?mode=verifyMember&email=' + encodeURIComponent(email) + '&t=' + Date.now())
+          .then(function (r) { return r.json(); })
+          .then(function (res) {
+            if (res && res.ok && res.nickname) {
+              setAuth({ nickname: res.nickname, verifiedAt: Date.now() });
+              if (typeof setStoredNickname === 'function') setStoredNickname(res.nickname);
+              emailInput.value = '';
+              refreshAuthUI();
+              rerenderAsMember();
+            } else {
+              loginError.textContent = 'このメールアドレスはCOCoLaメンバーとして登録されていません。入会時のメールアドレスをご確認ください。';
+            }
+          })
+          .catch(function () {
+            loginError.textContent = '通信エラーが発生しました。少し待ってからもう一度お試しください。';
+          })
+          .finally(function () {
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'ログイン';
+          });
+      }
+
+      if (loginBtn) loginBtn.addEventListener('click', doLogin);
+      if (emailInput) emailInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); doLogin(); }
+      });
+      if (logoutBtn) logoutBtn.addEventListener('click', function () {
+        clearAuthData();
+        try { localStorage.removeItem('COCOLA_DAO_NICKNAME'); } catch (e) {}
+        location.reload();
+      });
+
+      refreshAuthUI();
+      window._daoRefreshAuthUI = refreshAuthUI;
     })();
   </script>
   <script src="../assets/site-config.js?v=20260424"></script>
