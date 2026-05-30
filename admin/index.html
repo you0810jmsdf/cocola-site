@@ -32,6 +32,11 @@
       border-radius: 8px; background: #1d9e75; color: #fff; cursor: pointer;
     }
     #adminGate .gate-error { color: #c62828; font-size: 0.85rem; margin-top: 10px; min-height: 1.2em; }
+    .wf-list { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+    .wf-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .wf-btn { flex: 0 0 auto; }
+    .wf-status { font-size: 0.82rem; color: #666; }
+    .wf-note { font-size: 0.75rem; color: #999; margin: 10px 0 0; }
   </style>
 </head>
 <body>
@@ -139,6 +144,29 @@
           </article>
         </div>
       </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <p class="eyebrow">GitHub Actions</p>
+          <h2>データ手動更新</h2>
+        </div>
+        <div class="apps-grid">
+          <article class="app-card">
+            <p class="app-card__tag">運営</p>
+            <h3>⚙️ 静的データの即時更新</h3>
+            <p>通常は5分ごとに自動更新されます。サイトにすぐ反映したいとき、各データの更新を手動で起動できます。</p>
+            <div class="wf-list">
+              <div class="wf-row"><button class="button button--secondary wf-btn" onclick="triggerWorkflow('update-members-data.yml','wf0')">メンバーデータ</button><span class="wf-status" id="wf0"></span></div>
+              <div class="wf-row"><button class="button button--secondary wf-btn" onclick="triggerWorkflow('update-events-data.yml','wf1')">イベントデータ</button><span class="wf-status" id="wf1"></span></div>
+              <div class="wf-row"><button class="button button--secondary wf-btn" onclick="triggerWorkflow('update-dao-data.yml','wf2')">DAOデータ</button><span class="wf-status" id="wf2"></span></div>
+              <div class="wf-row"><button class="button button--secondary wf-btn" onclick="triggerWorkflow('sync-event-sources.yml','wf3')">イベントソース同期</button><span class="wf-status" id="wf3"></span></div>
+              <div class="wf-row"><button class="button button--secondary wf-btn" onclick="triggerWorkflow('health-check.yml','wf4')">ヘルスチェック</button><span class="wf-status" id="wf4"></span></div>
+              <div class="wf-row"><button class="button button--secondary wf-btn" onclick="triggerWorkflow('update-schedule-data.yml','wf5')">スケジュールデータ</button><span class="wf-status" id="wf5"></span></div>
+            </div>
+            <p class="wf-note">※ 通常は5分ごと自動更新。GitHub PAT有効期限: 2027-05-19</p>
+          </article>
+        </div>
+      </section>
     </main>
 
     <footer class="site-footer">
@@ -180,6 +208,32 @@
       try { authed = sessionStorage.getItem(SESSION_KEY) === '1'; } catch (e) {}
       if (authed) { unlock(); } else { setTimeout(function () { pw.focus(); }, 50); }
     })();
+
+    // GitHub Actions ワークフローの手動トリガー（GAS経由でPATを保護）
+    function triggerWorkflow(workflow, statusId) {
+      var status = document.getElementById(statusId);
+      var btn = status.previousElementSibling;
+      btn.disabled = true;
+      status.style.color = '#666';
+      status.textContent = '送信中…';
+      var url = 'https://script.google.com/macros/s/AKfycbycw2FBvcm34mS9R8SUNg28KscGqqGjR1zjz3hnLYq8ckgKCZObYaC9kbMs8R2SGXgC/exec?mode=triggerWorkflow&workflow=' + encodeURIComponent(workflow);
+      fetch(url)
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (d.ok) {
+            status.style.color = '#1d9e75';
+            status.textContent = '✓ 起動しました（約1分後に反映）';
+          } else {
+            status.style.color = '#e53e3e';
+            status.textContent = 'エラー: ' + (d.error || '不明');
+          }
+        })
+        .catch(function (err) {
+          status.style.color = '#e53e3e';
+          status.textContent = '通信エラー: ' + err.message;
+        })
+        .finally(function () { btn.disabled = false; });
+    }
   </script>
 </body>
 </html>
