@@ -1268,7 +1268,7 @@
       bottom: 0;
       z-index: 90;
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(6, 1fr);
       background: rgba(255, 255, 255, 0.96);
       backdrop-filter: saturate(140%) blur(8px);
       border-top: 1px solid var(--line);
@@ -1863,6 +1863,197 @@
       }
     }
 
+    /* ===== 印西市民投票（PoC） ===== */
+    .civic-banner {
+      margin: 0 0 16px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #fff7e6 0%, #ffeacf 100%);
+      border: 1px solid #e6c378;
+      color: #6b4a18;
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+    .civic-banner strong { color: #92580c; }
+
+    .civic-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+    }
+    .civic-card__head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .civic-card__title {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--ink);
+      line-height: 1.4;
+    }
+    .civic-card__meta {
+      font-size: 0.72rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .civic-card__lead {
+      margin: 0 0 14px;
+      font-size: 0.92rem;
+      color: var(--ink);
+      line-height: 1.65;
+    }
+    .civic-options {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .civic-option {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 6px 14px;
+      align-items: center;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--wash);
+    }
+    .civic-option__label {
+      font-weight: 700;
+      color: var(--ink);
+      font-size: 0.95rem;
+    }
+    .civic-option__count {
+      font-variant-numeric: tabular-nums;
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .civic-option__bar {
+      grid-column: 1 / -1;
+      height: 8px;
+      background: #eef2f0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .civic-option__bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--green) 0%, var(--green-deep) 100%);
+      border-radius: 4px;
+      transition: width 600ms ease-out;
+    }
+    .civic-vote-btn {
+      width: 100%;
+      padding: 14px 18px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #1d8f6f 0%, #12634e 100%);
+      color: #fff;
+      font-size: 0.98rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: transform 120ms, box-shadow 120ms;
+    }
+    .civic-vote-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(18, 99, 78, 0.25); }
+    .civic-vote-btn:disabled {
+      background: #c5d3cd;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .civic-vote-btn__icon {
+      display: inline-flex;
+      width: 22px;
+      height: 22px;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.18);
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 800;
+    }
+    .civic-status {
+      margin-top: 10px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      text-align: center;
+    }
+    .civic-status.is-success { color: var(--green-deep); font-weight: 700; }
+    .civic-status.is-error { color: var(--coral); font-weight: 700; }
+
+    /* マイナカード認証モーダル */
+    .jpki-overlay {
+      position: fixed; inset: 0; z-index: 250;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      background: rgba(15, 30, 25, 0.72);
+      backdrop-filter: blur(4px);
+    }
+    .jpki-overlay[hidden] { display: none; }
+    .jpki-modal {
+      width: min(420px, 100%);
+      background: var(--paper);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+    }
+    .jpki-modal h3 { margin: 0 0 8px; font-size: 1.1rem; color: var(--ink); }
+    .jpki-modal p { margin: 0 0 14px; font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+    .jpki-card-anim {
+      width: 140px; height: 90px; margin: 16px auto;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #2f7f9a 0%, #1d4f6a 100%);
+      box-shadow: 0 8px 20px rgba(47, 127, 154, 0.4);
+      position: relative;
+      animation: jpkiPulse 1.4s ease-in-out infinite;
+    }
+    .jpki-card-anim::before {
+      content: 'マイナンバーカード';
+      position: absolute; top: 8px; left: 10px;
+      color: #fff; font-size: 0.55rem; font-weight: 700; letter-spacing: 0.05em;
+    }
+    .jpki-card-anim::after {
+      content: ''; position: absolute; left: 16px; top: 36px;
+      width: 24px; height: 30px; border-radius: 3px;
+      background: linear-gradient(135deg, #f5d678, #d4a818);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2);
+    }
+    @keyframes jpkiPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); box-shadow: 0 12px 28px rgba(47, 127, 154, 0.55); }
+    }
+    .jpki-pin {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 1.4rem;
+      text-align: center;
+      letter-spacing: 0.6em;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin: 8px 0 16px;
+      font-variant-numeric: tabular-nums;
+    }
+    .jpki-actions { display: flex; gap: 10px; }
+    .jpki-actions button { flex: 1; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; border: 1px solid var(--line); background: var(--paper); }
+    .jpki-actions .primary { background: var(--green-deep); color: #fff; border-color: var(--green-deep); }
+    .jpki-step {
+      font-size: 0.75rem; color: var(--muted);
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--line);
+    }
+
     /* ===== ログイン（本人認証） ===== */
     .login-overlay {
       position: fixed;
@@ -2205,6 +2396,21 @@
           <div class="empty" id="memberEmpty" hidden>メンバー情報を読み込み中です。</div>
         </section>
       </div><!-- /view members -->
+
+      <div class="view" data-view="civicvote">
+        <section aria-label="印西市民投票（PoC）">
+          <div class="view-head">
+            <h2>印西市民投票（PoC実証）</h2>
+            <p class="view-lead">マイナンバーカード（JPKI）でご本人確認のうえ、印西市の市民意向にご投票いただけます。これは協働事業のPoC実証段階です。</p>
+          </div>
+          <div class="civic-banner">
+            <strong>📌 PoC実証中：</strong>本機能は Community Bank INZAI と印西市の協働事業として実証中の機能です。<br>
+            本人確認はマイナンバーカード（JPKI／公的個人認証）を使用し、一人一票・なりすまし不可の仕組みで運用されます。
+          </div>
+          <div class="civic-list" id="civicList"></div>
+          <div class="empty" id="civicEmpty" hidden>議題を読み込み中です。</div>
+        </section>
+      </div><!-- /view civicvote -->
     </div>
   </main>
 
@@ -2216,6 +2422,10 @@
     <button class="bottom-nav__item" type="button" data-nav="proposals">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M9.5 5a2.5 2.5 0 0 1 5 0"/><path d="M9 11h6M9 15h4"/></svg>
       <span>提案・投票</span>
+    </button>
+    <button class="bottom-nav__item" type="button" data-nav="civicvote">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 11h14M5 11l3-6h8l3 6M5 11v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8"/><path d="M10 15h4"/></svg>
+      <span>印西投票</span>
     </button>
     <button class="bottom-nav__item" type="button" data-nav="members">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M16 6.5a2.7 2.7 0 0 1 0 5.2M17 14.5a5 5 0 0 1 3.5 4.5"/></svg>
@@ -2299,6 +2509,24 @@
       <button class="button secondary" type="button" id="proposalModalCancel">キャンセル</button>
       <button class="button" type="button" id="proposalModalSubmit">提案する</button>
     </div>
+  </div>
+</div>
+
+<!-- JPKI（マイナンバーカード）認証モーダル -->
+<div class="jpki-overlay" id="jpkiOverlay" hidden aria-modal="true" role="dialog">
+  <div class="jpki-modal">
+    <h3 id="jpkiTitle">マイナンバーカードをかざしてください</h3>
+    <p id="jpkiLead">スマートフォンの背面でカードを読み取ります（PoC実証ではこの画面はモックです）</p>
+    <div class="jpki-card-anim" aria-hidden="true"></div>
+    <div id="jpkiPinArea" hidden>
+      <p>利用者証明用パスワード（4桁数字）を入力してください</p>
+      <input class="jpki-pin" id="jpkiPinInput" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••">
+    </div>
+    <div class="jpki-actions">
+      <button type="button" id="jpkiCancelBtn">キャンセル</button>
+      <button type="button" class="primary" id="jpkiNextBtn">次へ</button>
+    </div>
+    <p class="jpki-step" id="jpkiStep">ステップ 1／3：カード読み取り</p>
   </div>
 </div>
 
@@ -3565,12 +3793,18 @@
         membersLoaded: false,
         memberRows: [],
         memberSearch: '',
-        memberCat: 'all'
+        memberCat: 'all',
+        civicLoaded: false,
+        civicTopics: [],
+        civicVotedHash: {},
+        civicCurrentTopic: null,
+        civicCurrentChoice: null,
+        civicAuthStep: 0
       };
 
       var navButtons = document.querySelectorAll('.bottom-nav__item');
       var views = document.querySelectorAll('.view');
-      var VIEW_NAMES = ['proposals', 'points', 'events', 'calendar', 'members'];
+      var VIEW_NAMES = ['proposals', 'points', 'events', 'calendar', 'members', 'civicvote'];
 
       function switchView(name) {
         if (VIEW_NAMES.indexOf(name) === -1) name = 'proposals';
@@ -3586,11 +3820,261 @@
         if (name === 'events' && !viewState.eventsLoaded) loadEvents();
         if (name === 'calendar' && !viewState.calLoaded) loadCalendar();
         if (name === 'members' && !viewState.membersLoaded) loadMembersList();
+        if (name === 'civicvote' && !viewState.civicLoaded) loadCivicVote();
         try { history.replaceState(null, '', '#' + name); } catch (e) {}
       }
 
       navButtons.forEach(function (b) {
         b.addEventListener('click', function () { switchView(b.getAttribute('data-nav')); });
+      });
+
+      /* ---- 印西市民投票（PoC） ---- */
+      var CIVIC_GAS_URL = GAS_URL;
+      var CIVIC_POC_TOPICS = [
+        {
+          id: 'P0001',
+          title: '印西駅前の再整備案について',
+          lead: '老朽化が進む駅前ロータリーの再整備にあたり、優先すべき方向性を市民の皆さまにお聞きします。',
+          deadline: '2026-06-30',
+          options: [
+            { key: 'A', label: 'A案：歩行者優先（広場・ベンチ・緑化を増やす）' },
+            { key: 'B', label: 'B案：交通機能優先（バスロータリー拡張・送迎レーン整備）' },
+            { key: 'C', label: 'C案：複合型（小規模広場＋交通機能の両立）' }
+          ]
+        },
+        {
+          id: 'P0002',
+          title: '図書館サービス改善：開館時間延長のニーズ',
+          lead: '中央図書館の運営時間について市民意向を確認し、行政連携の集約データとして提案します。',
+          deadline: '2026-06-30',
+          options: [
+            { key: 'A', label: '平日夜間（〜21:00）の延長' },
+            { key: 'B', label: '土日の早朝（8:00〜）開館' },
+            { key: 'C', label: '現状で問題なし' }
+          ]
+        }
+      ];
+
+      function civicHashSerial(serial) {
+        var s = String(serial || '');
+        var h = 5381;
+        for (var i = 0; i < s.length; i++) { h = ((h << 5) + h + s.charCodeAt(i)) >>> 0; }
+        return 'h' + h.toString(16);
+      }
+
+      function loadCivicVote() {
+        viewState.civicLoaded = true;
+        var listEl = document.getElementById('civicList');
+        var emptyEl = document.getElementById('civicEmpty');
+        if (!listEl) return;
+        emptyEl.hidden = false;
+        emptyEl.textContent = '議題と現在の投票状況を読み込み中です。';
+
+        var url = CIVIC_GAS_URL + '?mode=civicVote&action=list&_t=' + Date.now();
+        fetch(url, { cache: 'no-store' })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            var byId = {};
+            (data && Array.isArray(data.topics) ? data.topics : []).forEach(function (t) {
+              byId[t.id] = t;
+            });
+            viewState.civicTopics = CIVIC_POC_TOPICS.map(function (poc) {
+              var live = byId[poc.id] || {};
+              var counts = {};
+              poc.options.forEach(function (op) {
+                counts[op.key] = (live.counts && typeof live.counts[op.key] === 'number') ? live.counts[op.key] : 0;
+              });
+              return Object.assign({}, poc, { counts: counts, totalVotes: live.totalVotes || 0 });
+            });
+            renderCivicTopics();
+            emptyEl.hidden = true;
+          })
+          .catch(function () {
+            viewState.civicTopics = CIVIC_POC_TOPICS.map(function (poc) {
+              var counts = {};
+              poc.options.forEach(function (op) { counts[op.key] = 0; });
+              return Object.assign({}, poc, { counts: counts, totalVotes: 0 });
+            });
+            renderCivicTopics();
+            emptyEl.hidden = false;
+            emptyEl.textContent = '⚠️ サーバーに接続できないため、デモ初期表示でレンダリングしています。';
+          });
+      }
+
+      function renderCivicTopics() {
+        var listEl = document.getElementById('civicList');
+        if (!listEl) return;
+        var html = viewState.civicTopics.map(function (t) {
+          var total = Math.max(1, t.totalVotes);
+          var voted = !!viewState.civicVotedHash[t.id];
+          var opts = t.options.map(function (op) {
+            var n = t.counts[op.key] || 0;
+            var pct = Math.round((n / total) * 100);
+            return '<div class="civic-option">'
+              + '<div class="civic-option__label">' + escapeHtml(op.label) + '</div>'
+              + '<div class="civic-option__count">' + n + '票 / ' + pct + '%</div>'
+              + '<div class="civic-option__bar"><div class="civic-option__bar-fill" style="width:' + pct + '%"></div></div>'
+              + '</div>';
+          }).join('');
+          var btn = voted
+            ? '<button class="civic-vote-btn" disabled>✓ 投票済み（このカードでは投票できません）</button>'
+            : '<button class="civic-vote-btn" data-civic-topic="' + t.id + '">'
+              + '<span class="civic-vote-btn__icon">JPKI</span>マイナンバーカードで投票する</button>';
+          return '<div class="civic-card">'
+            + '<div class="civic-card__head">'
+            + '<h3 class="civic-card__title">' + escapeHtml(t.title) + '</h3>'
+            + '<div class="civic-card__meta">締切: ' + escapeHtml(t.deadline) + '</div>'
+            + '</div>'
+            + '<p class="civic-card__lead">' + escapeHtml(t.lead) + '</p>'
+            + '<div class="civic-options">' + opts + '</div>'
+            + btn
+            + '<div class="civic-status" id="civicStatus-' + t.id + '">合計 ' + t.totalVotes + ' 票（PoC実証中）</div>'
+            + '</div>';
+        }).join('');
+        listEl.innerHTML = html || '<div class="empty">議題がまだ登録されていません。</div>';
+
+        listEl.querySelectorAll('[data-civic-topic]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var topicId = btn.getAttribute('data-civic-topic');
+            var topic = viewState.civicTopics.filter(function (x) { return x.id === topicId; })[0];
+            if (!topic) return;
+            openCivicChoicePrompt(topic);
+          });
+        });
+      }
+
+      function escapeHtml(s) {
+        return String(s || '').replace(/[&<>"']/g, function (c) {
+          return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+        });
+      }
+
+      function openCivicChoicePrompt(topic) {
+        var lines = topic.options.map(function (op, i) { return (i + 1) + ') ' + op.label; }).join('\n');
+        var pick = window.prompt('議題：' + topic.title + '\n\n選択肢の番号を入力してください：\n' + lines, '');
+        if (!pick) return;
+        var idx = parseInt(pick, 10) - 1;
+        if (isNaN(idx) || idx < 0 || idx >= topic.options.length) {
+          alert('番号が正しくありません');
+          return;
+        }
+        viewState.civicCurrentTopic = topic;
+        viewState.civicCurrentChoice = topic.options[idx].key;
+        openJpkiAuth();
+      }
+
+      function openJpkiAuth() {
+        viewState.civicAuthStep = 1;
+        var overlay = document.getElementById('jpkiOverlay');
+        var title = document.getElementById('jpkiTitle');
+        var lead = document.getElementById('jpkiLead');
+        var pinArea = document.getElementById('jpkiPinArea');
+        var step = document.getElementById('jpkiStep');
+        var nextBtn = document.getElementById('jpkiNextBtn');
+        title.textContent = 'マイナンバーカードをかざしてください';
+        lead.textContent = 'スマートフォンの背面でカードを読み取ります（PoC実証ではこの画面はモックです）';
+        pinArea.hidden = true;
+        step.textContent = 'ステップ 1／3：カード読み取り';
+        nextBtn.textContent = '読み取り完了（モック）';
+        overlay.hidden = false;
+      }
+
+      function closeJpkiAuth() {
+        document.getElementById('jpkiOverlay').hidden = true;
+        document.getElementById('jpkiPinInput').value = '';
+        viewState.civicAuthStep = 0;
+      }
+
+      function advanceJpkiAuth() {
+        var title = document.getElementById('jpkiTitle');
+        var lead = document.getElementById('jpkiLead');
+        var pinArea = document.getElementById('jpkiPinArea');
+        var step = document.getElementById('jpkiStep');
+        var nextBtn = document.getElementById('jpkiNextBtn');
+        var pinInput = document.getElementById('jpkiPinInput');
+
+        if (viewState.civicAuthStep === 1) {
+          viewState.civicAuthStep = 2;
+          title.textContent = '利用者証明用パスワードを入力';
+          lead.textContent = 'マイナンバーカードに設定された4桁の数字パスワードを入力してください。';
+          pinArea.hidden = false;
+          step.textContent = 'ステップ 2／3：暗証番号入力';
+          nextBtn.textContent = '認証';
+          setTimeout(function () { try { pinInput.focus(); } catch (e) {} }, 50);
+          return;
+        }
+        if (viewState.civicAuthStep === 2) {
+          var pin = pinInput.value || '';
+          if (!/^\d{4}$/.test(pin)) {
+            alert('4桁の数字を入力してください（PoC実証中：任意の4桁でOK）');
+            return;
+          }
+          viewState.civicAuthStep = 3;
+          title.textContent = '認証中...';
+          lead.textContent = 'JPKI（公的個人認証サービス）で電子証明書を検証しています。';
+          pinArea.hidden = true;
+          step.textContent = 'ステップ 3／3：投票送信中';
+          nextBtn.disabled = true;
+          nextBtn.textContent = '送信中...';
+          submitCivicVote(pin);
+          return;
+        }
+      }
+
+      function submitCivicVote(pin) {
+        var topic = viewState.civicCurrentTopic;
+        var choice = viewState.civicCurrentChoice;
+        if (!topic || !choice) { closeJpkiAuth(); return; }
+
+        var mockSerial = 'POC-' + Math.floor(Math.random() * 1e10).toString(36).toUpperCase();
+        var hashed = civicHashSerial(mockSerial + ':' + topic.id);
+
+        var url = CIVIC_GAS_URL
+          + '?mode=civicVote&action=vote'
+          + '&topic=' + encodeURIComponent(topic.id)
+          + '&choice=' + encodeURIComponent(choice)
+          + '&hash=' + encodeURIComponent(hashed)
+          + '&pin=' + encodeURIComponent(pin.length)
+          + '&_t=' + Date.now();
+
+        var nextBtn = document.getElementById('jpkiNextBtn');
+        var title = document.getElementById('jpkiTitle');
+        var lead = document.getElementById('jpkiLead');
+
+        fetch(url, { cache: 'no-store' })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (data && data.ok) {
+              viewState.civicVotedHash[topic.id] = true;
+              title.textContent = '✅ 投票完了';
+              lead.textContent = 'JPKI認証 → 投票記録が安全に保存されました。';
+              nextBtn.textContent = '閉じる';
+              nextBtn.disabled = false;
+              nextBtn.onclick = function () { closeJpkiAuth(); loadCivicVote(); nextBtn.onclick = null; };
+            } else {
+              throw new Error((data && data.error) || 'unknown');
+            }
+          })
+          .catch(function (err) {
+            title.textContent = '⚠️ サーバー未接続';
+            lead.textContent = 'PoC GAS未デプロイのため、ローカルカウントのみ更新しました（' + (err.message || err) + '）';
+            viewState.civicVotedHash[topic.id] = true;
+            var t = viewState.civicTopics.filter(function (x) { return x.id === topic.id; })[0];
+            if (t) {
+              t.counts[choice] = (t.counts[choice] || 0) + 1;
+              t.totalVotes = (t.totalVotes || 0) + 1;
+            }
+            nextBtn.textContent = '閉じる';
+            nextBtn.disabled = false;
+            nextBtn.onclick = function () { closeJpkiAuth(); renderCivicTopics(); nextBtn.onclick = null; };
+          });
+      }
+
+      document.addEventListener('DOMContentLoaded', function () {
+        var cancelBtn = document.getElementById('jpkiCancelBtn');
+        var nextBtn = document.getElementById('jpkiNextBtn');
+        if (cancelBtn) cancelBtn.addEventListener('click', closeJpkiAuth);
+        if (nextBtn) nextBtn.addEventListener('click', advanceJpkiAuth);
       });
 
       /* ---- 印西イベント ---- */
