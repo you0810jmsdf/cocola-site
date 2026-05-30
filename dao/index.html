@@ -2202,6 +2202,130 @@
       color: #6b4a18;
       line-height: 1.55;
     }
+
+    /* 軸別／選択肢別 タブ切替 */
+    .civic-tabs {
+      display: flex;
+      gap: 4px;
+      margin: 12px 0 14px;
+      padding: 4px;
+      background: var(--wash);
+      border-radius: 10px;
+    }
+    .civic-tab {
+      flex: 1;
+      padding: 8px 10px;
+      border: none;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 120ms, color 120ms;
+    }
+    .civic-tab:hover { color: var(--ink); }
+    .civic-tab.is-active {
+      background: var(--paper);
+      color: var(--green-deep);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .civic-tabpane[hidden] { display: none; }
+    .civic-empty {
+      padding: 6px 0;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    /* 選択肢別ビュー */
+    .civic-choicegroup {
+      margin-bottom: 16px;
+      padding: 12px 14px 14px;
+      background: var(--wash);
+      border-radius: 10px;
+    }
+    .civic-choicegroup__head {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+      margin-bottom: 10px;
+    }
+    .civic-choicegroup__chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 24px;
+      height: 24px;
+      padding: 0 8px;
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 800;
+      border-radius: 12px;
+    }
+    .civic-choicegroup__label {
+      flex: 1;
+      min-width: 0;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .civic-choicegroup__total {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .civic-cbox {
+      margin-top: 8px;
+      padding: 8px 10px;
+      background: var(--paper);
+      border-radius: 6px;
+    }
+    .civic-cbox__axis {
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .civic-cempty {
+      font-size: 0.74rem;
+      color: var(--muted);
+      padding: 4px 0;
+    }
+    .civic-crow {
+      display: grid;
+      grid-template-columns: 96px 1fr auto;
+      gap: 6px 10px;
+      align-items: center;
+      margin: 3px 0;
+      font-size: 0.78rem;
+    }
+    .civic-crow__label {
+      color: var(--ink);
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .civic-crow__bar {
+      height: 10px;
+      background: #eef2f0;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .civic-crow__bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--green) 0%, var(--green-deep) 100%);
+      border-radius: 5px;
+    }
+    .civic-crow__count {
+      font-variant-numeric: tabular-nums;
+      color: var(--muted);
+      font-weight: 700;
+      white-space: nowrap;
+    }
     .civic-analytics-footer {
       padding: 12px 18px;
       border-top: 1px solid var(--line);
@@ -4222,15 +4346,56 @@
         if (overlay) overlay.hidden = true;
       }
 
+      var CIVIC_OPT_COLORS = ['#1d8f6f', '#d97706', '#2f7f9a', '#d4544a', '#7c3aed'];
+
       function renderCivicAnalytics(data) {
         var body = document.getElementById('civicAnalyticsBody');
         if (!body) return;
         var topic = data.topic || {};
         var options = topic.options || ['A', 'B', 'C'];
-        var optColors = ['#1d8f6f', '#d97706', '#2f7f9a', '#d4544a', '#7c3aed'];
 
+        var legend = '<div class="civic-legend">'
+          + options.map(function (op, idx) {
+            return '<span class="civic-legend__item"><span class="civic-legend__dot" style="background:' + CIVIC_OPT_COLORS[idx % CIVIC_OPT_COLORS.length] + '"></span>' + escapeHtml(op) + '</span>';
+          }).join('') + '</div>';
+
+        body.innerHTML =
+          '<div class="civic-asummary">'
+            + '<h3>' + escapeHtml(topic.title) + '</h3>'
+            + '<p class="civic-asum-total">投票総数 <strong>' + data.totalVotes + '</strong> 票 ／ k-anonymity しきい値 ' + data.kThreshold + '</p>'
+            + legend
+          + '</div>'
+          + '<div class="civic-tabs" role="tablist">'
+            + '<button type="button" class="civic-tab is-active" data-civic-tab="axis" role="tab" aria-selected="true">📊 軸別表示（地区／年代／性別ごと）</button>'
+            + '<button type="button" class="civic-tab" data-civic-tab="choice" role="tab" aria-selected="false">🗳️ 選択肢別表示（A案／B案／C案ごと）</button>'
+          + '</div>'
+          + '<div class="civic-tabpane" id="civicTabPaneAxis">' + renderCivicAnalyticsByAxis(data) + '</div>'
+          + '<div class="civic-tabpane" id="civicTabPaneChoice" hidden>' + renderCivicAnalyticsByChoice(data) + '</div>'
+          + '<p class="civic-anote">📝 ' + escapeHtml(data.note || '') + '</p>';
+
+        // タブ切替
+        var paneAxis = document.getElementById('civicTabPaneAxis');
+        var paneChoice = document.getElementById('civicTabPaneChoice');
+        body.querySelectorAll('[data-civic-tab]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var tabKey = btn.getAttribute('data-civic-tab');
+            body.querySelectorAll('[data-civic-tab]').forEach(function (b) {
+              var active = b === btn;
+              b.classList.toggle('is-active', active);
+              b.setAttribute('aria-selected', active ? 'true' : 'false');
+            });
+            if (tabKey === 'axis') { paneAxis.hidden = false; paneChoice.hidden = true; }
+            else { paneAxis.hidden = true; paneChoice.hidden = false; }
+          });
+        });
+      }
+
+      // 軸別ビュー（地区→選択肢内訳）
+      function renderCivicAnalyticsByAxis(data) {
+        var topic = data.topic || {};
+        var options = topic.options || [];
         function bucketBlock(label, buckets) {
-          if (!buckets || buckets.length === 0) return '<p>データ不足</p>';
+          if (!buckets || buckets.length === 0) return '<p class="civic-empty">データ不足</p>';
           var maxTotal = Math.max.apply(null, buckets.map(function (b) { return b.total; }));
           var rows = buckets.map(function (b) {
             var pct = Math.round((b.total / data.totalVotes) * 100);
@@ -4238,7 +4403,7 @@
               var n = b.choices[op] || 0;
               if (n === 0) return '';
               var w = Math.round((n / b.total) * 100);
-              return '<span class="civic-stack" style="width:' + w + '%;background:' + optColors[idx % optColors.length] + ';" title="' + op + ': ' + n + '票">' + (w >= 12 ? op + ' ' + w + '%' : '') + '</span>';
+              return '<span class="civic-stack" style="width:' + w + '%;background:' + CIVIC_OPT_COLORS[idx % CIVIC_OPT_COLORS.length] + ';" title="' + op + ': ' + n + '票">' + (w >= 12 ? op + ' ' + w + '%' : '') + '</span>';
             }).join('');
             var barWidth = Math.round((b.total / maxTotal) * 100);
             return '<div class="civic-arow">'
@@ -4250,22 +4415,61 @@
           return '<h4 class="civic-asection">' + label + '</h4>'
             + '<div class="civic-arows">' + rows + '</div>';
         }
-
-        var legend = '<div class="civic-legend">'
-          + options.map(function (op, idx) {
-            return '<span class="civic-legend__item"><span class="civic-legend__dot" style="background:' + optColors[idx % optColors.length] + '"></span>' + escapeHtml(op) + '</span>';
-          }).join('') + '</div>';
-
-        body.innerHTML =
-          '<div class="civic-asummary">'
-            + '<h3>' + escapeHtml(topic.title) + '</h3>'
-            + '<p class="civic-asum-total">投票総数 <strong>' + data.totalVotes + '</strong> 票 ／ k-anonymity しきい値 ' + data.kThreshold + '</p>'
-            + legend
-          + '</div>'
-          + bucketBlock('🏘️ 地区別', data.byDistrict)
+        return bucketBlock('🏘️ 地区別', data.byDistrict)
           + bucketBlock('👥 年代別', data.byAge)
-          + bucketBlock('⚧ 性別', data.byGender)
-          + '<p class="civic-anote">📝 ' + escapeHtml(data.note || '') + '</p>';
+          + bucketBlock('⚧ 性別', data.byGender);
+      }
+
+      // 選択肢別ビュー（A案→地区/年代/性別内訳）
+      function renderCivicAnalyticsByChoice(data) {
+        var topic = data.topic || {};
+        var options = topic.options || [];
+
+        // フロント側の議題定義から選択肢ラベルを取得
+        var topicFront = (viewState.civicTopics || []).filter(function (t) { return t.id === topic.id; })[0];
+        var labelMap = {};
+        if (topicFront && topicFront.options) {
+          topicFront.options.forEach(function (op) { labelMap[op.key] = op.label; });
+        }
+
+        function choiceBucketRows(axisLabel, buckets, opKey) {
+          // 各バケットの opKey 票数を取得して横棒表示
+          var items = buckets.map(function (b) {
+            return { name: b.name, n: (b.choices[opKey] || 0) };
+          }).filter(function (it) { return it.n > 0; });
+          var totalForOp = items.reduce(function (s, it) { return s + it.n; }, 0);
+          if (totalForOp === 0) return '<div class="civic-cbox"><div class="civic-cbox__axis">' + axisLabel + '</div><div class="civic-cempty">該当票なし</div></div>';
+          items.sort(function (a, b) { return b.n - a.n; });
+          var maxN = items[0].n;
+          var rows = items.map(function (it) {
+            var pct = Math.round((it.n / totalForOp) * 100);
+            var barW = Math.round((it.n / maxN) * 100);
+            return '<div class="civic-crow">'
+              + '<div class="civic-crow__label">' + escapeHtml(it.name) + '</div>'
+              + '<div class="civic-crow__bar"><div class="civic-crow__bar-fill" style="width:' + barW + '%;"></div></div>'
+              + '<div class="civic-crow__count">' + it.n + '票 (' + pct + '%)</div>'
+              + '</div>';
+          }).join('');
+          return '<div class="civic-cbox"><div class="civic-cbox__axis">' + axisLabel + '</div>' + rows + '</div>';
+        }
+
+        return options.map(function (op, idx) {
+          var color = CIVIC_OPT_COLORS[idx % CIVIC_OPT_COLORS.length];
+          // この選択肢の総票数（軸別から逆算可：byDistrict合計）
+          var opTotal = (data.byDistrict || []).reduce(function (s, b) { return s + (b.choices[op] || 0); }, 0);
+          var opShare = data.totalVotes > 0 ? Math.round((opTotal / data.totalVotes) * 100) : 0;
+          var label = labelMap[op] || op;
+          return '<div class="civic-choicegroup" style="border-left:4px solid ' + color + ';">'
+            + '<div class="civic-choicegroup__head">'
+            + '<span class="civic-choicegroup__chip" style="background:' + color + '">' + escapeHtml(op) + '</span>'
+            + '<span class="civic-choicegroup__label">' + escapeHtml(label) + '</span>'
+            + '<span class="civic-choicegroup__total">' + opTotal + '票 / 全体' + opShare + '%</span>'
+            + '</div>'
+            + choiceBucketRows('🏘️ 地区', data.byDistrict || [], op)
+            + choiceBucketRows('👥 年代', data.byAge || [], op)
+            + choiceBucketRows('⚧ 性別', data.byGender || [], op)
+            + '</div>';
+        }).join('');
       }
 
       function escapeHtml(s) {

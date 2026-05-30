@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-31</p>
+            <h2 class="cl-title"><strong>印西PoC属性分析に「選択肢別表示」を追加（クロス集計を両方向で見られる）</strong></h2>
+            <p class="cl-desc">
+              印西PoC属性分析モーダルに <strong>「軸別表示／選択肢別表示」タブ切替</strong>を追加。これまでは「地区別→A/B/C の内訳」の方向しか見られなかったが、<strong>「A案／B案／C案ごとに → どの地区・年代・性別の人がどれだけ票を入れたか」</strong>を別タブで一覧できるようになった。選択肢別タブでは、各選択肢ごとに 地区／年代／性別 の票数分布が降順横棒グラフで表示され、各属性カテゴリーがその選択肢の中で占める割合（%）も併記される。例：「A案は千葉ニュータウン地区が47%・木下21%・印旛16%…」といった逆方向クロスが一目で分かる。市長説明での「どの層が何案を支持しているか」という典型的な議論に直接答えられるUIになった。あわせてPWAキャッシュを v5 → v6 にバンプして全クライアントで強制刷新。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-31</p>
             <h2 class="cl-title"><strong>印西PoCの「属性分析」が動かない不具合を修正（GAS接続先を正しい方に変更）</strong></h2>
             <p class="cl-desc">
               印西PoCタブで「📊 属性分析を見る」を押すと <strong>「Unexpected token '&lt;'...」エラー</strong>が出ていた不具合を修正。原因は、印西PoCの集計を担う GAS が <strong>cocola_topics スクリプト</strong>側にあるのに対し、フロントエンドが <strong>COCoLa本体DAOの GAS（別スクリプト）</strong>を叩いていたこと。フロント側で <strong>civicVote 専用の GAS_URL を独立定義</strong>し、cocola_topics の正しいデプロイメント（v201@385）を直接参照するように切替えた。投票記録の保存・分析データの取得・seed されたダミー90票（議題ごとに45票×2／属性付き）の表示すべてが正常動作する状態になった。あわせてPWAキャッシュを v4 → v5 にバンプして全クライアントで強制刷新。
