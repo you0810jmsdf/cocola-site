@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-31</p>
+            <h2 class="cl-title"><strong>印西PoCタブに「📊 属性分析」ボタンを追加（地区／年代／性別）</strong></h2>
+            <p class="cl-desc">
+              市長説明での議論を見据え、印西PoCタブの各議題カードに <strong>「📊 属性分析を見る」ボタン</strong>を追加。クリックすると、その議題の投票内容を <strong>地区別（5区分）／年代別（6区分）／性別（3区分）</strong>で分解した分析モーダルが開き、それぞれのカテゴリーで「どの選択肢にどれだけ票が集まったか」が積み上げ棒グラフで一目で分かるようにした。<strong>k-anonymity しきい値5</strong>を採用し、グループサイズが小さすぎる集計は「少数（非表示集約）」にまとめて個人特定を防ぐ設計。<strong>本番運用時は xID 等の認定事業者経由で属性を取得・匿名化集計</strong>する想定で、本PoCではデモ用ダミーデータ（印西市の人口比に近い配分＋議題に応じた支持傾向）を表示している点を画面下部に明記した。GAS は v201@385 で <strong>action=analytics エンドポイント</strong>を追加、seed関数も属性付与版に更新済み。あわせてDAOページのPWAキャッシュを v3 → v4 にバンプして全クライアントで強制刷新。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-31</p>
             <h2 class="cl-title"><strong>「印西投票」タブをPoC実証用に明示／メンバー誤操作防止</strong></h2>
             <p class="cl-desc">
               ボトムナビの<strong>「印西投票」タブが COCoLa内部の『提案・投票』と混同される</strong>という指摘を受けて、PoC実証であることを視覚的に明示する改修を実施。<strong>タブラベルを「印西PoC」</strong>に変更し、<strong>「実証」バッジ</strong>を添えた。タブの色を<strong>オレンジ系</strong>にして規定タブと視覚的に区別。タブを開いた直後の<strong>警告バナーで「COCoLaの提案・投票とは別の機能です」「本体の意思決定はこれまで通り『提案・投票』タブで」</strong>と明記した。あわせて<strong>市長説明用のPoCデモ用ダミー投票データ（議題ごとに約45票・自然な分布）を仕込む関数 seedCivicVotePoCData</strong>を GAS 側に追加（v200@384）。1票しか入っていないと棒グラフが100%になり実証感が出ないため、市長説明前に実行することで「動いている感」を演出する。

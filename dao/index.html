@@ -2045,6 +2045,178 @@
     .civic-status.is-success { color: var(--green-deep); font-weight: 700; }
     .civic-status.is-error { color: var(--coral); font-weight: 700; }
 
+    /* 属性分析ボタン＆モーダル */
+    .civic-analytics-btn {
+      width: 100%;
+      margin-top: 10px;
+      padding: 12px 16px;
+      border: 1px dashed #d97706;
+      border-radius: 10px;
+      background: #fff7e6;
+      color: #92580c;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 120ms;
+    }
+    .civic-analytics-btn:hover {
+      background: #ffeacf;
+    }
+    .civic-analytics-overlay {
+      position: fixed; inset: 0; z-index: 260;
+      display: flex; align-items: center; justify-content: center;
+      padding: 12px;
+      background: rgba(15, 30, 25, 0.7);
+      backdrop-filter: blur(4px);
+    }
+    .civic-analytics-overlay[hidden] { display: none; }
+    .civic-analytics-modal {
+      width: min(640px, 100%);
+      max-height: 92vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--paper);
+      border-radius: 16px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+      overflow: hidden;
+    }
+    .civic-analytics-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px;
+      background: linear-gradient(135deg, #d97706 0%, #b85f00 100%);
+      color: #fff;
+    }
+    .civic-analytics-header h2 {
+      margin: 0; font-size: 1.05rem; font-weight: 800;
+    }
+    .civic-analytics-close {
+      background: rgba(255,255,255,0.18);
+      border: none; color: #fff;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      font-size: 1.3rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .civic-analytics-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px;
+    }
+    .civic-loading, .civic-error {
+      text-align: center;
+      padding: 24px 12px;
+      color: var(--muted);
+    }
+    .civic-error { color: var(--coral); }
+    .civic-asummary {
+      padding-bottom: 14px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+    .civic-asummary h3 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+      color: var(--ink);
+    }
+    .civic-asum-total {
+      margin: 0 0 8px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .civic-asum-total strong {
+      color: var(--ink);
+      font-size: 1.05rem;
+    }
+    .civic-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      font-size: 0.78rem;
+    }
+    .civic-legend__item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--muted);
+    }
+    .civic-legend__dot {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+    .civic-asection {
+      margin: 14px 0 8px;
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--ink);
+    }
+    .civic-arows {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .civic-arow {
+      display: grid;
+      grid-template-columns: minmax(90px, 1fr) auto;
+      gap: 4px 12px;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+    .civic-arow__label {
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .civic-arow__count {
+      font-variant-numeric: tabular-nums;
+      color: var(--muted);
+      font-size: 0.78rem;
+      white-space: nowrap;
+    }
+    .civic-arow__bar {
+      grid-column: 1 / -1;
+      display: flex;
+      height: 22px;
+      border-radius: 4px;
+      overflow: hidden;
+      background: #f0f3f1;
+    }
+    .civic-stack {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .civic-anote {
+      margin-top: 12px;
+      padding: 10px 12px;
+      background: #fff7e6;
+      border-left: 3px solid #d97706;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      color: #6b4a18;
+      line-height: 1.55;
+    }
+    .civic-analytics-footer {
+      padding: 12px 18px;
+      border-top: 1px solid var(--line);
+      text-align: right;
+    }
+    .civic-analytics-ok {
+      padding: 10px 22px;
+      border: none;
+      border-radius: 8px;
+      background: var(--green-deep);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
     /* マイナカード認証モーダル */
     .jpki-overlay {
       position: fixed; inset: 0; z-index: 250;
@@ -2563,6 +2735,20 @@
     <div class="modal-actions">
       <button class="button secondary" type="button" id="proposalModalCancel">キャンセル</button>
       <button class="button" type="button" id="proposalModalSubmit">提案する</button>
+    </div>
+  </div>
+</div>
+
+<!-- 印西PoC：属性分析モーダル -->
+<div class="civic-analytics-overlay" id="civicAnalyticsOverlay" hidden aria-modal="true" role="dialog">
+  <div class="civic-analytics-modal">
+    <div class="civic-analytics-header">
+      <h2 id="civicAnalyticsTitle">属性分析（PoC実証）</h2>
+      <button type="button" class="civic-analytics-close" id="civicAnalyticsCloseBtn" aria-label="閉じる">×</button>
+    </div>
+    <div class="civic-analytics-body" id="civicAnalyticsBody"></div>
+    <div class="civic-analytics-footer">
+      <button type="button" class="civic-analytics-ok" id="civicAnalyticsOkBtn">閉じる</button>
     </div>
   </div>
 </div>
@@ -3975,6 +4161,9 @@
             ? '<button class="civic-vote-btn" disabled>✓ 投票済み（このカードでは投票できません）</button>'
             : '<button class="civic-vote-btn" data-civic-topic="' + t.id + '">'
               + '<span class="civic-vote-btn__icon">JPKI</span>マイナンバーカードで投票する</button>';
+          var analyticsBtn = t.totalVotes > 0
+            ? '<button class="civic-analytics-btn" data-civic-analytics="' + t.id + '">📊 属性分析を見る（地区／年代／性別）</button>'
+            : '';
           return '<div class="civic-card">'
             + '<div class="civic-card__head">'
             + '<h3 class="civic-card__title">' + escapeHtml(t.title) + '</h3>'
@@ -3983,6 +4172,7 @@
             + '<p class="civic-card__lead">' + escapeHtml(t.lead) + '</p>'
             + '<div class="civic-options">' + opts + '</div>'
             + btn
+            + analyticsBtn
             + '<div class="civic-status" id="civicStatus-' + t.id + '">合計 ' + t.totalVotes + ' 票（PoC実証中）</div>'
             + '</div>';
         }).join('');
@@ -3996,6 +4186,84 @@
             openCivicChoicePrompt(topic);
           });
         });
+        listEl.querySelectorAll('[data-civic-analytics]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var topicId = btn.getAttribute('data-civic-analytics');
+            openCivicAnalytics(topicId);
+          });
+        });
+      }
+
+      function openCivicAnalytics(topicId) {
+        var overlay = document.getElementById('civicAnalyticsOverlay');
+        var body = document.getElementById('civicAnalyticsBody');
+        var title = document.getElementById('civicAnalyticsTitle');
+        if (!overlay || !body) return;
+        title.textContent = '属性分析（PoC実証）';
+        body.innerHTML = '<div class="civic-loading">分析データを取得中...</div>';
+        overlay.hidden = false;
+
+        var url = CIVIC_GAS_URL + '?mode=civicVote&action=analytics&topic=' + encodeURIComponent(topicId) + '&_t=' + Date.now();
+        fetch(url, { cache: 'no-store' })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (!data || !data.ok) throw new Error((data && data.error) || 'unknown');
+            renderCivicAnalytics(data);
+          })
+          .catch(function (err) {
+            body.innerHTML = '<div class="civic-error">⚠️ 分析データの取得に失敗しました：' + escapeHtml(String(err.message || err)) + '<br><small>GASに mode=civicVote&action=analytics が未デプロイの可能性があります。</small></div>';
+          });
+      }
+
+      function closeCivicAnalytics() {
+        var overlay = document.getElementById('civicAnalyticsOverlay');
+        if (overlay) overlay.hidden = true;
+      }
+
+      function renderCivicAnalytics(data) {
+        var body = document.getElementById('civicAnalyticsBody');
+        if (!body) return;
+        var topic = data.topic || {};
+        var options = topic.options || ['A', 'B', 'C'];
+        var optColors = ['#1d8f6f', '#d97706', '#2f7f9a', '#d4544a', '#7c3aed'];
+
+        function bucketBlock(label, buckets) {
+          if (!buckets || buckets.length === 0) return '<p>データ不足</p>';
+          var maxTotal = Math.max.apply(null, buckets.map(function (b) { return b.total; }));
+          var rows = buckets.map(function (b) {
+            var pct = Math.round((b.total / data.totalVotes) * 100);
+            var stacks = options.map(function (op, idx) {
+              var n = b.choices[op] || 0;
+              if (n === 0) return '';
+              var w = Math.round((n / b.total) * 100);
+              return '<span class="civic-stack" style="width:' + w + '%;background:' + optColors[idx % optColors.length] + ';" title="' + op + ': ' + n + '票">' + (w >= 12 ? op + ' ' + w + '%' : '') + '</span>';
+            }).join('');
+            var barWidth = Math.round((b.total / maxTotal) * 100);
+            return '<div class="civic-arow">'
+              + '<div class="civic-arow__label">' + escapeHtml(b.name) + '</div>'
+              + '<div class="civic-arow__count">' + b.total + '票 (' + pct + '%)</div>'
+              + '<div class="civic-arow__bar" style="width:' + barWidth + '%;">' + stacks + '</div>'
+              + '</div>';
+          }).join('');
+          return '<h4 class="civic-asection">' + label + '</h4>'
+            + '<div class="civic-arows">' + rows + '</div>';
+        }
+
+        var legend = '<div class="civic-legend">'
+          + options.map(function (op, idx) {
+            return '<span class="civic-legend__item"><span class="civic-legend__dot" style="background:' + optColors[idx % optColors.length] + '"></span>' + escapeHtml(op) + '</span>';
+          }).join('') + '</div>';
+
+        body.innerHTML =
+          '<div class="civic-asummary">'
+            + '<h3>' + escapeHtml(topic.title) + '</h3>'
+            + '<p class="civic-asum-total">投票総数 <strong>' + data.totalVotes + '</strong> 票 ／ k-anonymity しきい値 ' + data.kThreshold + '</p>'
+            + legend
+          + '</div>'
+          + bucketBlock('🏘️ 地区別', data.byDistrict)
+          + bucketBlock('👥 年代別', data.byAge)
+          + bucketBlock('⚧ 性別', data.byGender)
+          + '<p class="civic-anote">📝 ' + escapeHtml(data.note || '') + '</p>';
       }
 
       function escapeHtml(s) {
@@ -4130,6 +4398,14 @@
         var nextBtn = document.getElementById('jpkiNextBtn');
         if (cancelBtn) cancelBtn.addEventListener('click', closeJpkiAuth);
         if (nextBtn) nextBtn.addEventListener('click', advanceJpkiAuth);
+        var aClose = document.getElementById('civicAnalyticsCloseBtn');
+        var aOk = document.getElementById('civicAnalyticsOkBtn');
+        var aOverlay = document.getElementById('civicAnalyticsOverlay');
+        if (aClose) aClose.addEventListener('click', closeCivicAnalytics);
+        if (aOk) aOk.addEventListener('click', closeCivicAnalytics);
+        if (aOverlay) aOverlay.addEventListener('click', function (e) {
+          if (e.target === aOverlay) closeCivicAnalytics();
+        });
       });
 
       /* ---- 印西イベント ---- */
