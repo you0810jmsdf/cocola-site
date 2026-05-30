@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-31</p>
+            <h2 class="cl-title"><strong>「印西投票」タブをPoC実証用に明示／メンバー誤操作防止</strong></h2>
+            <p class="cl-desc">
+              ボトムナビの<strong>「印西投票」タブが COCoLa内部の『提案・投票』と混同される</strong>という指摘を受けて、PoC実証であることを視覚的に明示する改修を実施。<strong>タブラベルを「印西PoC」</strong>に変更し、<strong>「実証」バッジ</strong>を添えた。タブの色を<strong>オレンジ系</strong>にして規定タブと視覚的に区別。タブを開いた直後の<strong>警告バナーで「COCoLaの提案・投票とは別の機能です」「本体の意思決定はこれまで通り『提案・投票』タブで」</strong>と明記した。あわせて<strong>市長説明用のPoCデモ用ダミー投票データ（議題ごとに約45票・自然な分布）を仕込む関数 seedCivicVotePoCData</strong>を GAS 側に追加（v200@384）。1票しか入っていないと棒グラフが100%になり実証感が出ないため、市長説明前に実行することで「動いている感」を演出する。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--improve">改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-31</p>
             <h2 class="cl-title"><strong>DAOページのPWAキャッシュを強制刷新／ハッシュ変更追従を追加</strong></h2>
             <p class="cl-desc">
               <strong>「提案／投票」リンクから飛んでも提案タブが開かず「マイカード」が出てしまう</strong>不具合の解消。原因はPWA（Service Worker）が古いキャッシュを配信していたこと。<strong>キャッシュバージョンを v2 → v3 にバンプ</strong>して全クライアントで強制刷新するようにした。あわせて DAO ページに <strong>URL ハッシュ変更を検知して即タブ切替するリスナー</strong>を追加し、ブラウザ履歴の戻る・進む操作や手動でハッシュを書き換えた際にも正しいタブが開くようにした。なお、まだ「マイカードが出る」と感じる方は <strong>Ctrl+Shift+R で強制再読込</strong>、または PWA アプリを一度終了→再起動してください。
