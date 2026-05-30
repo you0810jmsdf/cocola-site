@@ -112,6 +112,27 @@
     text-align: center;
     margin-top: 20px;
   }
+  /* 配布人数カウンター */
+  .dist-counter {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .dist-label { font-size: 0.95rem; font-weight: 600; }
+  .dist-number { font-size: 2rem; font-weight: 800; line-height: 1; }
+  .dist-unit { font-size: 0.95rem; }
+  .dist-updated {
+    margin-left: auto;
+    font-size: 0.7rem;
+    opacity: 0.8;
+    align-self: flex-end;
+  }
   /* タブ */
   .tabbar {
     display: flex;
@@ -189,6 +210,14 @@
     <input type="text" id="staffName" placeholder="例：山田" autocomplete="off">
   </div>
 
+  <!-- 配布人数カウンター（全タブ共通・常時表示・自動更新） -->
+  <div id="distCounter" class="dist-counter">
+    <span class="dist-label">🎁 配布済み</span>
+    <span id="distNumber" class="dist-number">―</span>
+    <span class="dist-unit">名</span>
+    <span id="distUpdated" class="dist-updated"></span>
+  </div>
+
   <div class="tabbar">
     <button class="tab is-active" data-tab="scan">📷 スキャン</button>
     <button class="tab" data-tab="history">📋 履歴</button>
@@ -257,13 +286,15 @@
   var $historyTitle = document.getElementById('historyTitle');
   var $historyUpdated = document.getElementById('historyUpdated');
   var $historyRefresh = document.getElementById('historyRefresh');
+  var $distNumber = document.getElementById('distNumber');
+  var $distUpdated = document.getElementById('distUpdated');
 
   // ===== state =====
   var scanner = null;
   var scanning = false;
   var lastDecodedAt = 0;
   var lastDecodedText = '';
-  var historyTimer = null;
+  var pollTimer = null;
   var activeTab = 'scan';
 
   // ===== スタッフ名復元 =====
@@ -303,6 +334,8 @@
           var saved = localStorage.getItem('COCOLA_LAST_CAMPAIGN') || '';
           if (saved) $sel.value = saved;
         } catch (e) {}
+        // キャンペーン確定後、配布人数を即取得
+        loadData();
       })
       .catch(function () {
         $sel.innerHTML = '<option value="">通信エラー</option>';
@@ -312,6 +345,7 @@
     try { localStorage.setItem('COCOLA_LAST_CAMPAIGN', $sel.value || ''); } catch (e) {}
   });
   loadCampaigns();
+  startPolling(); // 配布人数カウンターを常時自動更新
 
   // ===== スキャナ起動 =====
   $start.addEventListener('click', function () {
@@ -389,8 +423,8 @@
             res.campaignName || ''
           );
           addLog('ok', memberId, res);
-          // 自分の交換を共有履歴へ即反映（他スタッフ分は10秒ポーリングで届く）
-          if (activeTab === 'history') loadHistory();
+          // 自分の交換を配布人数・履歴へ即反映（他スタッフ分は10秒ポーリングで届く）
+          loadData();
         } else if (res && res.error === 'already_redeemed') {
           showResult('ng',
             '⚠️ 既に交換済み',
@@ -437,48 +471,47 @@
     document.querySelectorAll('.tabview').forEach(function (v) {
       v.hidden = (v.dataset.view !== name);
     });
-    if (name === 'history') {
-      loadHistory();
-      startHistoryPolling();
-    } else {
-      stopHistoryPolling();
-    }
+    // 履歴タブに切り替えたら即リスト反映
+    if (name === 'history') loadData();
   }
   document.querySelectorAll('.tab').forEach(function (t) {
     t.addEventListener('click', function () { switchTab(t.dataset.tab); });
   });
-  if ($historyRefresh) $historyRefresh.addEventListener('click', loadHistory);
+  if ($historyRefresh) $historyRefresh.addEventListener('click', loadData);
 
-  // ===== 履歴の10秒ポーリング =====
-  function startHistoryPolling() {
-    stopHistoryPolling();
-    historyTimer = setInterval(function () {
-      if (activeTab === 'history' && !document.hidden) loadHistory();
+  // ===== 10秒ポーリング（配布人数カウンター＋履歴。常時稼働） =====
+  function startPolling() {
+    stopPolling();
+    pollTimer = setInterval(function () {
+      if (!document.hidden) loadData();
     }, 10000);
   }
-  function stopHistoryPolling() {
-    if (historyTimer) { clearInterval(historyTimer); historyTimer = null; }
+  function stopPolling() {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
   }
   // 端末スリープ/復帰時の無駄打ち抑制
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) {
-      stopHistoryPolling();
-    } else if (activeTab === 'history') {
-      loadHistory();
-      startHistoryPolling();
+      stopPolling();
+    } else {
+      loadData();
+      startPolling();
     }
   });
 
-  // ===== 交換履歴取得（全スタッフ共有・サーバ記録） =====
-  function loadHistory() {
+  // ===== 配布人数＋交換履歴取得（全スタッフ共有・サーバ記録） =====
+  function loadData() {
     var cid = $sel.value || '';
     var campName = '';
     if (cid && $sel.options[$sel.selectedIndex]) {
       campName = $sel.options[$sel.selectedIndex].textContent || '';
     }
     if (!cid) {
+      $distNumber.textContent = '―';
+      $distUpdated.textContent = '';
       $historyTitle.textContent = '交換履歴';
       $historyCount.textContent = '―';
+      $historyUpdated.textContent = '';
       $historyList.innerHTML = '<div class="history-empty">キャンペーンを選択してください。</div>';
       return;
     }
@@ -488,11 +521,18 @@
       .then(function (r) { return r.json(); })
       .then(function (res) {
         if (!res || !res.ok) {
+          $distUpdated.textContent = '取得失敗';
           $historyList.innerHTML = '<div class="history-empty">取得に失敗しました。</div>';
           return;
         }
-        $historyCount.textContent = '交換 ' + res.count + ' 名';
-        $historyUpdated.textContent = '最終更新 ' + nowLabel();
+        var total = (typeof res.totalCount === 'number') ? res.totalCount : res.count;
+        // 配布人数カウンター（全タブ共通）
+        $distNumber.textContent = total;
+        $distUpdated.textContent = '更新 ' + nowLabel();
+        // 履歴タブ内のヘッダ
+        $historyCount.textContent = '交換 ' + total + ' 名';
+        $historyUpdated.textContent = '最終更新 ' + nowLabel() +
+          (res.count < total ? '（直近' + res.count + '件を表示）' : '');
         if (!res.items.length) {
           $historyList.innerHTML = '<div class="history-empty">まだ交換記録がありません。</div>';
           return;
@@ -509,13 +549,12 @@
         $historyList.innerHTML = html;
       })
       .catch(function () {
+        $distUpdated.textContent = '通信エラー';
         $historyList.innerHTML = '<div class="history-empty">通信エラー。</div>';
       });
   }
-  // キャンペーン変更時、履歴タブを見ていれば即リロード
-  $sel.addEventListener('change', function () {
-    if (activeTab === 'history') loadHistory();
-  });
+  // キャンペーン変更時は即リロード（カウンターも履歴も）
+  $sel.addEventListener('change', loadData);
 
   // ===== utils =====
   function nowLabel() {
