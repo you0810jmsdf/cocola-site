@@ -4351,6 +4351,12 @@
       /* 初期ビュー：URLハッシュを反映 */
       var initial = (location.hash || '').replace('#', '');
       if (initial && initial !== 'points') switchView(initial);
+
+      /* ハッシュ変更時に追従（PWA・履歴遷移対策） */
+      window.addEventListener('hashchange', function () {
+        var h = (location.hash || '').replace('#', '');
+        if (h && VIEW_NAMES.indexOf(h) !== -1) switchView(h);
+      });
     })();
 
     /* ===== 本人認証（メール照合・アプリ全体ログイン） ===== */
