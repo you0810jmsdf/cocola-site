@@ -4070,7 +4070,9 @@
       });
 
       /* ---- 印西市民投票（PoC） ---- */
-      var CIVIC_GAS_URL = GAS_URL;
+      /* CiDAO 印西PoC は cocola_topics スクリプトの civic-vote.gs.js が処理。
+         本DAOの GAS_URL とは別スクリプトのため、専用URLを直接指定する。 */
+      var CIVIC_GAS_URL = 'https://script.google.com/macros/s/AKfycbzVs_W57Iphxcc5PHShXBNae63CKqjF5fB82tUkQwaf1vyuNWWLgtWZgglY7Qbuuft1/exec';
       var CIVIC_POC_TOPICS = [
         {
           id: 'P0001',
