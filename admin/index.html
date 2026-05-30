@@ -9,9 +9,44 @@
   <link rel="icon" type="image/png" href="../assets/COCoLa_Logo_transparent.png">
   <link rel="apple-touch-icon" href="../assets/COCoLa_Logo_BG.png">
   <link rel="stylesheet" href="../styles.css">
+  <style>
+    #adminGate {
+      position: fixed; inset: 0; z-index: 1000;
+      background: #f3efe3;
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    #adminGate .gate-box {
+      background: #fff; border: 1px solid #e3ddcc; border-radius: 14px;
+      padding: 28px 24px; max-width: 360px; width: 100%;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.08); text-align: center;
+    }
+    #adminGate h2 { margin: 0 0 6px; font-size: 1.15rem; color: #1d6b4f; }
+    #adminGate p { margin: 0 0 16px; font-size: 0.82rem; color: #888; }
+    #adminGate input {
+      width: 100%; padding: 12px; font-size: 1rem;
+      border: 1px solid #d4dad6; border-radius: 8px; margin-bottom: 12px;
+    }
+    #adminGate button {
+      width: 100%; padding: 12px; font-size: 1rem; border: none;
+      border-radius: 8px; background: #1d9e75; color: #fff; cursor: pointer;
+    }
+    #adminGate .gate-error { color: #c62828; font-size: 0.85rem; margin-top: 10px; min-height: 1.2em; }
+  </style>
 </head>
 <body>
-  <div class="page-shell">
+  <!-- パスワードゲート -->
+  <div id="adminGate">
+    <div class="gate-box">
+      <h2>🔒 運営管理画面</h2>
+      <p>運営パスワードを入力してください。</p>
+      <input type="password" id="gatePw" placeholder="パスワード" autocomplete="current-password">
+      <button id="gateBtn">ログイン</button>
+      <div class="gate-error" id="gateError"></div>
+    </div>
+  </div>
+
+  <div class="page-shell" id="adminShell">
     <header class="site-header">
       <a class="brand" href="../index.html" aria-label="COCoLa トップへ">
         <img class="brand__logo" src="../assets/COCoLa_Logo_transparent.png" alt="COCoLa ロゴ">
@@ -87,6 +122,23 @@
           </article>
         </div>
       </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <p class="eyebrow">サイト運営モニタリング</p>
+          <h2>アクセス解析・予算監視</h2>
+        </div>
+        <div class="apps-grid">
+          <article class="app-card">
+            <p class="app-card__tag">運営</p>
+            <h3>📊 アクセス解析・GCloud残高</h3>
+            <p>GitHub Pages／GASページのアクセス状況、訪問者数、GCloud残高の推移・予算アラートを確認できます。</p>
+            <div class="app-card__actions">
+              <a class="button button--secondary" href="https://script.google.com/macros/s/AKfycbycw2FBvcm34mS9R8SUNg28KscGqqGjR1zjz3hnLYq8ckgKCZObYaC9kbMs8R2SGXgC/exec?page=admin&pass=cocola2026" target="_blank" rel="noreferrer noopener">開く</a>
+            </div>
+          </article>
+        </div>
+      </section>
     </main>
 
     <footer class="site-footer">
@@ -96,5 +148,38 @@
       </div>
     </footer>
   </div>
+
+  <script>
+    (function () {
+      // TOPページの管理ボタンと同じセッションキーを共有（同一タブで認証を引き継ぐ）
+      var SESSION_KEY = 'cocola_admin_auth';
+      var PASSWORD = 'cocola2026';
+      var gate = document.getElementById('adminGate');
+      var shell = document.getElementById('adminShell');
+      var pw = document.getElementById('gatePw');
+      var btn = document.getElementById('gateBtn');
+      var err = document.getElementById('gateError');
+
+      function unlock() {
+        gate.style.display = 'none';
+      }
+      function tryLogin() {
+        if (pw.value === PASSWORD) {
+          try { sessionStorage.setItem(SESSION_KEY, '1'); } catch (e) {}
+          unlock();
+        } else {
+          err.textContent = 'パスワードが違います。';
+          pw.focus();
+        }
+      }
+      btn.addEventListener('click', tryLogin);
+      pw.addEventListener('keydown', function (e) { if (e.key === 'Enter') tryLogin(); });
+
+      // 既に認証済み（TOPで入力済み等）なら即解錠
+      var authed = false;
+      try { authed = sessionStorage.getItem(SESSION_KEY) === '1'; } catch (e) {}
+      if (authed) { unlock(); } else { setTimeout(function () { pw.focus(); }, 50); }
+    })();
+  </script>
 </body>
 </html>
