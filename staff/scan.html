@@ -112,6 +112,64 @@
     text-align: center;
     margin-top: 20px;
   }
+  /* タブ */
+  .tabbar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .tab {
+    flex: 1;
+    padding: 10px;
+    font-size: 0.95rem;
+    background: #fff;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    border-radius: 8px;
+    margin: 0;
+  }
+  .tab.is-active {
+    background: var(--primary);
+    color: #fff;
+  }
+  /* 履歴 */
+  .history-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
+  }
+  .history-head span:first-child { font-weight: 700; }
+  .history-count {
+    font-size: 0.9rem;
+    color: var(--primary);
+    font-weight: 700;
+  }
+  .history-updated {
+    font-size: 0.75rem;
+    color: #999;
+    margin-bottom: 8px;
+  }
+  .history-list {
+    margin-top: 10px;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  .history-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 4px;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
+  }
+  .history-row .hr-name { font-weight: 600; }
+  .history-row .hr-meta { color: #888; font-size: 0.8rem; }
+  .history-empty {
+    color: #999;
+    text-align: center;
+    padding: 24px 0;
+    font-size: 0.9rem;
+  }
 </style>
 </head>
 <body>
@@ -131,16 +189,40 @@
     <input type="text" id="staffName" placeholder="例：山田" autocomplete="off">
   </div>
 
-  <div class="card">
-    <button id="startBtn">📷 スキャン開始</button>
-    <button id="stopBtn" class="secondary" hidden>停止</button>
-    <div id="reader"></div>
-    <div id="result"></div>
+  <div class="tabbar">
+    <button class="tab is-active" data-tab="scan">📷 スキャン</button>
+    <button class="tab" data-tab="history">📋 履歴</button>
   </div>
 
-  <div class="card">
-    <div style="font-size:0.85rem;color:#555;margin-bottom:6px;">スキャン履歴（このセッション内のみ）</div>
-    <div id="scanLog"></div>
+  <!-- スキャンタブ -->
+  <div class="tabview" data-view="scan">
+    <div class="card">
+      <button id="startBtn">📷 スキャン開始</button>
+      <button id="stopBtn" class="secondary" hidden>停止</button>
+      <div id="reader"></div>
+      <div id="result"></div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:0.85rem;color:#555;margin-bottom:6px;">スキャン履歴（この端末・このセッション内のみ）</div>
+      <div id="scanLog"></div>
+    </div>
+  </div>
+
+  <!-- 履歴タブ（全スタッフ共有・サーバ記録） -->
+  <div class="tabview" data-view="history" hidden>
+    <div class="card">
+      <div class="history-head">
+        <span id="historyTitle">交換履歴</span>
+        <span id="historyCount" class="history-count">―</span>
+      </div>
+      <div id="historyUpdated" class="history-updated"></div>
+      <button id="historyRefresh" class="secondary">🔄 今すぐ更新</button>
+      <div id="historyList" class="history-list"></div>
+    </div>
+    <div class="footer-note">
+      全スタッフの交換が10秒ごとに自動反映されます（同じ記録シートを共有）。
+    </div>
   </div>
 
   <div class="footer-note">
@@ -170,12 +252,19 @@
   var $stop = document.getElementById('stopBtn');
   var $result = document.getElementById('result');
   var $log = document.getElementById('scanLog');
+  var $historyList = document.getElementById('historyList');
+  var $historyCount = document.getElementById('historyCount');
+  var $historyTitle = document.getElementById('historyTitle');
+  var $historyUpdated = document.getElementById('historyUpdated');
+  var $historyRefresh = document.getElementById('historyRefresh');
 
   // ===== state =====
   var scanner = null;
   var scanning = false;
   var lastDecodedAt = 0;
   var lastDecodedText = '';
+  var historyTimer = null;
+  var activeTab = 'scan';
 
   // ===== スタッフ名復元 =====
   try {
@@ -300,6 +389,8 @@
             res.campaignName || ''
           );
           addLog('ok', memberId, res);
+          // 自分の交換を共有履歴へ即反映（他スタッフ分は10秒ポーリングで届く）
+          if (activeTab === 'history') loadHistory();
         } else if (res && res.error === 'already_redeemed') {
           showResult('ng',
             '⚠️ 既に交換済み',
@@ -337,7 +428,100 @@
     $log.insertBefore(div, $log.firstChild);
   }
 
+  // ===== タブ切替 =====
+  function switchTab(name) {
+    activeTab = name;
+    document.querySelectorAll('.tab').forEach(function (t) {
+      t.classList.toggle('is-active', t.dataset.tab === name);
+    });
+    document.querySelectorAll('.tabview').forEach(function (v) {
+      v.hidden = (v.dataset.view !== name);
+    });
+    if (name === 'history') {
+      loadHistory();
+      startHistoryPolling();
+    } else {
+      stopHistoryPolling();
+    }
+  }
+  document.querySelectorAll('.tab').forEach(function (t) {
+    t.addEventListener('click', function () { switchTab(t.dataset.tab); });
+  });
+  if ($historyRefresh) $historyRefresh.addEventListener('click', loadHistory);
+
+  // ===== 履歴の10秒ポーリング =====
+  function startHistoryPolling() {
+    stopHistoryPolling();
+    historyTimer = setInterval(function () {
+      if (activeTab === 'history' && !document.hidden) loadHistory();
+    }, 10000);
+  }
+  function stopHistoryPolling() {
+    if (historyTimer) { clearInterval(historyTimer); historyTimer = null; }
+  }
+  // 端末スリープ/復帰時の無駄打ち抑制
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+      stopHistoryPolling();
+    } else if (activeTab === 'history') {
+      loadHistory();
+      startHistoryPolling();
+    }
+  });
+
+  // ===== 交換履歴取得（全スタッフ共有・サーバ記録） =====
+  function loadHistory() {
+    var cid = $sel.value || '';
+    var campName = '';
+    if (cid && $sel.options[$sel.selectedIndex]) {
+      campName = $sel.options[$sel.selectedIndex].textContent || '';
+    }
+    if (!cid) {
+      $historyTitle.textContent = '交換履歴';
+      $historyCount.textContent = '―';
+      $historyList.innerHTML = '<div class="history-empty">キャンペーンを選択してください。</div>';
+      return;
+    }
+    $historyTitle.textContent = campName.replace(/\s*\([^)]*\)\s*$/, '') || '交換履歴';
+    fetch(GAS_URL + '?mode=listRedemptions&key=' + encodeURIComponent(REQUIRED_KEY) +
+          '&campaignId=' + encodeURIComponent(cid) + '&t=' + now())
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        if (!res || !res.ok) {
+          $historyList.innerHTML = '<div class="history-empty">取得に失敗しました。</div>';
+          return;
+        }
+        $historyCount.textContent = '交換 ' + res.count + ' 名';
+        $historyUpdated.textContent = '最終更新 ' + nowLabel();
+        if (!res.items.length) {
+          $historyList.innerHTML = '<div class="history-empty">まだ交換記録がありません。</div>';
+          return;
+        }
+        var html = '';
+        res.items.forEach(function (it) {
+          html +=
+            '<div class="history-row">' +
+              '<span class="hr-name">' + escapeHtml(it.nickname || '(不明)') + '</span>' +
+              '<span class="hr-meta">' + escapeHtml(it.ts || '') +
+                (it.staff ? ' / ' + escapeHtml(it.staff) : '') + '</span>' +
+            '</div>';
+        });
+        $historyList.innerHTML = html;
+      })
+      .catch(function () {
+        $historyList.innerHTML = '<div class="history-empty">通信エラー。</div>';
+      });
+  }
+  // キャンペーン変更時、履歴タブを見ていれば即リロード
+  $sel.addEventListener('change', function () {
+    if (activeTab === 'history') loadHistory();
+  });
+
   // ===== utils =====
+  function nowLabel() {
+    var t = new Date();
+    return pad(t.getHours()) + ':' + pad(t.getMinutes()) + ':' + pad(t.getSeconds());
+  }
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
