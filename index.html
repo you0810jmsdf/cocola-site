@@ -91,7 +91,7 @@
         <a href="#topics">最新トピックス</a>
         <a href="#join">参加する</a>
         <a href="./member-app/html.html">メンバー紹介</a>
-        <a href="./dao/">提案／投票</a>
+        <a href="./dao/#proposals">提案／投票</a>
         <a href="./lab/">🧪 研究室</a>
         <a href="./schedule/">メンバーカレンダー</a>
         <a href="./dangotsusin/">だんご通信</a>
@@ -358,7 +358,7 @@
             </p>
           </div>
           <div class="cta-card__actions">
-            <a class="button button--primary" href="./dao/">提案・投票を見る</a>
+            <a class="button button--primary" href="./dao/#proposals">提案・投票を見る</a>
           </div>
         </div>
       </section>
@@ -387,7 +387,7 @@
         <a href="#top">トップへ戻る</a>
         <a href="./categories/mono/">6つのつくるを見る</a>
         <a href="./apps/">APPS/LINKSを見る</a>
-        <a href="./dao/">提案／投票を見る</a>
+        <a href="./dao/#proposals">提案／投票を見る</a>
       </div>
     </footer>
   </div>
@@ -497,7 +497,7 @@
         document.getElementById('daoList').innerHTML = newProposals.map(p => {
           const cat = p.category ? '【' + p.category + '】' : '';
           const ts = (p.submittedAt || '').slice(0, 10).replace(/-/g, '/');
-          return '<span class="dao-bar__item"><a href="./dao/">' + cat + p.title + '</a>（' + p.proposer + '・' + ts + '）</span>';
+          return '<span class="dao-bar__item"><a href="./dao/#proposals">' + cat + p.title + '</a>（' + p.proposer + '・' + ts + '）</span>';
         }).join('<span style="margin:0 4px">·</span>');
         document.getElementById('daoBar').style.display = '';
         document.getElementById('noticePanel').style.display = '';
