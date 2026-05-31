@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-31</p>
+            <h2 class="cl-title"><strong>新メンバーに welcome メール（LINEグループ招待リンク入り）を自動送信する仕組みを追加＋LINE設定診断関数を新設</strong></h2>
+            <p class="cl-desc">
+              新メンバー登録時に <strong>本人宛にwelcomeメールを自動送信する仕組み</strong>を追加した。メールは件名「<strong>【COCoLa】ご入会ありがとうございます／LINEグループご案内</strong>」で、COCoLa公式サイト・メンバーズアプリ・DAO提案投票・イベント一覧の各リンク＋緑色の <strong>「▶ LINEグループに参加する」ボタン</strong>（Script Properties <code>LINE_GROUP_INVITE_URL</code> から取得、未設定なら「準備中」表記の fallback 内蔵）が入る。cc は <code>cocola.project@gmail.com</code>、replyTo も同じ。<code>onFormSubmit()</code> の新規登録分岐末尾で <code>sendWelcomeMail_(email, nickname)</code> を呼ぶ。手動再送用に <code>sendWelcomeMailToNickname_(nickname)</code>（会員名簿からメール検索→ 送信）も恒久実装。LINE自動通知が止まっている原因切り分けのため、<code>diagnoseLine_()</code> 診断関数を新設（TOKEN/GROUP_ID/招待URLの保存状況確認＋ test push HTTP code表示）、<code>setupLineGroupId_(id)</code>・<code>setupLineGroupInviteLink_(url)</code> も補助で追加。実機で <strong>Yakkkoooさんに招待メール送付済＋ LINEグループ招待リンク <code>https://line.me/ti/g/cCTmyBcwK-</code> を Script Properties に保存済</strong>（今後の新規登録はすべて自動で招待リンク入りメールが届く）。<strong>v79 @79</strong> として本番固定IDへ上書きデプロイ済。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-31</p>
             <h2 class="cl-title"><strong>新メンバー登録時に10項目を自動検証→管理者にHTMLメール通知する仕組みを追加</strong></h2>
             <p class="cl-desc">
               新メンバー登録のたびに「ちゃんと TOP画面・メンバーズアプリ・DAO・LINE・Push・フォーム通知メールに正しく反映されたか」を人手で1つずつ確認するのは大変なので、<strong>GAS が自動で10項目を検証して結果をHTMLメールで管理者宛 (<code>cocola.project@gmail.com</code> ＋ cc <code>you0810jmsdf@gmail.com</code>) に送る仕組み</strong>を追加した。<code>onFormSubmit()</code> の新規登録分岐末尾で <code>triggerWorkflow_()</code> 実行後に <code>Utilities.sleep(90000)</code> で90秒待機（GitHub Actions の workflow 完走＋ CDN 反映待ち）→ <code>verifyNewMemberSelfCheck_(timestamp, nickname, email)</code> を呼び出し、以下を検証する: ①TOP🎉新規入会バー表示 ②<code>members/data.json</code> rows反映 ③メンバーズアプリ カード一覧 ④<code>mode=verifyMember</code> レスポンス ⑤DAOメンバーシート行追加 ⑥公開 <code>dao/data.json</code> の <code>members[]</code> ⑦DAO提案フォーム提案者プルダウン（⏸️手動） ⑧LINEグループ🎉通知（⏸️手動） ⑨Push通知 購読者数（cocola-push-gas の <code>mode=count</code>） ⑩Googleフォーム回答通知メール（GmailApp.search）。結果は <strong>✅/❌/⏸️</strong> アイコン付きHTMLテーブル＋件名サマリ「合格 N/10、NG M、要手動 K」で送信。<strong>v76 @76</strong> として本番固定IDへ上書きデプロイ済。⏸️項目（⑦⑧）は将来 cocola_topics WebApp に選択肢取得API追加・<code>sendLineNotification_</code> のHTTPコード返却で完全自動化可能。
