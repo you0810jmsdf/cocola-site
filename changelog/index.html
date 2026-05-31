@@ -118,6 +118,20 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-31</p>
+            <h2 class="cl-title"><strong>DAO提案フォームを改修：カテゴリ動的切替・要調整事項等・企画提案書URL復活</strong></h2>
+            <p class="cl-desc">
+              DAO提案モーダル（『提案する』ボタンから開く）を3点改修した。<br>
+              ① <strong>区分に応じてカテゴリ選択肢が動的に切り替わる</strong>ようにした。「行政につなぐ」は従来通り <code>イベント / 場づくり / 広報 / 学び / 制作 / その他</code>、「団体方針」を選ぶとカテゴリが <strong>「6つのつくる」+ その他</strong>（<code>ものをつくる / まちをつくる / つながりをつくる / 食をつくる / じぶんをつくる / ともにつくる / その他</code>）の7つに自動で差し替わる。<br>
+              ② 任意項目「<strong>必要なもの（任意）</strong>」を「<strong>要調整事項等（任意）</strong>」に文言変更（プレースホルダも「人・場所・費用…」→「協議・調整が必要な事項を記載」に）。<br>
+              ③ いつの間にかフォームから消えていた <strong>企画提案書添付欄を復活</strong>。Google ドライブ等にアップロードした<strong>「リンクを知っている全員」共有の URL を貼付</strong>する方式（任意・URL バリデーション付き）。提案カードには従来通り「企画提案書を見る」リンクとして表示される。GAS 側は <strong>cocola-dao-gas2 dao-points.js</strong> の <code>submitDaoProposalFromApp_</code> と <code>buildDaoProposalRowMap_</code> に <code>attachmentUrl</code> 引数を追加し、提案シートの「企画提案書URL」列へ書き込むよう対応（<strong>v32</strong> 固定IDへ上書きデプロイ予定）。<strong>service-worker は v8 → v9</strong> に更新（PWAキャッシュ強制刷新）。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--improve">改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-31</p>
             <h2 class="cl-title"><strong>印西PoCの説明文を「事業提案前の独自検証」トーンに修正（協働事業の事前確定を避ける表現に統一）</strong></h2>
             <p class="cl-desc">
               印西PoCタブのリード文・警告バナーの表現を「<strong>CBIと印西市の協働事業として実証中</strong>」から「<strong>Community Bank INZAI（CBI）が事業提案前の段階で独自に検証中</strong>」に修正した。協働事業が確定していない現段階で、市との協働事業を既定路線として記載するのは事実と乖離するため、<strong>CBIが事業提案前の独自検証段階で技術的成立性を確かめている PoC</strong>であることを明確化。あわせて警告バナーの「市長説明用のPoCデモ／印西市民全体に開いていく次世代基盤を市民・行政に示すための実証段階」も「<strong>事業提案前段階で独自に進めている技術検証用PoCデモ／将来的な市民意向把握の選択肢として技術的成立性を確かめる検証段階</strong>」に書き換え、最後に「本PoCの結果が事業として採用されるかは未定です」と明示。<strong>service-worker は v7 → v8</strong> に更新済（PWAキャッシュ強制刷新）。
