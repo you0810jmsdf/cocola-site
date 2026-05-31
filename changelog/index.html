@@ -118,6 +118,22 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-31</p>
+            <h2 class="cl-title"><strong>PoC属性データ蓄積機能を追加（入会フォーム拡張＋マイカードに登録案内）</strong></h2>
+            <p class="cl-desc">
+              将来的に「印西市民意向投票PoC」を実証する際に、投票結果を 地区・年代・性別 ごとに匿名化集計できるよう、COCoLaメンバーの属性データを <strong>任意</strong>で蓄積する仕組みを追加した。<br>
+              ① <strong>Google Forms（入会・情報修正フォーム）に属性3質問を追加するスクリプト</strong>を <code>cocola_form_update.js</code> に実装（<code>addCivicAttributeQuestions()</code>）。地区5区分・年代6階層・性別3区分（civic-vote.gs.js と完全一致）。<br>
+              ② <code>コード.gs</code> の <code>mergeMemberRow_</code> を拡張し、「情報の修正・更新」時に <strong>属性列（地区・年代・性別）もマージ対象</strong>に追加。<code>findCivicAttributeColumnIndices_</code> でヘッダから動的検出。<br>
+              ③ DAOアプリの <strong>マイカードタブに「PoC属性データ登録のお願い」セクション</strong>を追加。オレンジ系の civic-attr-prompt で「📝 属性を入力する」ボタン → 入会・情報修正フォームへ誘導。<br>
+              ④ プライバシー設計：<strong>入力は任意 / 運営のみ参照 / 個別の意見公開や個人特定は行わない / k-anonymity しきい値5 で匿名化</strong>。マイカードに自分の属性は表示しない（プライバシー優先）。<br>
+              <strong>cocola-gas v58 @81</strong> 固定IDへ上書きデプロイ済（GASエディタで <code>addCivicAttributeQuestions()</code> を1回実行すると Forms 側に質問追加）。<strong>service-worker は v11 → v12</strong> に更新。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-31</p>
             <h2 class="cl-title"><strong>「テスト通知を出す」ボタンを本番運用UIから削除（開発用UI整理）</strong></h2>
             <p class="cl-desc">
               提案・投票画面の右サイドパネル「通知をオンにする」の下に置かれていた <strong>「テスト通知を出す」ボタン</strong>を本番運用UIから完全削除。当初は通知機能の動作確認のために「新規提案」「メンバー増加」の見本通知を交互に出す開発用ボタンだったが、本番運用では一般メンバーが使わない機能で UI ノイズになっていたため整理した。<code>dao/index.html</code> から <code>testNotifyBtn</code> 関連の <strong>HTML（ボタン要素）</strong>と <strong>JS（変数宣言・hidden制御・クリックハンドラ・testToggle 変数）</strong>を全削除。通知許可ボタン「通知をオンにする」とその状態表示は従来通り動作し、実際の通知（提案追加・メンバー増加時）には影響なし。<strong>service-worker は v10 → v11</strong> に更新（PWAキャッシュ強制刷新）。
