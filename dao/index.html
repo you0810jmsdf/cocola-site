@@ -780,6 +780,40 @@
       background: var(--coral);
     }
 
+    .status.expired {
+      background: #8a8a8a;
+    }
+
+    .pill.pill-deadline {
+      background: #fff7ea;
+      border-color: #e9c887;
+      color: #6b4f1a;
+      font-weight: 600;
+    }
+
+    .pill.pill-deadline.is-expired {
+      background: #f2f2f2;
+      border-color: #c9c9c9;
+      color: #6a6a6a;
+      text-decoration: line-through;
+    }
+
+    .vote-btn.is-disabled,
+    .vote-btn:disabled {
+      background: #d0d0d0;
+      color: #ffffff;
+      border-color: #c0c0c0;
+      cursor: not-allowed;
+      opacity: 0.85;
+    }
+
+    .modal-hint {
+      margin: -4px 0 6px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
     .meta {
       display: flex;
       gap: 8px;
@@ -2855,6 +2889,9 @@
     <textarea class="modal-input" id="proposalDetailInput" rows="4" maxlength="1000" placeholder="どんなことを、なぜやりたいかを書いてください。"></textarea>
     <label class="modal-label" for="proposalNeedsInput">必要なもの（任意）</label>
     <textarea class="modal-input" id="proposalNeedsInput" rows="2" maxlength="500" placeholder="人・場所・費用・協力など、必要になりそうなもの。"></textarea>
+    <label class="modal-label" for="proposalDeadlineInput">投票締切日（任意）</label>
+    <input class="modal-input" type="date" id="proposalDeadlineInput" placeholder="期限なしの場合は空欄のまま">
+    <p class="modal-hint">空欄なら期限なし。締切日を過ぎると自動的に「期限切れ」になり投票できなくなります。</p>
     <p class="modal-error" id="proposalModalError"></p>
     <div class="modal-actions">
       <button class="button secondary" type="button" id="proposalModalCancel">キャンセル</button>
@@ -2979,9 +3016,22 @@
         return;
       }
       var s = state.data.stats || {};
+      // v31: GAS のキャッシュが古い場合に備え、proposals 配列からも期限切れを差し引いて再集計する
+      var proposals = state.data.proposals || [];
+      var votingFromList = 0;
+      var expiredFromList = 0;
+      proposals.forEach(function(p) {
+        if (isProposalExpired(p) && p.statusKey !== 'approved') {
+          expiredFromList += 1;
+        } else if (p.statusKey === 'voting') {
+          votingFromList += 1;
+        }
+      });
+      var voting = (typeof s.voting === 'number' ? Math.max(s.voting - expiredFromList, 0) : votingFromList);
       var items = [
         ['公開提案', s.proposals || 0],
-        ['投票中', s.voting || 0],
+        ['投票中', voting],
+        ['期限切れ', expiredFromList],
         ['承認', s.approved || 0],
         ['投票数', s.votes || 0],
         ['市民いいね', s.citizenLikes || 0],
@@ -2995,7 +3045,26 @@
       if (statusKey === 'approved') return 'approved';
       if (statusKey === 'pending') return 'pending';
       if (statusKey === 'closed') return 'closed';
+      if (statusKey === 'expired') return 'expired';
       return '';
+    }
+
+    // v31: 投票締切ISO（"YYYY-MM-DDT23:59:59+09:00"）を判定／表示
+    function isProposalExpired(proposal) {
+      if (!proposal) return false;
+      if (proposal.expired === true) return true;
+      if (proposal.statusKey === 'expired') return true;
+      if (!proposal.deadline) return false;
+      var t = Date.parse(proposal.deadline);
+      if (isNaN(t)) return false;
+      return Date.now() > t;
+    }
+
+    function formatDeadlineDisplay(deadlineIso) {
+      if (!deadlineIso) return '';
+      var m = String(deadlineIso).match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (!m) return '';
+      return m[1] + '/' + m[2] + '/' + m[3];
     }
 
     function renderProposal(proposal) {
@@ -3006,8 +3075,12 @@
       var voted = hasVoted(proposal.id, proposal);
       var votedNickname = getVotedNickname(proposal.id, proposal);
       var likeCount = Number(proposal.citizenLikeCount) || 0;
-      var isVoting = proposal.statusKey === 'voting';
-      return '<article class="proposal-card" id="proposal-' + escapeHtml(proposal.id) + '" data-status="' + escapeHtml(proposal.statusKey) + '">' +
+      var expired = isProposalExpired(proposal);
+      var effectiveStatusKey = expired && proposal.statusKey !== 'approved' ? 'expired' : proposal.statusKey;
+      var effectiveStatusText = (effectiveStatusKey === 'expired') ? '期限切れ' : proposal.status;
+      var isVoting = (effectiveStatusKey === 'voting');
+      var deadlineDisplay = formatDeadlineDisplay(proposal.deadline);
+      return '<article class="proposal-card" id="proposal-' + escapeHtml(proposal.id) + '" data-status="' + escapeHtml(effectiveStatusKey) + '">' +
         '<div class="card-head">' +
           '<div class="identity">' +
             '<span class="proposal-id">' + escapeHtml(proposal.id) + '</span>' +
@@ -3015,7 +3088,7 @@
             (proposal.attachmentUrl ? '<a class="attachment-link" href="' + escapeHtml(proposal.attachmentUrl) + '" target="_blank" rel="noopener">企画提案書を見る</a>' : '') +
             (voted ? '<span class="voted-badge">✓ ' + escapeHtml(votedNickname || '') + 'さん 投票済み</span>' : '') +
           '</div>' +
-          '<span class="status ' + statusClass(proposal.statusKey) + '">' + escapeHtml(proposal.status) + '</span>' +
+          '<span class="status ' + statusClass(effectiveStatusKey) + '">' + escapeHtml(effectiveStatusText) + '</span>' +
         '</div>' +
         '<div class="meta">' +
           (function() {
@@ -3025,6 +3098,7 @@
           '<span class="pill">' + escapeHtml(proposal.category) + '</span>' +
           '<span class="pill">提案者: ' + escapeHtml(proposal.proposer) + '</span>' +
           (proposal.submittedAt ? '<span class="pill">' + escapeHtml(proposal.submittedAt) + '</span>' : '') +
+          (deadlineDisplay ? '<span class="pill pill-deadline' + (expired ? ' is-expired' : '') + '">' + (expired ? '締切: ' : '投票締切: ') + escapeHtml(deadlineDisplay) + '</span>' : '') +
         '</div>' +
         '<div class="body-copy">' +
           '<div class="copy-block"><strong>提案内容の概要</strong><p>' + escapeHtml(detail) + '</p></div>' +
@@ -3032,7 +3106,9 @@
         '</div>' +
         '<div class="card-foot">' +
           '<button class="cancel-btn" type="button" data-cancel-id="' + escapeHtml(proposal.id) + '" data-cancel-title="' + escapeHtml(proposal.title) + '">取消</button>' +
-          (isVoting ? '<button class="vote-btn' + (voted ? ' is-voted' : '') + '" type="button" data-vote-id="' + escapeHtml(proposal.id) + '" data-vote-title="' + escapeHtml(proposal.title) + '">' + (voted ? '投票を変更' : '投票する') + '</button>' : '') +
+          (isVoting
+            ? '<button class="vote-btn' + (voted ? ' is-voted' : '') + '" type="button" data-vote-id="' + escapeHtml(proposal.id) + '" data-vote-title="' + escapeHtml(proposal.title) + '">' + (voted ? '投票を変更' : '投票する') + '</button>'
+            : (expired ? '<button class="vote-btn is-disabled" type="button" disabled aria-disabled="true" title="この提案は投票締切を過ぎました">投票終了</button>' : '')) +
         '</div>' +
         '<div class="civic-like" aria-label="市民いいね">' +
           '<div class="civic-like__text">' +
@@ -3717,6 +3793,7 @@
       var categorySelect = document.getElementById('proposalCategorySelect');
       var detailInput = document.getElementById('proposalDetailInput');
       var needsInput = document.getElementById('proposalNeedsInput');
+      var deadlineInput = document.getElementById('proposalDeadlineInput');
       var errorEl = document.getElementById('proposalModalError');
       var cancelBtn = document.getElementById('proposalModalCancel');
       var submitBtn = document.getElementById('proposalModalSubmit');
@@ -3745,13 +3822,15 @@
         submitBtn.disabled = true;
         submitBtn.textContent = '送信中…';
         errorEl.textContent = '';
+        var deadlineVal = (deadlineInput && deadlineInput.value) ? deadlineInput.value : '';
         var url = GAS_URL + '?mode=submitProposal'
           + '&title=' + encodeURIComponent(title)
           + '&type=' + encodeURIComponent(typeSelect.value)
           + '&category=' + encodeURIComponent(categorySelect.value)
           + '&detail=' + encodeURIComponent(detail)
           + '&needs=' + encodeURIComponent((needsInput.value || '').trim())
-          + '&proposer=' + encodeURIComponent(me);
+          + '&proposer=' + encodeURIComponent(me)
+          + (deadlineVal ? '&deadline=' + encodeURIComponent(deadlineVal) : '');
         fetch(url)
           .then(function (r) { return r.json(); })
           .then(function (res) {
@@ -3760,6 +3839,7 @@
               titleInput.value = '';
               detailInput.value = '';
               needsInput.value = '';
+              if (deadlineInput) deadlineInput.value = '';
               var notice = document.createElement('div');
               notice.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#2d7a2d;color:#fff;padding:.75rem 1.5rem;border-radius:8px;font-size:.95rem;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,.3)';
               notice.textContent = '提案を受け付けました！一覧への反映に最大5分かかります。';

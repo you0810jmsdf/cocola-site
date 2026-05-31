@@ -118,6 +118,18 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-31</p>
+            <h2 class="cl-title"><strong>DAO提案に「投票締切」を追加：締切超過で自動「期限切れ」ラベル＋投票ボタン無効化（既存11件は期限なし扱い）</strong></h2>
+            <p class="cl-desc">
+              DAO提案フォームに <strong>「投票締切日（任意）」</strong>欄を追加した（<code>dao/index.html</code> 提案モーダル）。空欄ならこれまで通り <strong>期限なし</strong>。締切日を入力すると、その日の <strong>23:59:59（JST）</strong>を過ぎた瞬間から提案カードのステータスが自動で <strong>「期限切れ」</strong>（グレーバッジ）に切り替わり、「投票する」ボタンは <strong>「投票終了」</strong> として disabled 状態（クリック不可）に変わる。バックエンド側でも <code>mode=vote</code> 時に締切超過を検知すると <code>{ok:false, error:'expired'}</code> を返すため、フォーム改ざんで投票することもできない。GAS 提案シートに <strong>「投票締切」列を1つ追加</strong>（不足列は <code>insertDaoProposalRowByName_</code> が自動で末尾追加するため既存運用に影響なし）。<code>collectDaoProposalPageRows_</code> で締切超過行は statusKey=<code>'expired'</code>、status=<code>'期限切れ'</code> に上書きし、承認済み提案は保護。<code>renderStats</code> の「投票中」カウントから期限切れを除外し、「期限切れ」件数を新規追加表示。<strong>既存11件の提案はすべて期限なし扱い</strong>（投票締切列が空欄のままなので影響なし）。<strong>cocola-dao-gas2 v31 @81</strong>（フロント API 側）＋ <strong>cocola_topics v199 @386</strong>（GHA endpoint 側）を本番固定IDへ上書きデプロイ済。<strong>service-worker は v6 → v7</strong> に更新済（古いPWAキャッシュを破棄）。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+              <span class="tag tag--improve">UX改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-31</p>
             <h2 class="cl-title"><strong>新メンバーに welcome メール（LINEグループ招待リンク入り）を自動送信する仕組みを追加＋LINE設定診断関数を新設</strong></h2>
             <p class="cl-desc">
               新メンバー登録時に <strong>本人宛にwelcomeメールを自動送信する仕組み</strong>を追加した。メールは件名「<strong>【COCoLa】ご入会ありがとうございます／LINEグループご案内</strong>」で、COCoLa公式サイト・メンバーズアプリ・DAO提案投票・イベント一覧の各リンク＋緑色の <strong>「▶ LINEグループに参加する」ボタン</strong>（Script Properties <code>LINE_GROUP_INVITE_URL</code> から取得、未設定なら「準備中」表記の fallback 内蔵）が入る。cc は <code>cocola.project@gmail.com</code>、replyTo も同じ。<code>onFormSubmit()</code> の新規登録分岐末尾で <code>sendWelcomeMail_(email, nickname)</code> を呼ぶ。手動再送用に <code>sendWelcomeMailToNickname_(nickname)</code>（会員名簿からメール検索→ 送信）も恒久実装。LINE自動通知が止まっている原因切り分けのため、<code>diagnoseLine_()</code> 診断関数を新設（TOKEN/GROUP_ID/招待URLの保存状況確認＋ test push HTTP code表示）、<code>setupLineGroupId_(id)</code>・<code>setupLineGroupInviteLink_(url)</code> も補助で追加。実機で <strong>Yakkkoooさんに招待メール送付済＋ LINEグループ招待リンク <code>https://line.me/ti/g/cCTmyBcwK-</code> を Script Properties に保存済</strong>（今後の新規登録はすべて自動で招待リンク入りメールが届く）。<strong>v79 @79</strong> として本番固定IDへ上書きデプロイ済。
