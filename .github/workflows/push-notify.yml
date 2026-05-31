@@ -15,6 +15,7 @@ on:
     branches: [main]
     paths:
       - 'dao/data.json'
+      - 'members/data.json'
 
 concurrency:
   group: push-notify

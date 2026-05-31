@@ -118,6 +118,18 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-31</p>
+            <h2 class="cl-title"><strong>新規メンバー登録時にメンバーズアプリへPush通知が届くようにした（TOPページ通知バーも即時反映）</strong></h2>
+            <p class="cl-desc">
+              これまで新規メンバー登録時は <strong>管理者宛メールのみ</strong>が飛び、サイトTOPの「新メンバーバー」やメンバーズアプリのPush通知に反映されない不具合があった。原因は2系統：(1) <strong>push-notify ワークフロー</strong>が <code>dao/data.json</code> の変化しか監視していなかった、(2) <code>send-push.js</code> に <strong>members/data.json の差分検知ロジックが無かった</strong>。修正として、push-notify の paths に <code>members/data.json</code> を追加し、send-push.js に「前コミットと現在の <code>rows</code> 末尾を比較して新規登録を抽出 → ニックネーム入りのPush通知を全購読者へ送信」する処理を追加した。また、TOPページ通知バー（<code>members/data.json</code>）は GitHub Actions の schedule 遅延で 5/31 10:17 登録の <strong>「Yakkkooo」さん</strong>が取り損ねていたため、<code>gh workflow run update-members-data.yml</code> で手動トリガーし即時反映済み。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+              <span class="tag tag--new">新機能</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-31</p>
             <h2 class="cl-title"><strong>印西PoC属性分析に「選択肢別表示」を追加（クロス集計を両方向で見られる）</strong></h2>
             <p class="cl-desc">
               印西PoC属性分析モーダルに <strong>「軸別表示／選択肢別表示」タブ切替</strong>を追加。これまでは「地区別→A/B/C の内訳」の方向しか見られなかったが、<strong>「A案／B案／C案ごとに → どの地区・年代・性別の人がどれだけ票を入れたか」</strong>を別タブで一覧できるようになった。選択肢別タブでは、各選択肢ごとに 地区／年代／性別 の票数分布が降順横棒グラフで表示され、各属性カテゴリーがその選択肢の中で占める割合（%）も併記される。例：「A案は千葉ニュータウン地区が47%・木下21%・印旛16%…」といった逆方向クロスが一目で分かる。市長説明での「どの層が何案を支持しているか」という典型的な議論に直接答えられるUIになった。あわせてPWAキャッシュを v5 → v6 にバンプして全クライアントで強制刷新。

@@ -29,6 +29,9 @@ const {
 } = process.env;
 
 const DAO_URL = 'https://you0810jmsdf.github.io/cocola-site/dao/';
+const MEMBER_APP_URL = 'https://you0810jmsdf.github.io/cocola-site/member-app/html.html';
+const COL_TS = 0;
+const COL_NICKNAME = 3;
 
 if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY || !PUSH_GAS_URL || !PUSH_API_TOKEN) {
   console.error('Missing required env vars (VAPID/PUSH).');
@@ -110,6 +113,37 @@ function buildMessages() {
       body: `新しく${curMembers - prevMembers}名が加わりました（現在 ${curMembers} 名）`,
       url: DAO_URL,
     });
+  }
+
+  // members/data.json の rows 差分検知（新規メンバー登録の即時通知）
+  try {
+    const curMem = JSON.parse(fs.readFileSync('members/data.json', 'utf8'));
+    let prevMem = null;
+    try {
+      prevMem = JSON.parse(execSync('git show HEAD~1:members/data.json', { encoding: 'utf8' }));
+    } catch (e) {
+      prevMem = null;
+    }
+    if (prevMem && Array.isArray(prevMem.rows) && Array.isArray(curMem.rows)) {
+      const prevKeys = new Set(prevMem.rows.map((r) => `${r[COL_TS]}|${r[COL_NICKNAME]}`));
+      const newRows = curMem.rows.filter((r) => !prevKeys.has(`${r[COL_TS]}|${r[COL_NICKNAME]}`));
+      if (newRows.length === 1) {
+        const nick = newRows[0][COL_NICKNAME] || '新メンバー';
+        messages.push({
+          title: '新しいメンバーが登録されました',
+          body: `${nick}さんがCOCoLaに参加しました`,
+          url: MEMBER_APP_URL,
+        });
+      } else if (newRows.length > 1) {
+        messages.push({
+          title: `新しいメンバーが${newRows.length}名登録されました`,
+          body: 'タップしてメンバー一覧を確認できます',
+          url: MEMBER_APP_URL,
+        });
+      }
+    }
+  } catch (e) {
+    console.log('members/data.json diff skipped:', e.message);
   }
 
   return messages;
