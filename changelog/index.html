@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-31</p>
+            <h2 class="cl-title"><strong>メンバー登録／更新／退会フォーム送信時に GitHub Actions を自動キックする実装を復活（5分cron待ちが不要に）</strong></h2>
+            <p class="cl-desc">
+              そもそも設計上、メンバー登録フォーム送信時に <strong>GAS が GitHub Actions の <code>update-members-data.yml</code> を直接叩いて即時反映する</strong>ことになっていたが、<code>onFormSubmit()</code> の3分岐（新規／更新／退会）すべてで <code>triggerWorkflow_()</code> の呼び出しが抜けていた。<code>triggerWorkflow_()</code> 本体（GitHub REST API <code>POST /repos/{owner}/{repo}/actions/workflows/{file}/dispatches</code> を Bearer PAT で叩く実装）と WebApp 入口 (<code>mode=triggerWorkflow</code>) は元から存在していたが、フォームのトリガーから呼ばれていなかったため、TOPページ通知バーやメンバーズアプリへの反映は <strong>5分cron 頼み</strong>になっていた（しかも GitHub Actions の schedule は不安定）。今回 <code>onFormSubmit()</code> の<strong>新規登録分岐・退会分岐・更新分岐の3箇所すべて</strong>に <code>triggerWorkflow_('update-members-data.yml')</code> を追加。<code>clasp redeploy</code> で本番デプロイ <strong>v74 @74</strong>（GHA が叩く固定ID）へ反映済み。これにより、フォーム送信直後にメール通知＋GitHub Actions が同時発火し、TOPページ通知バー（新メンバー／退会／情報更新）とメンバーズアプリPush通知が <strong>数十秒以内に反映</strong>される。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-31</p>
             <h2 class="cl-title"><strong>新規メンバー登録時にメンバーズアプリへPush通知が届くようにした（TOPページ通知バーも即時反映）</strong></h2>
             <p class="cl-desc">
               これまで新規メンバー登録時は <strong>管理者宛メールのみ</strong>が飛び、サイトTOPの「新メンバーバー」やメンバーズアプリのPush通知に反映されない不具合があった。原因は2系統：(1) <strong>push-notify ワークフロー</strong>が <code>dao/data.json</code> の変化しか監視していなかった、(2) <code>send-push.js</code> に <strong>members/data.json の差分検知ロジックが無かった</strong>。修正として、push-notify の paths に <code>members/data.json</code> を追加し、send-push.js に「前コミットと現在の <code>rows</code> 末尾を比較して新規登録を抽出 → ニックネーム入りのPush通知を全購読者へ送信」する処理を追加した。また、TOPページ通知バー（<code>members/data.json</code>）は GitHub Actions の schedule 遅延で 5/31 10:17 登録の <strong>「Yakkkooo」さん</strong>が取り損ねていたため、<code>gh workflow run update-members-data.yml</code> で手動トリガーし即時反映済み。
