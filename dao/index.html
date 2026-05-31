@@ -1933,6 +1933,68 @@
       }
     }
 
+    /* ===== マイカード：PoC属性データ登録のお願い ===== */
+    .civic-attr-prompt {
+      margin: 16px 0;
+      padding: 16px 18px;
+      background: linear-gradient(135deg, #fff7e6 0%, #ffeacf 100%);
+      border: 1px solid #e6c378;
+      border-radius: 12px;
+      color: #6b4a18;
+    }
+    .civic-attr-prompt__head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .civic-attr-prompt__icon {
+      font-size: 1.3rem;
+    }
+    .civic-attr-prompt__head h3 {
+      margin: 0;
+      font-size: 1.02rem;
+      color: #92580c;
+    }
+    .civic-attr-prompt__lead {
+      margin: 0 0 10px;
+      font-size: 0.88rem;
+      line-height: 1.6;
+    }
+    .civic-attr-prompt__lead strong {
+      color: #92580c;
+    }
+    .civic-attr-prompt__notes {
+      margin: 0 0 12px;
+      padding-left: 20px;
+      font-size: 0.78rem;
+      line-height: 1.65;
+      color: #6b4a18;
+    }
+    .civic-attr-prompt__notes li {
+      margin-bottom: 2px;
+    }
+    .civic-attr-prompt__notes strong {
+      color: #92580c;
+    }
+    .civic-attr-prompt__btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+      background: #d97706;
+      color: #fff;
+      font-size: 0.92rem;
+      font-weight: 700;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: background 120ms, transform 120ms;
+    }
+    .civic-attr-prompt__btn:hover {
+      background: #b85f00;
+      transform: translateY(-1px);
+    }
+
     /* ===== 印西市民投票（PoC） ===== */
     .bottom-nav__item--poc {
       position: relative;
@@ -2754,6 +2816,23 @@
         <section class="my-point" aria-label="あなたの会員証">
           <div class="member-card" id="myPointCard" hidden></div>
           <p class="my-point-empty" id="myPointEmpty">ログインすると、あなたの会員証（ポイント・順位・QR）が表示されます。</p>
+        </section>
+
+        <section class="civic-attr-prompt" aria-label="PoC属性データ登録のお願い">
+          <div class="civic-attr-prompt__head">
+            <span class="civic-attr-prompt__icon">📊</span>
+            <h3>PoC属性データ登録のお願い（任意）</h3>
+          </div>
+          <p class="civic-attr-prompt__lead">
+            COCoLaが将来的に <strong>印西市民意向投票PoC</strong> を実証する際の <strong>属性別分析（地区・年代・性別の匿名化集計）</strong>に協力していただける方は、入会・情報修正フォームから属性情報をご登録ください。
+          </p>
+          <ul class="civic-attr-prompt__notes">
+            <li>入力は <strong>任意</strong> です（拒否いただいてもCOCoLa活動には影響しません）</li>
+            <li>登録した情報は <strong>運営のみが参照</strong>し、個別の意見公開・個人特定は行いません</li>
+            <li>集計は k-anonymity（しきい値5）で匿名化されます</li>
+            <li>フォームで「<strong>情報の修正・更新</strong>」を選び、ニックネームと属性のみご入力ください</li>
+          </ul>
+          <a class="civic-attr-prompt__btn" href="https://docs.google.com/forms/d/1V_0080ht4b7iBG4kpckyWhqYmwNVtQkbSStas7fAeGs/viewform" target="_blank" rel="noopener">📝 属性を入力する（入会・情報修正フォームへ）</a>
         </section>
 
         <section class="members-band" id="membersBand" aria-label="ポイントランキング" hidden>
