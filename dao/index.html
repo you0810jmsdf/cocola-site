@@ -2653,7 +2653,6 @@
             <p class="notify-box__lead">🔔 新しい提案やメンバーが加わったらお知らせします。</p>
             <div class="notify-actions">
               <button class="notify-btn" id="notifyBtn" type="button">通知をオンにする</button>
-              <button class="notify-btn notify-btn--sub" id="testNotifyBtn" type="button" hidden>テスト通知を出す</button>
             </div>
             <p class="notify-box__status" id="notifyStatus"></p>
           </div>
@@ -4187,7 +4186,6 @@
 
       var notifyBox = document.getElementById('notifyBox');
       var notifyBtn = document.getElementById('notifyBtn');
-      var testNotifyBtn = document.getElementById('testNotifyBtn');
       var notifyStatus = document.getElementById('notifyStatus');
 
       function supportsNotify() {
@@ -4205,7 +4203,6 @@
         }
         notifyBox.hidden = false;
         var p = Notification.permission;
-        if (testNotifyBtn) testNotifyBtn.hidden = (p !== 'granted');
         if (p === 'granted') {
           notifyBtn.disabled = true;
           notifyBtn.textContent = '✓ 通知オン';
@@ -4256,30 +4253,6 @@
               showNotification({ title: 'COCoLa DAO', body: '通知をオンにしました。新しい提案やメンバーをお知らせします。', tag: 'cocola-welcome' });
             }
           });
-        });
-      }
-
-      // テスト通知：押すたびに「新規提案」「メンバー増加」の見本を交互に出す
-      var testToggle = 0;
-      if (testNotifyBtn) {
-        testNotifyBtn.addEventListener('click', function () {
-          if (!supportsNotify() || Notification.permission !== 'granted') return;
-          testToggle++;
-          if (testToggle % 2 === 1) {
-            showNotification({
-              title: '新しい提案があります（テスト）',
-              body: '例：「印西駅前にベンチを増やしたい」が公開されました',
-              tag: 'test-proposal-' + Date.now(),
-              url: './index.html'
-            });
-          } else {
-            showNotification({
-              title: 'メンバーが増えました（テスト）',
-              body: '例：新しく1名が加わりました（現在 27 名）',
-              tag: 'test-members-' + Date.now(),
-              url: './index.html'
-            });
-          }
         });
       }
 
