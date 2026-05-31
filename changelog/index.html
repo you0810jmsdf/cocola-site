@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-31</p>
+            <h2 class="cl-title"><strong>新メンバー登録時に10項目を自動検証→管理者にHTMLメール通知する仕組みを追加</strong></h2>
+            <p class="cl-desc">
+              新メンバー登録のたびに「ちゃんと TOP画面・メンバーズアプリ・DAO・LINE・Push・フォーム通知メールに正しく反映されたか」を人手で1つずつ確認するのは大変なので、<strong>GAS が自動で10項目を検証して結果をHTMLメールで管理者宛 (<code>cocola.project@gmail.com</code> ＋ cc <code>you0810jmsdf@gmail.com</code>) に送る仕組み</strong>を追加した。<code>onFormSubmit()</code> の新規登録分岐末尾で <code>triggerWorkflow_()</code> 実行後に <code>Utilities.sleep(90000)</code> で90秒待機（GitHub Actions の workflow 完走＋ CDN 反映待ち）→ <code>verifyNewMemberSelfCheck_(timestamp, nickname, email)</code> を呼び出し、以下を検証する: ①TOP🎉新規入会バー表示 ②<code>members/data.json</code> rows反映 ③メンバーズアプリ カード一覧 ④<code>mode=verifyMember</code> レスポンス ⑤DAOメンバーシート行追加 ⑥公開 <code>dao/data.json</code> の <code>members[]</code> ⑦DAO提案フォーム提案者プルダウン（⏸️手動） ⑧LINEグループ🎉通知（⏸️手動） ⑨Push通知 購読者数（cocola-push-gas の <code>mode=count</code>） ⑩Googleフォーム回答通知メール（GmailApp.search）。結果は <strong>✅/❌/⏸️</strong> アイコン付きHTMLテーブル＋件名サマリ「合格 N/10、NG M、要手動 K」で送信。<strong>v76 @76</strong> として本番固定IDへ上書きデプロイ済。⏸️項目（⑦⑧）は将来 cocola_topics WebApp に選択肢取得API追加・<code>sendLineNotification_</code> のHTTPコード返却で完全自動化可能。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-31</p>
             <h2 class="cl-title"><strong>テストデータ「テスト_2026-05-26」を会員名簿＋DAOメンバーシートから物理削除（一回限りの掃除関数を追加）</strong></h2>
             <p class="cl-desc">
               5/26 にテスト目的で投入したダミー登録「テスト_2026-05-26」が、サイトTOPの「🎉 新規入会」バー・メンバー紹介カード・DAOメンバー一覧の各所に残っていたため、<strong>会員名簿スプレッドシート（<code>13FwQyLeZK...</code>）の「フォームの回答 1」シートと、DAOメンバースプレッドシート（<code>1Xma1V9...</code>）の「DAOメンバー」シート</strong>の両方から物理削除した。<code>cocola-gas/コード.gs</code> に一回限りの掃除関数 <code>deleteTestMemberByNickname_(nickname, dryRun)</code> ＋ DryRun/Live ラッパーを追加（安全弁：ニックネームが「テスト」で始まらない場合は拒否、後方からループしてインデックスずれを防止、Live成功時は <code>triggerWorkflow_('update-members-data.yml')</code> で公開 data.json を即時更新）。<strong>v75 @75</strong> として本番固定ID（GHAが叩くエンドポイント）へ上書きデプロイ済。DryRun → Live 順で実行し victims 1件で削除完了。
