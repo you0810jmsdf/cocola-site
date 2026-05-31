@@ -2878,17 +2878,15 @@
     </select>
     <label class="modal-label" for="proposalCategorySelect">カテゴリ <span class="req">必須</span></label>
     <select class="modal-select" id="proposalCategorySelect">
-      <option value="イベント">イベント</option>
-      <option value="場づくり">場づくり</option>
-      <option value="広報">広報</option>
-      <option value="学び">学び</option>
-      <option value="制作">制作</option>
-      <option value="その他">その他</option>
+      <!-- 区分に応じて JS が動的に切替 -->
     </select>
     <label class="modal-label" for="proposalDetailInput">理由・詳細 <span class="req">必須</span></label>
     <textarea class="modal-input" id="proposalDetailInput" rows="4" maxlength="1000" placeholder="どんなことを、なぜやりたいかを書いてください。"></textarea>
-    <label class="modal-label" for="proposalNeedsInput">必要なもの（任意）</label>
-    <textarea class="modal-input" id="proposalNeedsInput" rows="2" maxlength="500" placeholder="人・場所・費用・協力など、必要になりそうなもの。"></textarea>
+    <label class="modal-label" for="proposalNeedsInput">要調整事項等（任意）</label>
+    <textarea class="modal-input" id="proposalNeedsInput" rows="2" maxlength="500" placeholder="協議・調整が必要な事項を記載"></textarea>
+    <label class="modal-label" for="proposalAttachmentInput">企画提案書URL（任意）</label>
+    <input class="modal-input" type="url" id="proposalAttachmentInput" placeholder="https://drive.google.com/... または共有可能なURL" maxlength="500">
+    <p class="modal-hint">Google ドライブ等にアップロードし、<strong>「リンクを知っている全員」</strong>に共有設定したURLを貼付してください。提案カードに「企画提案書を見る」リンクとして表示されます。</p>
     <label class="modal-label" for="proposalDeadlineInput">投票締切日（任意）</label>
     <input class="modal-input" type="date" id="proposalDeadlineInput" placeholder="期限なしの場合は空欄のまま">
     <p class="modal-hint">空欄なら期限なし。締切日を過ぎると自動的に「期限切れ」になり投票できなくなります。</p>
@@ -3793,17 +3791,34 @@
       var categorySelect = document.getElementById('proposalCategorySelect');
       var detailInput = document.getElementById('proposalDetailInput');
       var needsInput = document.getElementById('proposalNeedsInput');
+      var attachmentInput = document.getElementById('proposalAttachmentInput');
       var deadlineInput = document.getElementById('proposalDeadlineInput');
       var errorEl = document.getElementById('proposalModalError');
       var cancelBtn = document.getElementById('proposalModalCancel');
       var submitBtn = document.getElementById('proposalModalSubmit');
       if (!proposalModal || !proposalBtn) return;
 
+      // 区分に応じてカテゴリ選択肢を動的切替
+      var CATEGORIES_GYOUSEI = ['イベント','場づくり','広報','学び','制作','その他'];
+      var CATEGORIES_DANTAI = ['ものをつくる','まちをつくる','つながりをつくる','食をつくる','じぶんをつくる','ともにつくる','その他'];
+      function updateCategoryOptions() {
+        var type = typeSelect.value;
+        var list = type === '行政につなぐ' ? CATEGORIES_GYOUSEI : CATEGORIES_DANTAI;
+        var current = categorySelect.value;
+        categorySelect.innerHTML = list.map(function (c) {
+          return '<option value="' + c + '">' + c + '</option>';
+        }).join('');
+        if (list.indexOf(current) !== -1) categorySelect.value = current;
+      }
+      typeSelect.addEventListener('change', updateCategoryOptions);
+      updateCategoryOptions();
+
       function openProposalModal() {
         var me = getStoredNickname();
         if (!me) { window.alert('提案するにはログインしてください。'); return; }
         proposalAsName.textContent = me + ' さん';
         errorEl.textContent = '';
+        updateCategoryOptions();
         proposalModal.hidden = false;
       }
       function closeProposalModal() { proposalModal.hidden = true; }
@@ -3819,6 +3834,11 @@
         var detail = (detailInput.value || '').trim();
         if (!title) { errorEl.textContent = '提案タイトルを入力してください。'; return; }
         if (!detail) { errorEl.textContent = '理由・詳細を入力してください。'; return; }
+        var attachmentUrl = (attachmentInput && attachmentInput.value || '').trim();
+        if (attachmentUrl && !/^https?:\/\//i.test(attachmentUrl)) {
+          errorEl.textContent = '企画提案書URLは https:// から始まるURLを入力してください。';
+          return;
+        }
         submitBtn.disabled = true;
         submitBtn.textContent = '送信中…';
         errorEl.textContent = '';
@@ -3830,7 +3850,8 @@
           + '&detail=' + encodeURIComponent(detail)
           + '&needs=' + encodeURIComponent((needsInput.value || '').trim())
           + '&proposer=' + encodeURIComponent(me)
-          + (deadlineVal ? '&deadline=' + encodeURIComponent(deadlineVal) : '');
+          + (deadlineVal ? '&deadline=' + encodeURIComponent(deadlineVal) : '')
+          + (attachmentUrl ? '&attachmentUrl=' + encodeURIComponent(attachmentUrl) : '');
         fetch(url)
           .then(function (r) { return r.json(); })
           .then(function (res) {
@@ -3839,6 +3860,7 @@
               titleInput.value = '';
               detailInput.value = '';
               needsInput.value = '';
+              if (attachmentInput) attachmentInput.value = '';
               if (deadlineInput) deadlineInput.value = '';
               var notice = document.createElement('div');
               notice.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#2d7a2d;color:#fff;padding:.75rem 1.5rem;border-radius:8px;font-size:.95rem;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,.3)';
