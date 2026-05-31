@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-31</p>
+            <h2 class="cl-title"><strong>印西PoCの説明文を「事業提案前の独自検証」トーンに修正（協働事業の事前確定を避ける表現に統一）</strong></h2>
+            <p class="cl-desc">
+              印西PoCタブのリード文・警告バナーの表現を「<strong>CBIと印西市の協働事業として実証中</strong>」から「<strong>Community Bank INZAI（CBI）が事業提案前の段階で独自に検証中</strong>」に修正した。協働事業が確定していない現段階で、市との協働事業を既定路線として記載するのは事実と乖離するため、<strong>CBIが事業提案前の独自検証段階で技術的成立性を確かめている PoC</strong>であることを明確化。あわせて警告バナーの「市長説明用のPoCデモ／印西市民全体に開いていく次世代基盤を市民・行政に示すための実証段階」も「<strong>事業提案前段階で独自に進めている技術検証用PoCデモ／将来的な市民意向把握の選択肢として技術的成立性を確かめる検証段階</strong>」に書き換え、最後に「本PoCの結果が事業として採用されるかは未定です」と明示。<strong>service-worker は v7 → v8</strong> に更新済（PWAキャッシュ強制刷新）。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--improve">改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-31</p>
             <h2 class="cl-title"><strong>DAO提案に「投票締切」を追加：締切超過で自動「期限切れ」ラベル＋投票ボタン無効化（既存11件は期限なし扱い）</strong></h2>
             <p class="cl-desc">
               DAO提案フォームに <strong>「投票締切日（任意）」</strong>欄を追加した（<code>dao/index.html</code> 提案モーダル）。空欄ならこれまで通り <strong>期限なし</strong>。締切日を入力すると、その日の <strong>23:59:59（JST）</strong>を過ぎた瞬間から提案カードのステータスが自動で <strong>「期限切れ」</strong>（グレーバッジ）に切り替わり、「投票する」ボタンは <strong>「投票終了」</strong> として disabled 状態（クリック不可）に変わる。バックエンド側でも <code>mode=vote</code> 時に締切超過を検知すると <code>{ok:false, error:'expired'}</code> を返すため、フォーム改ざんで投票することもできない。GAS 提案シートに <strong>「投票締切」列を1つ追加</strong>（不足列は <code>insertDaoProposalRowByName_</code> が自動で末尾追加するため既存運用に影響なし）。<code>collectDaoProposalPageRows_</code> で締切超過行は statusKey=<code>'expired'</code>、status=<code>'期限切れ'</code> に上書きし、承認済み提案は保護。<code>renderStats</code> の「投票中」カウントから期限切れを除外し、「期限切れ」件数を新規追加表示。<strong>既存11件の提案はすべて期限なし扱い</strong>（投票締切列が空欄のままなので影響なし）。<strong>cocola-dao-gas2 v31 @81</strong>（フロント API 側）＋ <strong>cocola_topics v199 @386</strong>（GHA endpoint 側）を本番固定IDへ上書きデプロイ済。<strong>service-worker は v6 → v7</strong> に更新済（古いPWAキャッシュを破棄）。
