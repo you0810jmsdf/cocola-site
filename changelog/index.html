@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-31</p>
+            <h2 class="cl-title"><strong>締切未設定でも記録日時から90日経過で自動的に「期限切れ」判定（活動停止した古い提案を視覚的にアーカイブ化）</strong></h2>
+            <p class="cl-desc">
+              「投票締切」を設定していない提案でも、<strong>記録日時から90日経過したものは自動的に「期限切れ」ラベル</strong>を貼る判定を追加した。これまでは「投票締切」列が未設定の提案は永続的に「投票中」ステータスのままで、活動が止まっている古い提案と新規提案がリスト上で同列に並んでいた。今回 <code>collectDaoProposalPageRows_</code> に <strong>「!deadlineIso かつ 記録日時から90日超過なら isExpired=true」</strong>の追加判定を入れることで、古い提案は自動的に <code>expired</code>（または反対多数なら <code>rejected</code>）に振り分けられ、グレーアウト表示になる。<strong>承認済みは保護</strong>（既存ロジック維持）。<strong>v34</strong> として cocola-dao-gas2 固定IDへ上書きデプロイ済（@84）。実機反映のため <code>update-dao-data.yml</code> を手動キック済。例：P0027（「FreeFree事業と連動した『地域事業者応援掲示板』をサイトに設置」記録日時 2026-01-xx）など、90日以上経過した提案が「期限切れ」表示に切り替わる。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--improve">改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-31</p>
             <h2 class="cl-title"><strong>PoC属性データの地区分類を印西市公民館エリア5区分に統一（曖昧な「千葉ニュータウン」を解消）</strong></h2>
             <p class="cl-desc">
               当初の地区5区分（千葉ニュータウン／木下・大森／印旛／小林・船尾／本埜）は、<strong>「千葉ニュータウン」がエリア名で行政区分ではなく曖昧</strong>、加えて <strong>「船尾」は印西市内に無く白井市の地名</strong>（「船穂」のタイプミス）という整合性の問題があった。指摘を受け、<strong>印西市公民館エリア5区分</strong>に統一：木下地区（中央公民館エリア）／小林地区（小林公民館エリア）／千葉ニュータウン地区（そうふけ公民館エリア）／印旛地区（印旛公民館エリア）／本埜地区（本埜公民館エリア）。自分がどの地区か分からないメンバー向けに、<strong>印西市公民館一覧ページ</strong>へのリンクをマイカード／Forms ヘルプテキスト／LINE告知文の3箇所に追加（<a href="https://www.city.inzai.lg.jp/category/1-9-2-0-0.html" target="_blank" rel="noopener">https://www.city.inzai.lg.jp/category/1-9-2-0-0.html</a>）。<code>cocola_form_update.js</code> の <code>CIVIC_ATTR_QUESTIONS.choices</code> と <code>cocola_topics civic-vote.gs.js</code> の <code>CIVIC_VOTE_DISTRICTS</code> / <code>CIVIC_VOTE_BIASES</code> も同期更新。「印西市外（その他）」を選択肢に追加して市外居住者にも対応。<strong>service-worker は v12 → v13</strong> に更新。
