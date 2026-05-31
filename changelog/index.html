@@ -118,6 +118,22 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-31</p>
+            <h2 class="cl-title"><strong>提案一覧に「不採用」ステータス独立化／フィルタ＆ソート追加／不採用・期限切れをグレーアウト</strong></h2>
+            <p class="cl-desc">
+              提案一覧の改修。<br>
+              ① <strong>「不採用」ステータスを「期限切れ」から分離</strong>して独立した <code>rejected</code> キーに。「不採用」「否決」「却下」と書かれた提案、または<strong>締切超過時に反対者が過半数（反対重み > 賛成重み かつ 投票数 > 0）</strong>の場合に自動的に「不採用」と判定する。<br>
+              ② <strong>フィルタタブを5種類に拡張</strong>：<code>すべて / 投票中 / 承認 / 不採用 / 期限切れ</code>。これまで「すべて」にしか表示されず識別困難だった不採用・期限切れの提案を、専用タブで絞り込めるようにした。<br>
+              ③ <strong>ソート機能を新設</strong>：<code>既定（ステータス順）/ 新しい順 / 古い順 / 賛同率の高い順 / 投票数の多い順</code>の5種類から選択可能。<br>
+              ④ <strong>不採用・期限切れカードはグレーアウト表示</strong>（opacity 0.55 + 軽い grayscale）。完全に非表示にせず、<strong>自走して新規団体につながる可能性のある提案を後から見返せる</strong>設計。マウスホバーで通常表示に戻る。<br>
+              GAS 側は <strong>cocola-dao-gas2 dao-points.js</strong> で <code>getDaoProposalPageStatusKey_</code> から「不採用」を独立化し、<code>collectDaoProposalPageRows_</code> に締切超過時の自動判定ロジック（反対多数 → rejected、それ以外 → expired）を追加（<strong>v33</strong> 固定IDへ上書きデプロイ予定）。<strong>service-worker は v9 → v10</strong> に更新（PWAキャッシュ強制刷新）。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--improve">改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-31</p>
             <h2 class="cl-title"><strong>DAO提案フォームを改修：カテゴリ動的切替・要調整事項等・企画提案書URL復活</strong></h2>
             <p class="cl-desc">
               DAO提案モーダル（『提案する』ボタンから開く）を3点改修した。<br>
