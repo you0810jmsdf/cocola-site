@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-05-31</p>
+            <h2 class="cl-title"><strong>DAO投票／取消／復元／いいね 各経路で <code>update-dao-data.yml</code> を自動キックする実装を追加（5分cron待ちが不要に）</strong></h2>
+            <p class="cl-desc">
+              これまで <code>cocola_topics</code> の <code>triggerDaoSiteUpdate_()</code>（GitHub Actions <code>update-dao-data.yml</code> を <code>POST /actions/workflows/.../dispatches</code> で即時起動）は <strong>DAO提案フォーム送信時のみ</strong>呼ばれており、<strong>投票・提案取消・提案復元・市民いいね</strong>の各経路では呼ばれていなかった。そのため投票直後は GAS 内では即時反映されるのに（CacheService 60秒キャッシュは <code>refreshDaoProposalPageCache_</code> で書込時クリア済）、公開 <code>dao/data.json</code> への反映は <strong>5分cron schedule（しかも GitHub Actions schedule は不安定）</strong>頼みで、最長10〜30分の遅延が発生していた。今回 <code>dao-points.js</code> の <strong>4箇所すべて</strong>に <code>triggerDaoSiteUpdate_()</code> 呼出を追加: ① <code>onDaoSpreadsheetFormSubmit</code> の投票分岐（<code>refreshDaoProposalPageCache_</code> 直後） ② <code>doGet mode=cancel</code> の <code>cancelDaoProposal_</code> 成功時 ③ <code>doGet mode=restore</code> の <code>restoreDaoProposals_</code> 成功時 ④ <code>doGet mode=like</code> の <code>recordDaoCitizenLike_</code> 成功時。いずれも <code>result.ok === true</code> のみで起動＋ try-catch で本処理に影響を与えない安全側設計。<strong>@387</strong> として cocola_topics 固定IDへ上書きデプロイ済。実機検証：実際 P0033（Free Freeと市民活動の連携加速）への投票が公開 <code>dao/data.json</code> に未反映だったため、手動で <code>gh workflow run update-dao-data.yml</code> を実行→ 12件目（P0033）が反映＝ <code>_generatedMs=1780224856705</code>（19:54 JST）で確認済。今後の投票・取消・復元・いいねは <strong>30〜60秒以内</strong>に公開 <code>data.json</code>＋TOPページDAOバーに反映される。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-05-31</p>
             <h2 class="cl-title"><strong>提案一覧に「不採用」ステータス独立化／フィルタ＆ソート追加／不採用・期限切れをグレーアウト</strong></h2>
             <p class="cl-desc">
               提案一覧の改修。<br>
