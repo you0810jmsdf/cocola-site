@@ -784,6 +784,42 @@
       background: #8a8a8a;
     }
 
+    .status.rejected {
+      background: #b13c3c;
+    }
+
+    /* 不採用・期限切れカードはグレーアウト（自走可能性のため非表示にはしない） */
+    .proposal-card.is-faded {
+      opacity: 0.55;
+      filter: grayscale(0.4);
+      transition: opacity 120ms;
+    }
+    .proposal-card.is-faded:hover {
+      opacity: 0.85;
+    }
+
+    /* ソート select */
+    .sort-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: auto;
+      font-size: 0.85rem;
+    }
+    .sort-label {
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .sort-select {
+      padding: 4px 8px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--paper);
+      color: var(--ink);
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
     .pill.pill-deadline {
       background: #fff7ea;
       border-color: #e9c887;
@@ -2685,6 +2721,18 @@
             <button class="filter is-active" type="button" data-filter="all">すべて</button>
             <button class="filter" type="button" data-filter="voting">投票中</button>
             <button class="filter" type="button" data-filter="approved">承認</button>
+            <button class="filter" type="button" data-filter="rejected">不採用</button>
+            <button class="filter" type="button" data-filter="expired">期限切れ</button>
+          </div>
+          <div class="sort-control" aria-label="並べ替え">
+            <label for="proposalSortSelect" class="sort-label">並べ替え：</label>
+            <select class="sort-select" id="proposalSortSelect">
+              <option value="status" selected>既定（ステータス順）</option>
+              <option value="newest">新しい順</option>
+              <option value="oldest">古い順</option>
+              <option value="yesRate">賛同率の高い順</option>
+              <option value="voteCount">投票数の多い順</option>
+            </select>
           </div>
         </div>
         <div class="proposal-index" id="proposalIndex" hidden>
@@ -2941,6 +2989,7 @@
     var state = {
       filter: 'all',
       typeFilter: 'gyousei',
+      sort: 'status',
       data: { stats: {}, proposals: [], eligibleWeight: 0 },
       loaded: false,
       cacheStale: false,
@@ -3044,6 +3093,7 @@
       if (statusKey === 'pending') return 'pending';
       if (statusKey === 'closed') return 'closed';
       if (statusKey === 'expired') return 'expired';
+      if (statusKey === 'rejected') return 'rejected';
       return '';
     }
 
@@ -3074,11 +3124,25 @@
       var votedNickname = getVotedNickname(proposal.id, proposal);
       var likeCount = Number(proposal.citizenLikeCount) || 0;
       var expired = isProposalExpired(proposal);
-      var effectiveStatusKey = expired && proposal.statusKey !== 'approved' ? 'expired' : proposal.statusKey;
-      var effectiveStatusText = (effectiveStatusKey === 'expired') ? '期限切れ' : proposal.status;
+      // ステータス確定：承認 > 不採用 > 期限切れ > その他 の優先順
+      var effectiveStatusKey, effectiveStatusText;
+      if (proposal.statusKey === 'approved') {
+        effectiveStatusKey = 'approved';
+        effectiveStatusText = proposal.status;
+      } else if (proposal.statusKey === 'rejected') {
+        effectiveStatusKey = 'rejected';
+        effectiveStatusText = '不採用';
+      } else if (expired) {
+        effectiveStatusKey = 'expired';
+        effectiveStatusText = '期限切れ';
+      } else {
+        effectiveStatusKey = proposal.statusKey;
+        effectiveStatusText = proposal.status;
+      }
       var isVoting = (effectiveStatusKey === 'voting');
+      var isFaded = (effectiveStatusKey === 'rejected' || effectiveStatusKey === 'expired');
       var deadlineDisplay = formatDeadlineDisplay(proposal.deadline);
-      return '<article class="proposal-card" id="proposal-' + escapeHtml(proposal.id) + '" data-status="' + escapeHtml(effectiveStatusKey) + '">' +
+      return '<article class="proposal-card' + (isFaded ? ' is-faded' : '') + '" id="proposal-' + escapeHtml(proposal.id) + '" data-status="' + escapeHtml(effectiveStatusKey) + '">' +
         '<div class="card-head">' +
           '<div class="identity">' +
             '<span class="proposal-id">' + escapeHtml(proposal.id) + '</span>' +
@@ -3145,6 +3209,19 @@
         if (state.typeFilter !== 'all' && resolveProposalType(p) !== state.typeFilter) return false;
         return true;
       });
+      // ソート適用（既定はGAS側の statusOrder。それ以外はクライアント側で並べ替え）
+      if (state.sort && state.sort !== 'status') {
+        visible = visible.slice().sort(function(a, b) {
+          if (state.sort === 'newest' || state.sort === 'oldest') {
+            var ta = Date.parse(a.submittedAt || '') || 0;
+            var tb = Date.parse(b.submittedAt || '') || 0;
+            return state.sort === 'newest' ? (tb - ta) : (ta - tb);
+          }
+          if (state.sort === 'yesRate') return (Number(b.yesRate) || 0) - (Number(a.yesRate) || 0);
+          if (state.sort === 'voteCount') return (Number(b.voteCount) || 0) - (Number(a.voteCount) || 0);
+          return 0;
+        });
+      }
       grid.innerHTML = visible.map(renderProposal).join('');
       if (visible.length === 0) {
         var emptyMsg = '該当する提案はありません。';
@@ -3317,6 +3394,13 @@
           renderProposals();
         });
       });
+      var sortSelect = document.getElementById('proposalSortSelect');
+      if (sortSelect) {
+        sortSelect.addEventListener('change', function() {
+          state.sort = sortSelect.value;
+          renderProposals();
+        });
+      }
       var typeTabNote = document.getElementById('typeTabNote');
       document.querySelectorAll('.type-tab').forEach(function(button) {
         button.addEventListener('click', function() {
