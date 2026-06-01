@@ -434,11 +434,17 @@
     const COL_TS = 0, COL_NICKNAME = 3;
     fetch(MEMBERS_JSON + '?t=' + Math.floor(Date.now() / 60000), { credentials: 'omit' }).then(r => r.json()).then(data => {
       const now = Date.now();
+      const updatedNickSet = new Set(
+        (data.recentUpdates || []).map(u => String(u.nickname || '').trim()).filter(Boolean)
+      );
       const newOnes = (data.rows || []).filter(row => {
         const ts = row[COL_TS];
         if (!ts) return false;
         const d = new Date(ts.replace(/\//g, '-'));
-        return !isNaN(d) && (now - d.getTime()) < SEVEN_DAYS;
+        if (isNaN(d) || (now - d.getTime()) >= SEVEN_DAYS) return false;
+        const nick = String(row[COL_NICKNAME] || '').trim();
+        if (nick && updatedNickSet.has(nick)) return false;
+        return true;
       });
       if (newOnes.length) {
         const list = document.getElementById('newMemberList');
