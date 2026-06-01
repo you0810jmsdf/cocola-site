@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-06-01</p>
+            <h2 class="cl-title"><strong>トップページ「今週のCOCoLa」に「📅 新規予定」バーを新設（メンバーカレンダーの追加を通知）</strong></h2>
+            <p class="cl-desc">
+              <a href="../schedule/">メンバーカレンダー</a>に新しい予定が追加されると、トップページの「今週のCOCoLa」通知パネルに<strong>📅 新規予定</strong>バーが表示されるようになった。<code>schedule/data.json</code> の <code>createdAt</code>（追加日時）を見て、<strong>直近7日以内に追加された予定</strong>を「予定タイトル（MM/DD 開催予定）」の形式で並べる。データソースは GitHub Actions（<code>update-schedule-data.yml</code>）が5分おきに GAS から同期する <code>schedule/data.json</code>。タイトルをクリックすると <a href="../schedule/">メンバーカレンダーページ</a>へ遷移する。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-06-01</p>
             <h2 class="cl-title"><strong>トップページ「今週のCOCoLa」: 情報更新があった人を新規入会バーから除外</strong></h2>
             <p class="cl-desc">
               新規入会したばかりのメンバーが続けて情報修正フォームを送信すると、<strong>「新規入会」バーと「情報更新」バーの両方</strong>に同じニックネームが並んでしまう違和感があった。<code>index.html</code> のトップ「今週のCOCoLa」表示ロジックを修正し、<strong>当該週の <code>recentUpdates</code> に含まれるニックネームは「新規入会」バーから除外</strong>するようにした。最新アクション（情報更新）を優先表示する形に統一し、二重表示を防ぐ。data.json 側のスキーマ変更は不要、フロント1ファイル変更のみ。

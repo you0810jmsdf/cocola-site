@@ -69,6 +69,10 @@
     .dango-bar__label{font-weight:700;white-space:nowrap}
     .dango-bar__item{display:inline-flex;align-items:center;gap:4px}
     .dango-bar__item a{color:#5b3fa0;text-decoration:underline}
+    .schedule-bar{background:#e8f7f2;border-bottom:1px solid #b9e2cf;padding:6px 16px;font-size:.82rem;color:#0f6e56;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .schedule-bar__label{font-weight:700;white-space:nowrap}
+    .schedule-bar__item{display:inline-flex;align-items:center;gap:4px}
+    .schedule-bar__item a{color:#0f6e56;text-decoration:underline}
     .notice-panel{background:#fff;border:1px solid var(--border,rgba(29,158,117,.18));border-radius:var(--radius-lg,24px);overflow:hidden;margin:16px 0;box-shadow:0 2px 12px rgba(0,0,0,.06)}
     .notice-panel__header{padding:8px 16px;font-size:.92rem;font-weight:700;color:var(--muted,#607068);letter-spacing:.06em;background:var(--bg-soft,#eef8f3);border-bottom:1px solid var(--border,rgba(29,158,117,.18))}
     .notice-panel > div:last-child{border-bottom:none}
@@ -112,6 +116,10 @@
       <div class="update-bar" id="updateBar" style="display:none">
         <span class="update-bar__label">情報更新</span>
         <span id="updateList"></span>
+      </div>
+      <div class="schedule-bar" id="scheduleBar" style="display:none">
+        <span class="schedule-bar__label">📅 新規予定</span>
+        <span id="scheduleList"></span>
       </div>
       <div class="dao-bar" id="daoBar" style="display:none">
         <span class="dao-bar__label">💡 DAO新規提案</span>
@@ -421,6 +429,50 @@
           document.getElementById('noticePanel').style.display = '';
         }
       }).catch(function () {});
+  })();
+  </script>
+  <script>
+  (function () {
+    var SCHEDULE_JSON = './schedule/data.json';
+    var SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+    function parseCreatedAt(s) {
+      if (!s) return null;
+      var d = new Date(s);
+      if (!isNaN(d)) return d;
+      d = new Date(String(s).replace(/\//g, '-'));
+      return isNaN(d) ? null : d;
+    }
+    function fmtDate(s) {
+      if (!s) return '';
+      var t = String(s).replace(/-/g, '/');
+      var m = t.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})/);
+      if (!m) return t;
+      return m[2] + '/' + m[3];
+    }
+    fetch(SCHEDULE_JSON + '?t=' + Math.floor(Date.now() / 60000), { credentials: 'omit' })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var items = (data && Array.isArray(data.items)) ? data.items : [];
+        var now = Date.now();
+        var recent = items.filter(function (it) {
+          var d = parseCreatedAt(it.createdAt);
+          return d && (now - d.getTime()) < SEVEN_DAYS;
+        });
+        recent.sort(function (a, b) {
+          return parseCreatedAt(b.createdAt).getTime() - parseCreatedAt(a.createdAt).getTime();
+        });
+        if (!recent.length) return;
+        document.getElementById('scheduleList').innerHTML = recent.map(function (it) {
+          var title = String(it.title || '予定').replace(/[<>&"]/g, function (c) {
+            return ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' })[c];
+          });
+          var dateLabel = fmtDate(it.date);
+          return '<span class="schedule-bar__item"><a href="./schedule/">' + title + '</a>（' + dateLabel + ' 開催予定）</span>';
+        }).join('<span style="margin:0 4px">·</span>');
+        document.getElementById('scheduleBar').style.display = '';
+        document.getElementById('noticePanel').style.display = '';
+      })
+      .catch(function () {});
   })();
   </script>
   <script src="./assets/site-config.js?v=20260424"></script>
