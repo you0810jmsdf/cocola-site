@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-06-01</p>
+            <h2 class="cl-title"><strong>DAO提案の「区分」分類問題の真因を特定・修正（GASが空欄を強制的に gyousei 出力していた）</strong></h2>
+            <p class="cl-desc">
+              「P0199 等を団体方針タブに表示」が長時間反映されなかった真因が判明。<code>cocola-dao-gas2</code> の <code>getDaoProposalPageData_()</code> 内で <strong>スプレッドシート「区分」セルが空欄の場合、GAS が自動的に <code>proposalType='gyousei'</code> を埋めて返していた</strong>ため、フロントの <code>FALLBACK_DANTAI_IDS</code> マップは値が既にあると判定されて発動せず、5件全てが「行政につなぐ」扱いになっていた。<code>dao-points.js:759-761</code> を修正し、<strong>区分セルが「団体方針」「行政につなぐ」のいずれでもない（空欄含む）場合は <code>proposalType=''</code>（空文字）を返す</strong>ようにした。これにより GAS が値を強制設定せず、フロント側の FALLBACK 経路に処理が渡るようになる。<code>cocola-dao-gas2</code> は <strong>固定ID <code>AKfycbxM2yb...</code> へ @85 redeploy 済</strong>。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-06-01</p>
             <h2 class="cl-title"><strong>DAO PWA：SW更新自体がブラウザHTTPキャッシュに張り付く問題への徹底対策（updateViaCache:none＋activate時の旧キャッシュ全削除＋既存タブ自動再ナビゲート）</strong></h2>
             <p class="cl-desc">
               「Ctrl+Shift+R しても時間が経つと元に戻る」現象の根本原因は、<strong>Chrome が <code>service-worker.js</code> 自体を GitHub Pages の <code>Cache-Control: max-age=600</code> に従って HTTP キャッシュしてしまい、新しい SW がブラウザに届かない</strong>こと。SW を v17 にして fetch ロジックを改修しても、ユーザーの Chrome が古い SW（v13〜v16）をそのまま使い続けるため挙動が変わらなかった。今回の対策は3段構え：① <code>navigator.serviceWorker.register()</code> に <code>{ updateViaCache: 'none' }</code> を指定して SW スクリプト取得時の HTTP キャッシュを bypass、② ページ可視化（visibilitychange）のたびに <code>registration.update()</code> を呼んで SW 更新確認を強制、③ SW の activate イベントで <strong>cocola-dao-v?? の旧キャッシュ全削除＋既存タブを <code>client.navigate()</code> で自動再ナビゲート</strong>。これにより新SWがインストール完了した瞬間に旧HTMLから新HTMLへ即時切替する。<strong>service-worker は v17 → v18</strong> にバンプ。<strong>既存ユーザーは一度だけ F12 → Application → Service Workers → Unregister → リロード</strong>を行えば、以降は何度開いても古い版に戻らなくなる。
