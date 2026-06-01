@@ -118,6 +118,18 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-06-02</p>
+            <h2 class="cl-title">DAO投票シートの<strong>「空送信」壊れた行28件を物理削除</strong>（114→86行 = 真のユニーク投票数に正規化 / <code>cocola_topics v202 @394</code>）</h2>
+            <p class="cl-desc">
+              dedupe完了後の残114行のうち、提案ID・投票者・投票内容・タイトルが全て空の「フォーム空送信由来」の壊れた行が28件残存していた。memo列に <code>フォーム回答: DAO投票フォーム回答:29:Sun Apr 19 2026 ...:::</code> の形式で記録されており、末尾 <code>:::</code> が proposalId/voter/vote 全て空の連結痕跡。これらは集計に影響しない（id 空のため <code>normalizeDaoVote_</code>／<code>collectDaoVotes_</code> も無視）が、管理画面の見通しを悪化させていた。<strong>対処</strong>: <code>cocola_topics dao-points.js</code> に診断関数 <code>inspectDaoVoteBrokenRows_</code>（行番号・各列値・memo・reason をログ出力）と削除関数 <code>removeDaoVoteBrokenRows_/DryRun/Live</code>（提案ID or 投票者が空の行を対象に、バックアップ退避→物理削除）を新規実装。DryRun で 28件全てが <code>both empty</code>（提案ID/投票者の両方空）と確認後、Live実行で物理削除。バックアップは <code>DAO投票_backup_broken_2026-06-02</code> に退避済。<strong>結果</strong>: 全データ行数 114→86行。86 = (proposal×voter) ユニーク数と完全一致＝真のユニーク投票数。<strong>GAS デプロイ</strong>: cocola_topics v202 @394 として固定ID <code>AKfycbzVs_W57...</code> に redeploy 済。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+              <span class="tag tag--new">新機能</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-06-02</p>
             <h2 class="cl-title">DAO投票の<strong>「投票ゾンビ復活」を構造的に根絶</strong>（フォーム取り込み3関数を append→upsert 化、(提案ID, 投票者) ユニーク化を保証 / <code>cocola_topics v201 @393</code>）</h2>
             <p class="cl-desc">
               <strong>真因</strong>: <code>normalizeDaoVoteResponses_</code> 系の idempotency キーは <code>sheetName:row:timestamp:proposalId:voter:vote</code> で**フォーム回答シートの行番号 (row) を含む**ため、DAO投票シートから手動削除後に ScriptProperties が消失すると「未処理」と判定されて全件再挿入される構造的脆弱性があった。提案ゾンビ復活（v21-v30, v188-v198）と同じパターンの**投票版**で、これが P0021 691行（同一秒 <code>2026-04-19 18:56:29</code>）の真の発生源。<strong>対処</strong>: cocola-dao-gas2 <code>recordDirectVote_</code> の「同一(id, voter)なら更新で1行に保つ」設計を cocola_topics 側にも導入。共通ヘルパー <strong><code>upsertDaoVoteByVoterFromForm_(voteSheet, id, title, voter, vote, comment, memoText, timestamp)</code></strong> を新規実装し、フォーム取り込み3関数（<code>normalizeDaoVoteResponses_</code>／<code>normalizeRecentDaoVoteResponses_</code>／<code>normalizeLatestDaoVoteResponse_</code>）の append 直前に (提案ID, 投票者) チェックを追加。既存(id, voter)行があれば最新値で update、無ければ append。これでフォーム経由・WebApp経由のどちらでも (提案ID×投票者) ユニーク性が保証され、トリガー多重実行・ScriptProperties消失・行番号ズレのいずれが起きても重複再挿入されない。<strong>GAS デプロイ</strong>: cocola_topics v201 @393 として固定ID <code>AKfycbzVs_W57...</code> に redeploy 済。<strong>残課題</strong>: voter/proposal 列が空の壊れた行28件は別途調査。
