@@ -113,6 +113,24 @@
       </section>
 
       <section class="content-section">
+        <p class="section-label">2026年6月</p>
+        <ul class="changelog-list">
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-06-01</p>
+            <h2 class="cl-title"><strong>DAO提案 P0199「イルミライ☆INZAI イベント企画」を「団体方針」カテゴリに分類（フロント FALLBACK マップへ追加）</strong></h2>
+            <p class="cl-desc">
+              DAO提案一覧（<a href="../dao/">提案・投票タブ</a>）の上部タブ「行政につなぐ／団体方針／すべて」のうち、<strong>P0199「イルミライ☆INZAI イベント企画」</strong>を「団体方針」に分類するよう <code>dao/index.html</code> の <code>FALLBACK_DANTAI_IDS</code> マップに ID を追加した。既存登録は P0176（団体パネル展出展）／P0123（ココハルまつり2026出店）／P0122（COCoLa オリジナルTシャツ）／P0066（マスコットキャラクター募集）の4件で、今回 P0199 を加えて<strong>計5件が「団体方針」タブに表示</strong>される。FALLBACK は GAS 側スプレッドシートに <code>proposalType</code> 列が実装されるまでの暫定マップで、列が実装され次第このマップは効力を失う（<code>proposalType</code> が優先される）設計。あわせて PWA キャッシュ強制更新のため <strong>service-worker は v13 → v14</strong> にバンプ。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--improve">改善</span>
+            </div>
+          </li>
+
+        </ul>
+      </section>
+
+      <section class="content-section">
         <p class="section-label">2026年5月</p>
         <ul class="changelog-list">
 
