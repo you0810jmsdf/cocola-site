@@ -98,6 +98,9 @@ body{margin:0;padding:12px;font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans
 .sync-btn{padding:8px 14px;background:#fff;color:var(--green);border:1px solid var(--green);border-radius:6px;font-size:13px;cursor:pointer;font-family:inherit;}
 .sync-btn:hover{background:var(--green-light);}
 .sync-btn:disabled{opacity:0.6;cursor:default;}
+.publish-btn{padding:8px 14px;background:#fff;color:var(--green-dark);border:1px solid var(--green-dark);border-radius:6px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:bold;}
+.publish-btn:hover{background:var(--green-light);}
+.publish-btn:disabled{opacity:0.6;cursor:default;}
 @media(max-width:600px){.vbtn{padding:6px 12px;font-size:12px;}.cal-hd{font-size:10px;}.cal-dn{font-size:11px;}.modal{padding:16px 14px;}}
 </style>
 </head>
@@ -115,6 +118,7 @@ body{margin:0;padding:12px;font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans
     <button class="add-btn" onclick="openAdd()">＋ イベントを登録</button>
     <a href="how-to-use.html" style="font-size:12px;color:var(--muted);text-decoration:none;padding:6px 10px;border:1px solid var(--border);border-radius:5px;background:#fff;">❓ 使い方</a>
     <button class="sync-btn" id="sync-btn" onclick="forceSync()">🔄 同期</button>
+    <button class="publish-btn" id="publish-btn" onclick="publishToSite()" title="TOPページの「新規予定」通知や公開data.jsonへ即時反映します（30秒に1回まで）">⟳ サイトに反映</button>
   </div>
 
   <div class="view-tabs" style="margin-bottom:14px;">
@@ -752,6 +756,33 @@ function forceSync() {
     .catch(function(){
       btn.disabled = false;
       btn.textContent = '🔄 同期';
+      showToast('通信エラーが発生しました');
+    });
+}
+
+function publishToSite() {
+  var btn = document.getElementById('publish-btn');
+  btn.disabled = true;
+  var origText = '⟳ サイトに反映';
+  btn.textContent = '反映中…';
+  fetch(GAS_ENDPOINT + '?mode=refreshSchedule&t=' + Date.now())
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d && d.ok && !d.throttled) {
+        showToast('GitHub Actions を起動しました。30秒〜1分後に公開反映されます。');
+        btn.textContent = '✓ 起動成功';
+      } else if (d && d.ok && d.throttled) {
+        showToast('連打防止中（前回から ' + (d.elapsedSec || 0) + ' 秒）。少し待ってから再度どうぞ。');
+        btn.textContent = '⏳ デバウンス中';
+      } else {
+        showToast('反映に失敗しました: ' + (d && d.error ? d.error : 'unknown'));
+        btn.textContent = origText;
+      }
+      setTimeout(function(){ btn.disabled = false; btn.textContent = origText; }, 30000);
+    })
+    .catch(function(){
+      btn.disabled = false;
+      btn.textContent = origText;
       showToast('通信エラーが発生しました');
     });
 }

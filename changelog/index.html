@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-06-01</p>
+            <h2 class="cl-title"><strong>メンバーカレンダーに「⟳ サイトに反映」ボタンを設置（公開data.json即時更新トリガー）</strong></h2>
+            <p class="cl-desc">
+              <a href="../schedule/">メンバーカレンダー</a>のツールバーに「<strong>⟳ サイトに反映</strong>」ボタンを設置した。<code>update-schedule-data.yml</code>（GitHub Actions 5分おき自動更新）は不安定で公開 <code>schedule/data.json</code> が遅延することがあるため、誰でも押せる手動GHA起動ボタンを追加した。<strong>cocola_topics GAS v200 @390</strong> に新エンドポイント <code>mode=refreshSchedule</code> を追加し、ボタン押下で <code>update-schedule-data.yml</code> を <code>workflow_dispatch</code> で即時起動する。<strong>連打防止のため GAS 側で 30 秒のデバウンス</strong>を設定（30秒以内の再リクエストは <code>throttled=true</code> で no-op）。ボタンを押すと TOP ページの「📅 新規予定」バーや他メンバーの公開ページに30秒〜1分で反映される。仕組みは DAO PWA の「⟳ 最新の情報に更新」ボタンと同じパターン。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-06-01</p>
             <h2 class="cl-title"><strong>トップページ「今週のCOCoLa」に「📅 新規予定」バーを新設（メンバーカレンダーの追加を通知）</strong></h2>
             <p class="cl-desc">
               <a href="../schedule/">メンバーカレンダー</a>に新しい予定が追加されると、トップページの「今週のCOCoLa」通知パネルに<strong>📅 新規予定</strong>バーが表示されるようになった。<code>schedule/data.json</code> の <code>createdAt</code>（追加日時）を見て、<strong>直近7日以内に追加された予定</strong>を「予定タイトル（MM/DD 開催予定）」の形式で並べる。データソースは GitHub Actions（<code>update-schedule-data.yml</code>）が5分おきに GAS から同期する <code>schedule/data.json</code>。タイトルをクリックすると <a href="../schedule/">メンバーカレンダーページ</a>へ遷移する。
