@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-06-01</p>
+            <h2 class="cl-title"><strong>DAO PWA の Service Worker をナビゲーション時 HTTP キャッシュ完全 bypass に改修（古い index.html 居座り問題の根治）</strong></h2>
+            <p class="cl-desc">
+              GitHub Pages は <code>Cache-Control: max-age=600</code> ヘッダを返すため、<strong>ブラウザの HTTP キャッシュが10分間古い <code>index.html</code> を保持</strong>し、デプロイ直後の更新がユーザー画面に反映されない問題が継続していた（HTML 内の <code>&lt;meta http-equiv="Cache-Control"&gt;</code> は HTTP ヘッダではないため HTTP キャッシュを制御できない）。<code>service-worker.js</code> の fetch ハンドラを改修し、<strong>ナビゲーションリクエスト（<code>req.mode === 'navigate'</code>）および <code>data.json</code> 取得時に <code>fetch(req, { cache: 'no-store' })</code></strong> を使うようにした。これにより SW がブラウザの HTTP キャッシュをスキップして必ず origin（GitHub Pages）から最新を取得する。<strong>service-worker は v16 → v17</strong> にバンプ。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-06-01</p>
             <h2 class="cl-title"><strong>DAO PWA「⟳ 最新の情報に更新」ボタンを誰でも押せる一般公開機能として追加（30秒デバウンス付き）</strong></h2>
             <p class="cl-desc">
               これまで <code>data.json</code> 更新を即座に走らせるには <a href="../admin/">管理画面</a>（パスワード保護）から「DAOデータ」ボタンを押す必要があったが、DAO PWA の<strong>提案・投票タブの更新表示の右隣に「⟳ 最新の情報に更新」ボタン</strong>を新設し、メンバーなら誰でも押せるようにした。ボタンを押すと cocola_topics GAS の新エンドポイント <code>mode=refreshDao</code> 経由で <code>update-dao-data.yml</code> ワークフローが即時起動し、数十秒以内に最新の提案・投票結果が反映される。<strong>連打防止のため GAS 側で 30 秒のデバウンス</strong>を設定（30秒以内の再リクエストは throttled=true で no-op、現在時刻からの経過秒を返してUIに表示）。叩けるワークフローを <code>update-dao-data.yml</code> 1種に固定したため、ホワイトリスト不要・乱用不可。<strong>service-worker は v15 → v16</strong> にバンプ。cocola_topics GAS は v199 として固定ID <code>AKfycbzVs_W57...</code> へ redeploy 済（@389）。

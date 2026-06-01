@@ -3,7 +3,7 @@
    - 通知クリック時にアプリを前面化
    実証段階のため Web Push（VAPID）は未使用。通知はページ側のポーリングから出す。 */
 
-var CACHE_NAME = 'cocola-dao-v16';
+var CACHE_NAME = 'cocola-dao-v17';
 var CORE_ASSETS = [
   './',
   './index.html',
@@ -30,17 +30,26 @@ self.addEventListener('activate', function (event) {
   );
 });
 
-/* data.json は常に最新を取りに行く（ネットワーク優先）。
-   それ以外のアプリシェルはネットワーク優先＋キャッシュフォールバック。 */
+/* data.json と HTML ナビゲーションは常に origin から最新を取りに行く（HTTPキャッシュも bypass）。
+   GitHub Pages の Cache-Control: max-age=600 がブラウザに10分張り付くと
+   古い index.html が居座るため、ナビゲーション時は cache: 'no-store' で必ず再取得する。
+   それ以外のアプリシェル（CSS/画像等）はネットワーク優先＋キャッシュフォールバック。 */
 self.addEventListener('fetch', function (event) {
   var req = event.request;
   if (req.method !== 'GET') return;
 
   var url = new URL(req.url);
   var isData = url.pathname.indexOf('/data.json') !== -1;
+  var isNavigate = req.mode === 'navigate' || req.destination === 'document';
 
-  if (isData) {
-    event.respondWith(fetch(req).catch(function () { return caches.match(req); }));
+  if (isData || isNavigate) {
+    event.respondWith(
+      fetch(req, { cache: 'no-store' }).catch(function () {
+        return caches.match(req).then(function (hit) {
+          return hit || caches.match('./index.html');
+        });
+      })
+    );
     return;
   }
 
