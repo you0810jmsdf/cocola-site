@@ -117,6 +117,18 @@
         <ul class="changelog-list">
 
           <li class="cl-entry">
+            <p class="cl-date">2026-06-02</p>
+            <h2 class="cl-title">運営管理画面に<strong>「DAO（提案・投票管理）」セクション</strong>を新設し、<strong>「誰が投票したか（実名一覧）」リンクと「DAOメンバー一覧」リンク</strong>を追加</h2>
+            <p class="cl-desc">
+              「誰が投票したかわかるページを作ったはずだがどこにあるかわからない」というユーザー指摘を起点に、運営管理画面 (<code>admin/index.html</code>) の「キャンペーン管理」と「アクセス解析・予算監視」の間に新セクション「DAO（提案・投票管理）」を追加。<strong>(1) 誰が投票したか（実名一覧）</strong>: <code>cocola-dao-gas2</code> の WebApp に <code>?admin=1</code> を付けて開く管理者ビューへのリンクカードを設置（実装は <code>dao-points.js:233</code> <code>template.isDaoAdmin = Boolean(e.parameter.admin === '1')</code>）。公開ページではハッシュ化されている投票者名を、運営者は実名・投票内容・日時の一覧で確認できる。<strong>(2) DAOメンバー一覧</strong>: 投票権の可視化（アクティブ／サポーター／休眠）が見られる <code>dao/index.html#members</code> セクションへのリンクカードを設置（<code>v198 @362</code> で公開済の機能）。これで未投票者の把握や休眠状態のチェックが運営管理画面から1クリックで到達可能になった。URL は <code>https://script.google.com/macros/s/AKfycbxM2yb.../exec?admin=1</code>（cocola-dao-gas2 固定デプロイ）。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+              <span class="tag tag--improve">UX改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
             <p class="cl-date">2026-06-01</p>
             <h2 class="cl-title"><strong>DAO提案の「区分」分類問題の真因を特定・修正（GASが空欄を強制的に gyousei 出力していた）</strong></h2>
             <p class="cl-desc">
