@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-06-01</p>
+            <h2 class="cl-title"><strong>DAO PWA：SW更新自体がブラウザHTTPキャッシュに張り付く問題への徹底対策（updateViaCache:none＋activate時の旧キャッシュ全削除＋既存タブ自動再ナビゲート）</strong></h2>
+            <p class="cl-desc">
+              「Ctrl+Shift+R しても時間が経つと元に戻る」現象の根本原因は、<strong>Chrome が <code>service-worker.js</code> 自体を GitHub Pages の <code>Cache-Control: max-age=600</code> に従って HTTP キャッシュしてしまい、新しい SW がブラウザに届かない</strong>こと。SW を v17 にして fetch ロジックを改修しても、ユーザーの Chrome が古い SW（v13〜v16）をそのまま使い続けるため挙動が変わらなかった。今回の対策は3段構え：① <code>navigator.serviceWorker.register()</code> に <code>{ updateViaCache: 'none' }</code> を指定して SW スクリプト取得時の HTTP キャッシュを bypass、② ページ可視化（visibilitychange）のたびに <code>registration.update()</code> を呼んで SW 更新確認を強制、③ SW の activate イベントで <strong>cocola-dao-v?? の旧キャッシュ全削除＋既存タブを <code>client.navigate()</code> で自動再ナビゲート</strong>。これにより新SWがインストール完了した瞬間に旧HTMLから新HTMLへ即時切替する。<strong>service-worker は v17 → v18</strong> にバンプ。<strong>既存ユーザーは一度だけ F12 → Application → Service Workers → Unregister → リロード</strong>を行えば、以降は何度開いても古い版に戻らなくなる。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-06-01</p>
             <h2 class="cl-title"><strong>メンバーカレンダー: 参加者・企画者をタグ式マルチセレクトに変更（表記ゆれ根絶）</strong></h2>
             <p class="cl-desc">
               これまで <a href="../schedule/">メンバーカレンダー</a>の参加者・企画者欄は<strong>自由入力テキスト</strong>だったため、表記ゆれ（「ゆう」「ゆうさん」「Yu」「ゆうき」など）で <code>matchDaoMember_</code> の照合に失敗し、DAO貢献度ポイントが付与されない（または <code>DAO_LEDGER_REVIEW</code> 行きになる）ケースがあった。<strong>会員名簿（members/data.json）から取得したニックネーム候補のタグ式マルチセレクトUI</strong>に変更し、候補から選んだメンバーは<strong>会員名簿の正規ニックネームで保存</strong>される（緑チップ）。<strong>非会員は「自由入力で追加」</strong>から登録可能（オレンジチップ=ゲスト扱い）。企画者欄は<strong>1名上限</strong>。キーボード操作（↑↓Enter・Backspaceで直前チップ削除・Esc）対応。データ形式は従来通り<strong>カンマ区切り文字列</strong>を維持するため、既存の <code>awardDaoPointsDiff_()</code>／<code>processDaoEventRow_()</code> など下流処理は無改修で動作する。

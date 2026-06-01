@@ -4355,8 +4355,21 @@
       }
 
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('service-worker.js')
-          .then(function (reg) { swReg = reg; })
+        // updateViaCache:'none' で SW スクリプト自体の HTTP キャッシュを bypass し、
+        // GitHub Pages の Cache-Control: max-age=600 の影響を受けないようにする。
+        navigator.serviceWorker.register('service-worker.js', { updateViaCache: 'none' })
+          .then(function (reg) {
+            swReg = reg;
+            // 既存ユーザーで古いSWが残っていてもページ可視時に毎回更新確認させる
+            if (reg.update) {
+              try { reg.update(); } catch (e) {}
+              document.addEventListener('visibilitychange', function () {
+                if (document.visibilityState === 'visible') {
+                  try { reg.update(); } catch (e) {}
+                }
+              });
+            }
+          })
           .catch(function () {});
       }
 
