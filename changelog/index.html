@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-06-01</p>
+            <h2 class="cl-title"><strong>メンバーカレンダー: 新規イベント登録時もDAO貢献度ポイントを即時付与</strong></h2>
+            <p class="cl-desc">
+              これまで <a href="../schedule/">メンバーカレンダー</a>で<strong>新規イベントを登録した瞬間</strong>に参加者・企画者として記載された人にはDAOポイントが即時付与されておらず、翌朝9時の日次バッチ（<code>processDaoPointsFromAllRows</code>）を待つ必要があった（最大24時間遅れ）。一方、既存イベントを<strong>編集</strong>して参加者を追加した場合は <code>awardDaoPointsDiff_()</code> が即時実行され遅延なし、という挙動の不一致があった。<code>schedule_add</code> ハンドラを修正し、登録成功時も <code>awardDaoPointsDiff_()</code>（旧参加者・旧企画者は空文字）を呼ぶように統一。<strong>新規登録された参加者は <code>DAO_CONFIG.participantPoints</code>、企画者は <code>DAO_CONFIG.organizerPoints</code> がその場で付与</strong>される。重複防止は DAO_LEDGER の entryKey で担保（既存と同じ仕組み）。cocola_topics GAS は <strong>v201 として固定ID <code>AKfycbzVs_W57...</code> へ redeploy 済（@391）</strong>。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-06-01</p>
             <h2 class="cl-title"><strong>メンバーカレンダーに「⟳ サイトに反映」ボタンを設置（公開data.json即時更新トリガー）</strong></h2>
             <p class="cl-desc">
               <a href="../schedule/">メンバーカレンダー</a>のツールバーに「<strong>⟳ サイトに反映</strong>」ボタンを設置した。<code>update-schedule-data.yml</code>（GitHub Actions 5分おき自動更新）は不安定で公開 <code>schedule/data.json</code> が遅延することがあるため、誰でも押せる手動GHA起動ボタンを追加した。<strong>cocola_topics GAS v200 @390</strong> に新エンドポイント <code>mode=refreshSchedule</code> を追加し、ボタン押下で <code>update-schedule-data.yml</code> を <code>workflow_dispatch</code> で即時起動する。<strong>連打防止のため GAS 側で 30 秒のデバウンス</strong>を設定（30秒以内の再リクエストは <code>throttled=true</code> で no-op）。ボタンを押すと TOP ページの「📅 新規予定」バーや他メンバーの公開ページに30秒〜1分で反映される。仕組みは DAO PWA の「⟳ 最新の情報に更新」ボタンと同じパターン。
