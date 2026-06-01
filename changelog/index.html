@@ -118,6 +118,18 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-06-02</p>
+            <h2 class="cl-title">DAO投票の<strong>「投票ゾンビ復活」を構造的に根絶</strong>（フォーム取り込み3関数を append→upsert 化、(提案ID, 投票者) ユニーク化を保証 / <code>cocola_topics v201 @393</code>）</h2>
+            <p class="cl-desc">
+              <strong>真因</strong>: <code>normalizeDaoVoteResponses_</code> 系の idempotency キーは <code>sheetName:row:timestamp:proposalId:voter:vote</code> で**フォーム回答シートの行番号 (row) を含む**ため、DAO投票シートから手動削除後に ScriptProperties が消失すると「未処理」と判定されて全件再挿入される構造的脆弱性があった。提案ゾンビ復活（v21-v30, v188-v198）と同じパターンの**投票版**で、これが P0021 691行（同一秒 <code>2026-04-19 18:56:29</code>）の真の発生源。<strong>対処</strong>: cocola-dao-gas2 <code>recordDirectVote_</code> の「同一(id, voter)なら更新で1行に保つ」設計を cocola_topics 側にも導入。共通ヘルパー <strong><code>upsertDaoVoteByVoterFromForm_(voteSheet, id, title, voter, vote, comment, memoText, timestamp)</code></strong> を新規実装し、フォーム取り込み3関数（<code>normalizeDaoVoteResponses_</code>／<code>normalizeRecentDaoVoteResponses_</code>／<code>normalizeLatestDaoVoteResponse_</code>）の append 直前に (提案ID, 投票者) チェックを追加。既存(id, voter)行があれば最新値で update、無ければ append。これでフォーム経由・WebApp経由のどちらでも (提案ID×投票者) ユニーク性が保証され、トリガー多重実行・ScriptProperties消失・行番号ズレのいずれが起きても重複再挿入されない。<strong>GAS デプロイ</strong>: cocola_topics v201 @393 として固定ID <code>AKfycbzVs_W57...</code> に redeploy 済。<strong>残課題</strong>: voter/proposal 列が空の壊れた行28件は別途調査。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+              <span class="tag tag--improve">根本対処</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-06-02</p>
             <h2 class="cl-title">DAO投票シートの<strong>(提案ID×投票者)キー重複を一掃</strong>（既存 ts キー dedupe で 811→120、新規 voter キー dedupe で 120→114 / <code>cocola_topics v200 @392</code>）</h2>
             <p class="cl-desc">
               「誰が投票したか」管理ページ (<code>?admin=1</code>) で P0021「ゆう／反対／2026-04-19 18:56:29」が大量に並んでいるとのユーザー報告を受け、DAO投票シートの重複を2段階で解消。<strong>(1) ts一致重複削除</strong>: 既存 <code>dedupeDaoVoteSheetByKeyLive</code>（キー: proposal×voter×ts）を実行し、同一秒に多重書込された 691行を物理削除（811→120行、約85%が重複）。バックアップは <code>DAO投票_backup_2026-05-16</code> に自動退避。<strong>(2) ts違い重複削除（新規実装）</strong>: 同じ (proposal, voter) で異なる ts の重複（P0025「ゆう／賛成」3件など）は ts キーでは削除できないため、<code>cocola_topics dao-points.js</code> に <strong><code>dedupeDaoVoteByVoter_/DryRun/Live</code></strong> を新規追加。キー <code>proposal+voter</code> でグループ化し、最新 ts の1行だけ残して残りを物理削除。<code>recordDirectVote_</code> の「同一(id, voter)なら更新で1行に保つ」設計（<a href="https://github.com/anthropics/apps">dao-points.js L446</a> 相当）と整合させる。6グループ計6行を削除（120→114行）、バックアップは <code>DAO投票_backup_byVoter_2026-06-02</code>。<strong>残った課題</strong>: voter または proposal 列が空の壊れた行が約28件残存（114 − 86ユニーク − 重複追加分0 = 28）。これは別途調査・対処予定。<strong>GAS デプロイ</strong>: cocola_topics v200 @392 として固定ID <code>AKfycbzVs_W57...</code> に redeploy 済。フォーム取り込み経路（<code>candidateVoteResponseSheets</code> 3シート）からの多重実行が原因と推測、要後追い調査。
