@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-06-01</p>
+            <h2 class="cl-title"><strong>DAO PWA「⟳ 最新の情報に更新」ボタンを誰でも押せる一般公開機能として追加（30秒デバウンス付き）</strong></h2>
+            <p class="cl-desc">
+              これまで <code>data.json</code> 更新を即座に走らせるには <a href="../admin/">管理画面</a>（パスワード保護）から「DAOデータ」ボタンを押す必要があったが、DAO PWA の<strong>提案・投票タブの更新表示の右隣に「⟳ 最新の情報に更新」ボタン</strong>を新設し、メンバーなら誰でも押せるようにした。ボタンを押すと cocola_topics GAS の新エンドポイント <code>mode=refreshDao</code> 経由で <code>update-dao-data.yml</code> ワークフローが即時起動し、数十秒以内に最新の提案・投票結果が反映される。<strong>連打防止のため GAS 側で 30 秒のデバウンス</strong>を設定（30秒以内の再リクエストは throttled=true で no-op、現在時刻からの経過秒を返してUIに表示）。叩けるワークフローを <code>update-dao-data.yml</code> 1種に固定したため、ホワイトリスト不要・乱用不可。<strong>service-worker は v15 → v16</strong> にバンプ。cocola_topics GAS は v199 として固定ID <code>AKfycbzVs_W57...</code> へ redeploy 済（@389）。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-06-01</p>
             <h2 class="cl-title"><strong>DAO PWA の HTML キャッシュ無効化メタタグを追加（更新が反映されない問題への恒久対策）</strong></h2>
             <p class="cl-desc">
               <code>dao/index.html</code> の <code>&lt;head&gt;</code> に <strong>3種類のキャッシュ抑止メタタグ</strong>（<code>Cache-Control: no-cache, must-revalidate</code> / <code>Pragma: no-cache</code> / <code>Expires: 0</code>）を追加した。これまで PWA／ブラウザのHTTPキャッシュが古い <code>index.html</code> を保持し続け、JavaScript の更新（FALLBACK_DANTAI_IDS など）がデプロイ後もユーザー画面に反映されない事象が発生していた。今回のメタタグ追加により<strong>ナビゲーションごとにサーバー検証（ETag）が走る</strong>ようになり、古いHTMLが居座りにくくなる。あわせて <strong>service-worker は v14 → v15</strong> にバンプして既存PWAクライアントを強制更新。

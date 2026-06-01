@@ -995,6 +995,46 @@
       font-size: 0.82rem;
       text-align: right;
     }
+    .updated-row {
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+    .updated-row .updated {
+      margin-top: 0;
+    }
+    .refresh-data-btn {
+      font-size: 0.78rem;
+      padding: 0.35rem 0.9rem;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      cursor: pointer;
+      color: var(--muted);
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+    .refresh-data-btn:hover:not(:disabled) {
+      background: var(--green);
+      color: #fff;
+      border-color: var(--green);
+    }
+    .refresh-data-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .refresh-data-btn.is-success {
+      background: var(--green);
+      color: #fff;
+      border-color: var(--green);
+    }
+    .refresh-data-btn.is-error {
+      background: #fdecec;
+      color: #b3261e;
+      border-color: #f5c2c0;
+    }
 
     /* 取消ボタン */
     .cancel-btn {
@@ -2807,7 +2847,10 @@
         <div class="empty" id="empty" hidden>公開中の提案はまだありません。</div>
       </section>
 
-      <p class="updated" id="updated"></p>
+      <div class="updated-row">
+        <p class="updated" id="updated"></p>
+        <button class="refresh-data-btn" id="refreshDataBtn" type="button" title="GitHub Actions を即時起動して data.json を最新化します（30秒に1回まで）">⟳ 最新の情報に更新</button>
+      </div>
       </div><!-- /view proposals -->
 
       <div class="view is-active" data-view="points">
@@ -4211,6 +4254,56 @@
     setInterval(fetchActionsStatus, 5 * 60 * 1000);
     window.addEventListener('focus', function() { _retryCount = 0; loadDaoData(); fetchActionsStatus(); });
     setInterval(function() { if (!state.loaded) fetchFromGas(); }, 10000);
+
+    // 「最新の情報に更新」ボタン: GAS経由で GitHub Actions の update-dao-data.yml を即時起動。
+    // GAS側で30秒デバウンス、ワークフローは固定なので一般公開しても安全。
+    (function () {
+      var refreshDataBtn = document.getElementById('refreshDataBtn');
+      if (!refreshDataBtn) return;
+      var REFRESH_GAS_URL = 'https://script.google.com/macros/s/AKfycbzVs_W57Iphxcc5PHShXBNae63CKqjF5fB82tUkQwaf1vyuNWWLgtWZgglY7Qbuuft1/exec?mode=refreshDao';
+      var DEFAULT_LABEL = refreshDataBtn.textContent;
+      var resetTimer = null;
+      function resetBtn() {
+        if (resetTimer) { clearTimeout(resetTimer); resetTimer = null; }
+        refreshDataBtn.disabled = false;
+        refreshDataBtn.classList.remove('is-success', 'is-error');
+        refreshDataBtn.textContent = DEFAULT_LABEL;
+      }
+      function flashBtn(label, klass, durationMs) {
+        refreshDataBtn.textContent = label;
+        refreshDataBtn.classList.remove('is-success', 'is-error');
+        if (klass) refreshDataBtn.classList.add(klass);
+        if (resetTimer) clearTimeout(resetTimer);
+        resetTimer = setTimeout(resetBtn, durationMs);
+      }
+      refreshDataBtn.addEventListener('click', function () {
+        if (refreshDataBtn.disabled) return;
+        refreshDataBtn.disabled = true;
+        refreshDataBtn.classList.remove('is-success', 'is-error');
+        refreshDataBtn.textContent = '更新リクエスト中…';
+        fetch(REFRESH_GAS_URL)
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            if (d && d.ok) {
+              if (d.throttled) {
+                flashBtn('直前の更新から' + (d.elapsedSec || 0) + '秒。少し待って再度押してください', 'is-success', 8000);
+              } else {
+                flashBtn('✓ 更新を依頼しました（数十秒で反映）', 'is-success', 30000);
+                setTimeout(function () {
+                  _retryCount = 0;
+                  loadDaoData();
+                  fetchActionsStatus();
+                }, 25000);
+              }
+            } else {
+              flashBtn('⚠️ 失敗: ' + ((d && d.error) || 'unknown'), 'is-error', 10000);
+            }
+          })
+          .catch(function () {
+            flashBtn('⚠️ ネットワークエラー', 'is-error', 10000);
+          });
+      });
+    })();
 
     /* ===== PWA & 通知（実証段階：ポーリング＋ローカル通知） ===== */
     (function () {
