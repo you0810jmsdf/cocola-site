@@ -84,6 +84,21 @@ body{margin:0;padding:12px;font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans
 .form-row input,.form-row textarea,.form-row select{border:1px solid #ccc;border-radius:5px;padding:8px 10px;font:inherit;font-size:14px;width:100%;box-sizing:border-box;}
 .form-row input:focus,.form-row textarea:focus,.form-row select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 2px rgba(29,158,117,0.15);}
 .form-row textarea{resize:vertical;min-height:72px;}
+/* ── メンバーピッカー（参加者・企画者） ── */
+.member-picker{border:1px solid #ccc;border-radius:5px;padding:4px 6px;background:#fff;position:relative;min-height:38px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;cursor:text;}
+.member-picker:focus-within{border-color:var(--green);box-shadow:0 0 0 2px rgba(29,158,117,0.15);}
+.member-picker__chip{display:inline-flex;align-items:center;gap:4px;background:var(--green-light);color:var(--green-dark);border-radius:12px;padding:2px 6px 2px 9px;font-size:12px;line-height:1.6;}
+.member-picker__chip.is-guest{background:#f5e7d2;color:#8a5a16;}
+.member-picker__chip-remove{border:none;background:transparent;color:inherit;cursor:pointer;font-size:15px;line-height:1;padding:0 2px;font-family:inherit;}
+.member-picker__chip-remove:hover{color:#b91c1c;}
+.member-picker__input{border:none!important;outline:none!important;flex:1;min-width:120px;padding:4px!important;font:inherit;font-size:13px;background:transparent;width:auto!important;box-shadow:none!important;}
+.member-picker__menu{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ccc;border-radius:5px;max-height:220px;overflow-y:auto;z-index:50;box-shadow:0 4px 12px rgba(0,0,0,0.12);margin-top:2px;}
+.member-picker__menu-item{padding:7px 10px;cursor:pointer;font-size:13px;border-bottom:1px solid #f0f0f0;}
+.member-picker__menu-item:last-child{border-bottom:none;}
+.member-picker__menu-item:hover,.member-picker__menu-item.is-active{background:var(--green-light);color:var(--green-dark);}
+.member-picker__menu-item--guest{color:#8a5a16;font-style:italic;border-top:1px dashed #ddd;}
+.member-picker__menu-empty{padding:8px 10px;color:var(--muted);font-size:12px;}
+.member-picker__help{font-size:11px;color:var(--muted);margin-top:4px;}
 #f-memo{min-height:140px;}
 .form-time-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .form-check-row{display:flex;align-items:center;gap:8px;font-size:13px;}
@@ -240,12 +255,21 @@ body{margin:0;padding:12px;font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans
         <input type="text" id="f-place" placeholder="例: 千葉ニュータウン中央駅前">
       </div>
       <div class="form-row">
-        <label>参加者（カンマ区切り）</label>
-        <input type="text" id="f-participants" placeholder="例: 田中, 鈴木, 佐藤">
+        <label>参加者（メンバーから選択／非会員は自由入力可）</label>
+        <div class="member-picker" id="participants-picker" data-target="f-participants" data-multi="true">
+          <input class="member-picker__input" id="participants-search" placeholder="ニックネームで検索…" autocomplete="off">
+          <div class="member-picker__menu" id="participants-menu" hidden></div>
+        </div>
+        <input type="hidden" id="f-participants">
+        <p class="member-picker__help">候補から選ぶと表記ゆれなくDAOポイントが付与されます。非会員は最後の「自由入力で追加」から登録できます。</p>
       </div>
       <div class="form-row">
-        <label>企画者（DAOポイント付与対象）</label>
-        <input type="text" id="f-organizer" placeholder="例: 田中">
+        <label>企画者（DAOポイント付与対象・1名）</label>
+        <div class="member-picker" id="organizer-picker" data-target="f-organizer" data-multi="false">
+          <input class="member-picker__input" id="organizer-search" placeholder="ニックネームで検索…" autocomplete="off">
+          <div class="member-picker__menu" id="organizer-menu" hidden></div>
+        </div>
+        <input type="hidden" id="f-organizer">
       </div>
       <div class="form-row">
         <label>メモ</label>
@@ -584,6 +608,8 @@ function openEdit(id) {
   document.getElementById('f-place').value = ev.place || '';
   document.getElementById('f-participants').value = ev.participants || '';
   document.getElementById('f-organizer').value = ev.organizer || '';
+  populatePickerFromString_(document.getElementById('participants-picker'), ev.participants || '');
+  populatePickerFromString_(document.getElementById('organizer-picker'), ev.organizer || '');
   document.getElementById('f-memo').value = ev.memo || '';
   document.getElementById('f-public').checked = ev.isPublic || false;
   document.getElementById('f-category').value = ev.category || '';
@@ -603,6 +629,7 @@ function clearForm() {
   });
   document.getElementById('f-public').checked = false;
   document.getElementById('f-category').value = '';
+  clearAllPickers_();
 }
 
 function saveEvent() {
@@ -731,6 +758,223 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('admin-pass').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') adminUnlock();
   });
+});
+
+// ── メンバーピッカー（参加者・企画者） ──
+// members/data.json からニックネーム一覧を取得し、タグ式マルチセレクトUIを提供する。
+// 候補から選んだ場合は会員名簿の正規ニックネームを保存し、表記ゆれを根絶する。
+// 自由入力（非会員）は「ゲスト」チップとして許容する。
+var _memberPickerNicks = [];
+var _memberPickerLoaded = false;
+var _memberPickerLoadingPromise = null;
+
+function loadMemberPickerData_() {
+  if (_memberPickerLoaded) return Promise.resolve(_memberPickerNicks);
+  if (_memberPickerLoadingPromise) return _memberPickerLoadingPromise;
+  var MEMBERS_JSON = '../members/data.json';
+  _memberPickerLoadingPromise = fetch(MEMBERS_JSON + '?t=' + Math.floor(Date.now() / 60000))
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      var rows = (d && Array.isArray(d.rows)) ? d.rows : [];
+      var set = {};
+      rows.forEach(function(row){
+        var nick = String(row[3] || '').trim();
+        if (nick) set[nick] = true;
+      });
+      _memberPickerNicks = Object.keys(set).sort(function(a, b){ return a.localeCompare(b, 'ja'); });
+      _memberPickerLoaded = true;
+      return _memberPickerNicks;
+    })
+    .catch(function(){
+      _memberPickerNicks = [];
+      _memberPickerLoaded = true;
+      return _memberPickerNicks;
+    });
+  return _memberPickerLoadingPromise;
+}
+
+function pickerSyncHidden_(pickerEl) {
+  var targetId = pickerEl.getAttribute('data-target');
+  var hidden = document.getElementById(targetId);
+  if (!hidden) return;
+  var chips = pickerEl.querySelectorAll('.member-picker__chip');
+  var values = [];
+  chips.forEach(function(chip){
+    values.push(chip.getAttribute('data-value') || '');
+  });
+  hidden.value = values.filter(function(v){ return v; }).join(', ');
+}
+
+function pickerHasValue_(pickerEl, value) {
+  var norm = String(value || '').trim();
+  if (!norm) return true;
+  var chips = pickerEl.querySelectorAll('.member-picker__chip');
+  for (var i = 0; i < chips.length; i++) {
+    if (chips[i].getAttribute('data-value') === norm) return true;
+  }
+  return false;
+}
+
+function pickerAddChip_(pickerEl, value, isGuest) {
+  var norm = String(value || '').trim();
+  if (!norm) return;
+  if (pickerHasValue_(pickerEl, norm)) return;
+  var multi = pickerEl.getAttribute('data-multi') === 'true';
+  if (!multi) {
+    pickerEl.querySelectorAll('.member-picker__chip').forEach(function(c){ c.remove(); });
+  }
+  var chip = document.createElement('span');
+  chip.className = 'member-picker__chip' + (isGuest ? ' is-guest' : '');
+  chip.setAttribute('data-value', norm);
+  chip.textContent = norm;
+  var rm = document.createElement('button');
+  rm.type = 'button';
+  rm.className = 'member-picker__chip-remove';
+  rm.setAttribute('aria-label', '削除');
+  rm.textContent = '×';
+  rm.addEventListener('click', function(e){
+    e.stopPropagation();
+    chip.remove();
+    pickerSyncHidden_(pickerEl);
+  });
+  chip.appendChild(rm);
+  var input = pickerEl.querySelector('.member-picker__input');
+  pickerEl.insertBefore(chip, input);
+  pickerSyncHidden_(pickerEl);
+}
+
+function pickerRenderMenu_(pickerEl, query) {
+  var menu = pickerEl.querySelector('.member-picker__menu');
+  if (!menu) return;
+  var q = String(query || '').trim();
+  var qLower = q.toLowerCase();
+  var multi = pickerEl.getAttribute('data-multi') === 'true';
+  var candidates = _memberPickerNicks.filter(function(n){
+    if (pickerHasValue_(pickerEl, n)) return false;
+    if (!q) return true;
+    return n.toLowerCase().indexOf(qLower) !== -1;
+  }).slice(0, 30);
+
+  var html = '';
+  if (candidates.length === 0 && !q) {
+    html = '<div class="member-picker__menu-empty">候補がありません</div>';
+  } else {
+    candidates.forEach(function(n, i){
+      html += '<div class="member-picker__menu-item' + (i === 0 ? ' is-active' : '') + '" data-action="add" data-value="' + n.replace(/"/g, '&quot;') + '">'
+        + n.replace(/</g, '&lt;') + '</div>';
+    });
+    if (q && !_memberPickerNicks.some(function(n){ return n.toLowerCase() === qLower; })) {
+      html += '<div class="member-picker__menu-item member-picker__menu-item--guest" data-action="guest" data-value="' + q.replace(/"/g, '&quot;') + '">「' + q.replace(/</g, '&lt;') + '」を自由入力で追加（非会員扱い）</div>';
+    }
+  }
+  menu.innerHTML = html;
+  menu.hidden = false;
+}
+
+function pickerHideMenu_(pickerEl) {
+  var menu = pickerEl.querySelector('.member-picker__menu');
+  if (menu) { menu.hidden = true; menu.innerHTML = ''; }
+}
+
+function pickerActiveItem_(pickerEl) {
+  return pickerEl.querySelector('.member-picker__menu-item.is-active');
+}
+
+function pickerMoveActive_(pickerEl, delta) {
+  var items = pickerEl.querySelectorAll('.member-picker__menu-item');
+  if (!items.length) return;
+  var idx = -1;
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].classList.contains('is-active')) { idx = i; break; }
+  }
+  if (idx >= 0) items[idx].classList.remove('is-active');
+  idx = (idx + delta + items.length) % items.length;
+  items[idx].classList.add('is-active');
+  items[idx].scrollIntoView({ block: 'nearest' });
+}
+
+function pickerCommitItem_(pickerEl, itemEl) {
+  if (!itemEl) return;
+  var action = itemEl.getAttribute('data-action');
+  var value = itemEl.getAttribute('data-value');
+  pickerAddChip_(pickerEl, value, action === 'guest');
+  var input = pickerEl.querySelector('.member-picker__input');
+  if (input) input.value = '';
+  pickerRenderMenu_(pickerEl, '');
+}
+
+function initMemberPicker_(pickerEl) {
+  var input = pickerEl.querySelector('.member-picker__input');
+  if (!input) return;
+  pickerEl.addEventListener('click', function(e){
+    if (e.target === pickerEl || e.target.classList.contains('member-picker__chips')) {
+      input.focus();
+    }
+  });
+  input.addEventListener('focus', function(){
+    loadMemberPickerData_().then(function(){ pickerRenderMenu_(pickerEl, input.value); });
+  });
+  input.addEventListener('input', function(){
+    pickerRenderMenu_(pickerEl, input.value);
+  });
+  input.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowDown') { e.preventDefault(); pickerMoveActive_(pickerEl, 1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); pickerMoveActive_(pickerEl, -1); }
+    else if (e.key === 'Enter') {
+      e.preventDefault();
+      var active = pickerActiveItem_(pickerEl);
+      if (active) {
+        pickerCommitItem_(pickerEl, active);
+      } else if (input.value.trim()) {
+        pickerAddChip_(pickerEl, input.value.trim(), true);
+        input.value = '';
+        pickerRenderMenu_(pickerEl, '');
+      }
+    } else if (e.key === 'Backspace' && !input.value) {
+      var chips = pickerEl.querySelectorAll('.member-picker__chip');
+      if (chips.length) {
+        chips[chips.length - 1].remove();
+        pickerSyncHidden_(pickerEl);
+        pickerRenderMenu_(pickerEl, '');
+      }
+    } else if (e.key === 'Escape') {
+      pickerHideMenu_(pickerEl);
+    }
+  });
+  pickerEl.querySelector('.member-picker__menu').addEventListener('mousedown', function(e){
+    var item = e.target.closest('.member-picker__menu-item');
+    if (!item) return;
+    e.preventDefault();
+    pickerCommitItem_(pickerEl, item);
+  });
+  document.addEventListener('click', function(e){
+    if (!pickerEl.contains(e.target)) pickerHideMenu_(pickerEl);
+  });
+}
+
+function populatePickerFromString_(pickerEl, str) {
+  pickerEl.querySelectorAll('.member-picker__chip').forEach(function(c){ c.remove(); });
+  var parts = String(str || '').split(/[,、　]+/).map(function(s){ return s.trim(); }).filter(Boolean);
+  loadMemberPickerData_().then(function(){
+    parts.forEach(function(p){
+      var isMember = _memberPickerNicks.indexOf(p) !== -1;
+      pickerAddChip_(pickerEl, p, !isMember);
+    });
+  });
+}
+
+function clearAllPickers_() {
+  document.querySelectorAll('.member-picker').forEach(function(p){
+    p.querySelectorAll('.member-picker__chip').forEach(function(c){ c.remove(); });
+    var input = p.querySelector('.member-picker__input');
+    if (input) input.value = '';
+    pickerSyncHidden_(p);
+    pickerHideMenu_(p);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('.member-picker').forEach(initMemberPicker_);
 });
 
 function forceSync() {
