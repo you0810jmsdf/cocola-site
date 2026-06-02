@@ -118,6 +118,18 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-06-02</p>
+            <h2 class="cl-title">メンバー登録フォームに<strong>「COCoLaからのメール通知」オプトイン項目</strong>を追加（過去事故再発防止のための一斉メール配信基盤 / <code>cocola-gas v52 @84</code>）</h2>
+            <p class="cl-desc">
+              <strong>背景</strong>: 過去にメンバー全員へ文字化けメールが大量送付され苦情が発生した事故あり（コードは既に削除済・git管理なし）。今後の一斉メール配信は**希望者のみ**に送る方針（オプトイン制）をユーザー指示で採用。<strong>実装</strong>: メンバー登録 Google Form に「COCoLaからのメール通知」チェックボックス項目を追加（`setupEmailOptInChoice` で自動追加）、シート上では <code>AB列(=28列目)</code>として記録される。<strong>堅牢化</strong>: 列番号ハードコードでなくヘッダー名で動的に列特定する <code>getColumnByHeader_</code> ヘルパーを実装。Form項目が将来追加されて列がシフトしても自動追従。ヘッダー未発見時はフェイルセーフで送信先0件返却＝暴発しない設計。<strong>新規関数</strong>: <code>setupEmailOptInChoice</code>（Form項目追加）／<code>getOptedInEmailRecipients_()</code>（将来一斉配信機能で必ず経由するヘルパー）／<code>inspectEmailOptInStatus()</code>（診断）／<code>getColumnByHeader_</code>＋<code>columnIndexToLetter_</code>（汎用）。<strong>現状</strong>: 全67行（退会1／現役66）、現役は全員「未回答」＝送信先0件で構造的に全員配信不可能。<strong>GAS デプロイ</strong>: cocola-gas v52 @84 として固定ID <code>AKfycbyRVO7fLJx6...</code> に redeploy 済。<strong>残課題</strong>: 既存66名へのオプトイン確認手段（一斉メール禁止なので、LINE告知 or 個別連絡 or オフライン依頼）の方針確定。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+              <span class="tag tag--improve">事故防止</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-06-02</p>
             <h2 class="cl-title">DAO投票シートの<strong>「空送信」壊れた行28件を物理削除</strong>（114→86行 = 真のユニーク投票数に正規化 / <code>cocola_topics v202 @394</code>）</h2>
             <p class="cl-desc">
               dedupe完了後の残114行のうち、提案ID・投票者・投票内容・タイトルが全て空の「フォーム空送信由来」の壊れた行が28件残存していた。memo列に <code>フォーム回答: DAO投票フォーム回答:29:Sun Apr 19 2026 ...:::</code> の形式で記録されており、末尾 <code>:::</code> が proposalId/voter/vote 全て空の連結痕跡。これらは集計に影響しない（id 空のため <code>normalizeDaoVote_</code>／<code>collectDaoVotes_</code> も無視）が、管理画面の見通しを悪化させていた。<strong>対処</strong>: <code>cocola_topics dao-points.js</code> に診断関数 <code>inspectDaoVoteBrokenRows_</code>（行番号・各列値・memo・reason をログ出力）と削除関数 <code>removeDaoVoteBrokenRows_/DryRun/Live</code>（提案ID or 投票者が空の行を対象に、バックアップ退避→物理削除）を新規実装。DryRun で 28件全てが <code>both empty</code>（提案ID/投票者の両方空）と確認後、Live実行で物理削除。バックアップは <code>DAO投票_backup_broken_2026-06-02</code> に退避済。<strong>結果</strong>: 全データ行数 114→86行。86 = (proposal×voter) ユニーク数と完全一致＝真のユニーク投票数。<strong>GAS デプロイ</strong>: cocola_topics v202 @394 として固定ID <code>AKfycbzVs_W57...</code> に redeploy 済。
