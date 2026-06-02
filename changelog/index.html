@@ -118,6 +118,18 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-06-02</p>
+            <h2 class="cl-title">メール通知オプトイン基盤を<strong>運営手動運用に対応</strong>（U+3007「〇」認識／email集約による重複排除／簡易マーカー対応 / <code>cocola-gas v53-v56 @85-@88</code>）</h2>
+            <p class="cl-desc">
+              v52 で実装した「希望者のみメール配信」基盤を、運営者がスプレッドシートで直接希望者を指定できる運用に対応。<strong>(1) 簡易マーカー対応 (v53)</strong>: <code>isEmailOptInValue_</code> ヘルパー新設。AB列に「〇」「希望」「TRUE」「✓」「はい」など短い表記でも希望扱い。<code>isEmailOptOutValue_</code> で「×」「拒否」など明示オプトアウトも区別。フォーム経由の長文ラベルもそのまま動作。<strong>(2) email集約 (v54)</strong>: 入会後に「情報の修正・更新」で複数行ができたメンバーへの誤送信を防ぐため、email キーで「最新行（行番号最大）」を採用するロジックを <code>getOptedInEmailRecipients_</code> と <code>inspectEmailOptInStatus</code> に実装。複数行どこに〇を入れても1通のみ送信。<strong>(3) 診断関数 (v55)</strong>: <code>inspectEmailOptInDetails</code> 新設。AB列に値がある行を全件ダンプし、文字コード(U+????)・isOptIn・isLatest・isWithdrawn を出力。「〇を入れたのに反映されない」場面の真因切り分けに使う。<strong>(4) U+3007 認識 (v56)</strong>: 上記診断で「日本語IME『まる』第一候補の <code>〇</code> (U+3007 IDEOGRAPHIC NUMBER ZERO) が accepted 配列に無かった」ことが判明。<code>○</code> (U+25CB)・<code>◯</code> (U+25EF)・<code>〇</code> (U+3007) ＋半角/全角の O 変種を accepted に追加。<strong>動作確認</strong>: 全67行→ユニーク54名→オプトイン4名→未回答50名 と期待通り集約。<strong>GAS デプロイ</strong>: cocola-gas v56 @88 として固定ID <code>AKfycbyRVO7fLJx6...</code> に redeploy 済。<strong>運用ルール確定</strong>: 運営は希望者の最新行(最下行)の AB列に「〇」を入力するだけでOK。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--improve">改善</span>
+              <span class="tag tag--fix">不具合修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-06-02</p>
             <h2 class="cl-title">メンバー登録フォームに<strong>「COCoLaからのメール通知」オプトイン項目</strong>を追加（過去事故再発防止のための一斉メール配信基盤 / <code>cocola-gas v52 @84</code>）</h2>
             <p class="cl-desc">
               <strong>背景</strong>: 過去にメンバー全員へ文字化けメールが大量送付され苦情が発生した事故あり（コードは既に削除済・git管理なし）。今後の一斉メール配信は**希望者のみ**に送る方針（オプトイン制）をユーザー指示で採用。<strong>実装</strong>: メンバー登録 Google Form に「COCoLaからのメール通知」チェックボックス項目を追加（`setupEmailOptInChoice` で自動追加）、シート上では <code>AB列(=28列目)</code>として記録される。<strong>堅牢化</strong>: 列番号ハードコードでなくヘッダー名で動的に列特定する <code>getColumnByHeader_</code> ヘルパーを実装。Form項目が将来追加されて列がシフトしても自動追従。ヘッダー未発見時はフェイルセーフで送信先0件返却＝暴発しない設計。<strong>新規関数</strong>: <code>setupEmailOptInChoice</code>（Form項目追加）／<code>getOptedInEmailRecipients_()</code>（将来一斉配信機能で必ず経由するヘルパー）／<code>inspectEmailOptInStatus()</code>（診断）／<code>getColumnByHeader_</code>＋<code>columnIndexToLetter_</code>（汎用）。<strong>現状</strong>: 全67行（退会1／現役66）、現役は全員「未回答」＝送信先0件で構造的に全員配信不可能。<strong>GAS デプロイ</strong>: cocola-gas v52 @84 として固定ID <code>AKfycbyRVO7fLJx6...</code> に redeploy 済。<strong>残課題</strong>: 既存66名へのオプトイン確認手段（一斉メール禁止なので、LINE告知 or 個別連絡 or オフライン依頼）の方針確定。
