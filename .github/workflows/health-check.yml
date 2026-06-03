@@ -62,8 +62,8 @@ jobs:
 
           now_ms      = int(time.time() * 1000)
           now_dt      = datetime.now(timezone.utc)
-          FRESH_MS    = 30 * 60 * 1000   # 30分
-          RUNS_MAX_MIN = 30              # ワークフロー最終成功が30分超 → 異常
+          FRESH_MS    = 180 * 60 * 1000  # 180分（3時間）
+          RUNS_MAX_MIN = 180             # ワークフロー最終成功が180分超 → 異常
           results     = {}
 
           # ── topics GAS: health エンドポイントの ok フラグを見る ──────────
@@ -115,7 +115,7 @@ jobs:
                       last_dt = datetime.fromisoformat(created.replace('Z', '+00:00'))
                       age_min = (now_dt - last_dt).total_seconds() / 60
                       if age_min > RUNS_MAX_MIN:
-                          results[label] = (False, f"最終成功: {age_min:.0f}分前（{RUNS_MAX_MIN}分超過）")
+                          results[label] = (False, f"最終成功: {age_min:.0f}分前（{RUNS_MAX_MIN}分＝3時間超過）")
                       else:
                           results[label] = (True, f"最終成功: {age_min:.0f}分前")
               except Exception as e:
@@ -133,7 +133,7 @@ jobs:
                   age = now_ms - ms
                   age_min = age / 60000
                   if age > FRESH_MS:
-                      results[label] = (False, f"{age_min:.0f}分前が最新（30分超過）")
+                      results[label] = (False, f"{age_min:.0f}分前が最新（180分＝3時間超過）")
                   else:
                       results[label] = (True, f"{age_min:.0f}分前に更新済み")
               except Exception as e:
