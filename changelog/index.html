@@ -117,6 +117,17 @@
         <ul class="changelog-list">
 
           <li class="cl-entry">
+            <p class="cl-date">2026-06-03</p>
+            <h2 class="cl-title">Threads自動投稿 500字超過エラー対応（<code>sns-gas @26</code>）</h2>
+            <p class="cl-desc">
+              2026-06-02 22:33Z 「食をつくる」自動投稿で <code>Param text must be at most 500 characters long.</code> エラーが発生。<strong>原因</strong>: <code>runRotatedAutoPost</code> の既存ドラフト経路で、過去に <code>_trimToThreadsLimit</code> 未適用で保存された draft を <code>postToThreads</code> がそのまま送信していた。<strong>対処</strong>: <code>PostThreads.gs</code> の <code>postToThreads</code> 冒頭に最終防衛線を追加。500字超過時は <code>_trimToThreadsLimit</code> を必ず通し、警告ログを残す。これで承認後編集経路・古い下書き経路・別経由のすり抜けにも対応。<strong>GAS デプロイ</strong>: sns-gas @26 として固定ID <code>AKfycbzoBs-QM0J4azPWNOqp6uxxlFSIsHe2r-ecyByq1qkZNcifR22tKiLMEog0SRmTvZ1LLQ</code> に redeploy 済。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
             <p class="cl-date">2026-06-02</p>
             <h2 class="cl-title">メール通知オプトイン基盤を<strong>運営手動運用に対応</strong>（U+3007「〇」認識／email集約による重複排除／簡易マーカー対応 / <code>cocola-gas v53-v56 @85-@88</code>）</h2>
             <p class="cl-desc">
