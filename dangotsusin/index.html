@@ -401,26 +401,49 @@
     errorEl.style.display = 'none';
     setUpdatedAt('GASから取得中…');
 
-    fetch(GAS_URL + '?mode=dangotsusin&t=' + Date.now())
-      .then(function (res) {
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        return res.json();
-      })
-      .then(function (json) {
-        var items = Array.isArray(json) ? json : (json.items || []);
+    // JSONP で呼び出し（GASのCORS制約を回避）
+    var cbName = '__dangoCallback_' + Date.now();
+    var script = document.createElement('script');
+    var timer = setTimeout(function () {
+      cleanup();
+      btn.disabled = false;
+      btn.classList.remove('loading');
+      showError('タイムアウトしました。GASが応答していません。');
+      setUpdatedAt('');
+    }, 30000);
+
+    function cleanup() {
+      clearTimeout(timer);
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    window[cbName] = function (data) {
+      cleanup();
+      btn.disabled = false;
+      btn.classList.remove('loading');
+      try {
+        var items = Array.isArray(data) ? data : (data.items || []);
         if (!Array.isArray(items)) throw new Error('データ形式が正しくありません');
         var now = new Date();
         setUpdatedAt('GAS取得: ' + now.toLocaleDateString('ja-JP') + ' ' + now.toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit'}));
         render(items);
-      })
-      .catch(function (err) {
-        showError('GASからの取得に失敗しました。(' + err.message + ')');
+      } catch (e) {
+        showError('GASのデータ形式が正しくありません。(' + e.message + ')');
         setUpdatedAt('');
-      })
-      .finally(function () {
-        btn.disabled = false;
-        btn.classList.remove('loading');
-      });
+      }
+    };
+
+    script.onerror = function () {
+      cleanup();
+      btn.disabled = false;
+      btn.classList.remove('loading');
+      showError('GASへの接続に失敗しました。');
+      setUpdatedAt('');
+    };
+
+    script.src = GAS_URL + '?mode=dangotsusin&callback=' + cbName + '&t=' + Date.now();
+    document.head.appendChild(script);
   };
 
   function attIcon(mimeType) {
