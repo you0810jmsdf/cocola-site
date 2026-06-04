@@ -22,7 +22,7 @@ jobs:
         id: fetch
         run: |
           HTTP_CODE=$(curl -sL \
-            "https://script.google.com/macros/s/AKfycbwWAtWkd4KQQVGJvmnhO_bVFZ305WdQxY1kre9mluQpfIsSexK1JfyjnzD4ywJ9i0jB/exec?mode=dangotsusin&t=$(date +%s)" \
+            "https://script.google.com/macros/s/AKfycbyRVO7fLJx62HS6W3M2_bmPIP9y6stpiVJFM429NMKXzlV24_wGx97xms22QLb1VHsX/exec?mode=dangotsusin&t=$(date +%s)" \
             -o dangotsusin/data_new.json \
             --max-time 60 \
             --retry 3 \
