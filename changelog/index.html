@@ -118,6 +118,16 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-06-04</p>
+            <h2 class="cl-title">だんご通信: 手動更新ボタンを追加</h2>
+            <p class="cl-desc">
+              <code>dangotsusin/index.html</code> に「最新に更新」ボタンを追加。
+              クリック時に GAS エンドポイント（<code>mode=dangotsusin</code>）を直接呼び出してリストを再描画。
+              月次更新を待たずに最新メールを即時反映できるようになった。
+            </p>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-06-04</p>
             <h2 class="cl-title">Threads自動投稿: 一時エラー時リトライ追加・AI生成URLを後処理で除去（<code>sns-gas @27</code>）</h2>
             <p class="cl-desc">
               (1) <code>PostThreads.gs</code>: <code>threads_publish</code> で <code>is_transient: true</code> のサーバー側一時エラーが発生した場合、
