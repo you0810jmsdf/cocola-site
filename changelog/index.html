@@ -117,6 +117,22 @@
         <ul class="changelog-list">
 
           <li class="cl-entry">
+            <p class="cl-date">2026-06-04</p>
+            <h2 class="cl-title">Threads自動投稿: 一時エラー時リトライ追加・AI生成URLを後処理で除去（<code>sns-gas @27</code>）</h2>
+            <p class="cl-desc">
+              (1) <code>PostThreads.gs</code>: <code>threads_publish</code> で <code>is_transient: true</code> のサーバー側一時エラーが発生した場合、
+              exponential backoff（5s→10s→20s）で最大3回リトライするよう修正。再試行で投稿成功するケースに対応。
+              (2) <code>GeneratePost.gs</code>: Gemini が誤生成した <code>cocola.jp</code>（別組織のURL）を後処理で自動除去。
+              プロンプトに「本文中にURLを一切含めない」制約を追記。
+            </p>
+            <div class="cl-tags">
+              <span class="cl-tag">SNS</span>
+              <span class="cl-tag">Threads</span>
+              <span class="cl-tag">バグ修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
             <p class="cl-date">2026-06-03</p>
             <h2 class="cl-title">ヘルスチェック閾値を30分→180分（3時間）に緩和</h2>
             <p class="cl-desc">
