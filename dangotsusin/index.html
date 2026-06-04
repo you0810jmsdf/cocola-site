@@ -257,6 +257,45 @@
       font-size: .88rem;
       text-align: center;
     }
+    .refresh-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .refresh-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: .85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s;
+      font-family: inherit;
+    }
+    .refresh-btn:hover:not(:disabled) { background: var(--green-dark); }
+    .refresh-btn:disabled { opacity: .6; cursor: default; }
+    .refresh-btn .btn-spinner {
+      display: none;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    .refresh-btn.loading .btn-spinner { display: inline-block; }
+    .refresh-btn.loading .btn-icon { display: none; }
+    .updated-at {
+      font-size: .78rem;
+      color: var(--muted);
+    }
   </style>
 </head>
 <body>
@@ -273,6 +312,15 @@
     印西市市民活動支援センターから毎月届くメールマガジン「だんご通信」のアーカイブです。<br>
     クリックすると内容と添付ファイルを確認できます。
   </p>
+
+  <div class="refresh-row">
+    <button class="refresh-btn" id="refresh-btn" onclick="refreshFromGas()">
+      <span class="btn-icon">↻</span>
+      <span class="btn-spinner"></span>
+      最新に更新
+    </button>
+    <span class="updated-at" id="updated-at"></span>
+  </div>
 
   <div id="list-container">
     <div class="list-status" id="loading">
@@ -301,6 +349,8 @@
 </div>
 
 <script>
+  var GAS_URL = 'https://script.google.com/macros/s/AKfycbwWAtWkd4KQQVGJvmnhO_bVFZ305WdQxY1kre9mluQpfIsSexK1JfyjnzD4ywJ9i0jB/exec';
+
 (function () {
   // GitHub Pages 上の静的JSON（GitHub Actions が月次更新）
   var DATA_URL = './data.json';
@@ -309,11 +359,16 @@
   var mailListEl = document.getElementById('mail-list');
   var errorEl    = document.getElementById('error-area');
   var overlay    = document.getElementById('modal-overlay');
+  var updatedAtEl = document.getElementById('updated-at');
 
   function showError(msg) {
     loadingEl.style.display = 'none';
     errorEl.innerHTML = '<div class="error-msg">⚠️ ' + msg + '</div>';
     errorEl.style.display = 'block';
+  }
+
+  function setUpdatedAt(label) {
+    if (updatedAtEl) updatedAtEl.textContent = label;
   }
 
   function fetchData() {
@@ -325,12 +380,48 @@
       .then(function (json) {
         var items = Array.isArray(json) ? json : (json.items || []);
         if (!Array.isArray(items)) throw new Error('データ形式が正しくありません');
+        if (json._generatedMs) {
+          var d = new Date(json._generatedMs);
+          setUpdatedAt('キャッシュ更新: ' + d.toLocaleDateString('ja-JP') + ' ' + d.toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit'}));
+        }
         render(items);
       })
       .catch(function (err) {
         showError('データを取得できませんでした。しばらく後に再読み込みしてください。(' + err.message + ')');
       });
   }
+
+  window.refreshFromGas = function () {
+    var btn = document.getElementById('refresh-btn');
+    btn.disabled = true;
+    btn.classList.add('loading');
+    loadingEl.style.display = 'block';
+    mailListEl.style.display = 'none';
+    mailListEl.innerHTML = '';
+    errorEl.style.display = 'none';
+    setUpdatedAt('GASから取得中…');
+
+    fetch(GAS_URL + '?mode=dangotsusin&t=' + Date.now())
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (json) {
+        var items = Array.isArray(json) ? json : (json.items || []);
+        if (!Array.isArray(items)) throw new Error('データ形式が正しくありません');
+        var now = new Date();
+        setUpdatedAt('GAS取得: ' + now.toLocaleDateString('ja-JP') + ' ' + now.toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit'}));
+        render(items);
+      })
+      .catch(function (err) {
+        showError('GASからの取得に失敗しました。(' + err.message + ')');
+        setUpdatedAt('');
+      })
+      .finally(function () {
+        btn.disabled = false;
+        btn.classList.remove('loading');
+      });
+  };
 
   function attIcon(mimeType) {
     if (!mimeType) return '📎';
