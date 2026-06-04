@@ -1106,6 +1106,156 @@
       justify-content: flex-end;
     }
 
+    /* コメントセクション */
+    .comment-section {
+      border-top: 1px solid var(--line);
+      padding: 10px 16px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .comment-open-btn {
+      background: none;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .comment-open-btn:hover {
+      border-color: var(--green);
+      color: var(--green);
+    }
+    .comment-open-btn .comment-count {
+      font-weight: 700;
+      color: var(--green);
+    }
+
+    /* コメントモーダル */
+    .comment-modal-box {
+      background: var(--paper);
+      border-radius: 12px;
+      box-shadow: 0 12px 40px rgba(29,54,45,0.18);
+      width: min(520px, 100%);
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .comment-modal-header {
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .comment-modal-header h3 {
+      margin: 0;
+      font-size: 1rem;
+      color: var(--ink);
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .comment-modal-close {
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 0 0 0 12px;
+      line-height: 1;
+    }
+    .comment-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 20px;
+    }
+    .comment-empty {
+      color: var(--muted);
+      font-size: 0.9rem;
+      text-align: center;
+      padding: 24px 0;
+    }
+    .comment-item {
+      border-bottom: 1px solid var(--line);
+      padding: 10px 0;
+    }
+    .comment-item:last-child { border-bottom: none; }
+    .comment-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .comment-alias { font-weight: 700; color: var(--green-deep); }
+    .comment-text {
+      font-size: 0.9rem;
+      color: var(--ink);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .comment-like-btn {
+      background: none;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 2px 10px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      cursor: pointer;
+      margin-top: 6px;
+    }
+    .comment-like-btn:hover { border-color: var(--coral); color: var(--coral); }
+    .comment-like-btn.is-liked { border-color: var(--coral); color: var(--coral); }
+    .comment-post-area {
+      border-top: 1px solid var(--line);
+      padding: 14px 20px;
+      background: var(--wash);
+    }
+    .comment-post-area textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 70px;
+      box-sizing: border-box;
+    }
+    .comment-post-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      gap: 8px;
+    }
+    .comment-post-note { font-size: 0.8rem; color: var(--muted); }
+    .comment-submit-btn {
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 18px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .comment-submit-btn:disabled { opacity: 0.5; cursor: default; }
+    .comment-error { font-size: 0.82rem; color: var(--coral); margin-top: 4px; }
+    .comment-login-note {
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-align: center;
+      padding: 10px 0 4px;
+    }
+
     /* モーダルオーバーレイ */
     .modal-overlay {
       position: fixed;
@@ -3304,6 +3454,9 @@
           '</div>' +
           '<button class="like-btn' + (liked ? ' is-liked' : '') + '" type="button" data-like-id="' + escapeHtml(proposal.id) + '"' + (liked ? ' disabled' : '') + '>' + (liked ? 'いいね済み' : 'いいね') + '</button>' +
         '</div>' +
+        '<div class="comment-section">' +
+          '<button class="comment-open-btn" type="button" data-proposal-id="' + escapeHtml(proposal.id) + '" data-proposal-title="' + escapeHtml(proposal.title) + '">💬 <span class="comment-count" data-pid="' + escapeHtml(proposal.id) + '">' + (window.__commentCounts && window.__commentCounts[proposal.id] ? window.__commentCounts[proposal.id] : 0) + '</span> コメント</button>' +
+        '</div>' +
         '<div class="vote-box" aria-label="投票状況">' +
           '<div class="progress-track" aria-hidden="true">' +
             '<div class="progress-bar" style="width: ' + escapeHtml(proposal.progressPercent) + '%"></div>' +
@@ -5336,5 +5489,185 @@
   </script>
   <script src="../assets/site-config.js?v=20260424"></script>
   <script src="../assets/page-tracker.js" data-page="DAO投票"></script>
+
+<!-- コメントモーダル -->
+<div class="modal-overlay" id="commentModal" hidden aria-modal="true" role="dialog">
+  <div class="comment-modal-box">
+    <div class="comment-modal-header">
+      <h3 id="commentModalTitle">コメント</h3>
+      <button class="comment-modal-close" id="commentModalClose" type="button" aria-label="閉じる">×</button>
+    </div>
+    <div class="comment-list" id="commentList">
+      <p class="comment-empty">読み込み中…</p>
+    </div>
+    <div class="comment-post-area" id="commentPostArea">
+      <!-- DAOメンバーログイン済みの場合に表示 -->
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var COMMENT_GAS_URL = 'https://script.google.com/macros/s/AKfycbzI6vkv7yJTb5WfqevtCGeAJY9mt-7P07_0qAxGO82X3xFDqLXkceXHAPRe1UHZ-ZgR/exec';
+  var commentCounts = window.__commentCounts = {};
+  var likedComments = {};
+  var currentProposalId = null;
+
+  // ── コメント件数を全提案分まとめて取得 ──
+  function loadCommentCounts() {
+    fetch(COMMENT_GAS_URL + '?mode=counts&t=' + Date.now())
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (!d.ok) return;
+        commentCounts = d.counts || {};
+        document.querySelectorAll('.comment-count').forEach(function(el) {
+          var pid = el.dataset.pid;
+          el.textContent = commentCounts[pid] || 0;
+        });
+      })
+      .catch(function() {});
+  }
+
+  // ── モーダルを開く ──
+  function openCommentModal(proposalId, proposalTitle) {
+    currentProposalId = proposalId;
+    document.getElementById('commentModalTitle').textContent = '💬 ' + proposalTitle;
+    document.getElementById('commentModal').hidden = false;
+    renderPostArea();
+    loadComments(proposalId);
+  }
+
+  // ── モーダルを閉じる ──
+  function closeCommentModal() {
+    document.getElementById('commentModal').hidden = true;
+    currentProposalId = null;
+  }
+
+  document.getElementById('commentModalClose').addEventListener('click', closeCommentModal);
+  document.getElementById('commentModal').addEventListener('click', function(e) {
+    if (e.target === this) closeCommentModal();
+  });
+
+  // ── コメント一覧取得 ──
+  function loadComments(proposalId) {
+    var list = document.getElementById('commentList');
+    list.innerHTML = '<p class="comment-empty">読み込み中…</p>';
+    fetch(COMMENT_GAS_URL + '?mode=comments&proposalId=' + encodeURIComponent(proposalId) + '&t=' + Date.now())
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (!d.ok) { list.innerHTML = '<p class="comment-empty">取得できませんでした</p>'; return; }
+        renderComments(d.comments || []);
+      })
+      .catch(function() { list.innerHTML = '<p class="comment-empty">通信エラー</p>'; });
+  }
+
+  function renderComments(comments) {
+    var list = document.getElementById('commentList');
+    if (comments.length === 0) {
+      list.innerHTML = '<p class="comment-empty">まだコメントはありません。最初のコメントを投稿しましょう！</p>';
+      return;
+    }
+    list.innerHTML = comments.map(function(c) {
+      var liked = !!likedComments[c.id];
+      return '<div class="comment-item" data-comment-id="' + c.id + '">' +
+        '<div class="comment-meta">' +
+          '<span class="comment-alias">🙋 ' + escHtml(c.alias) + '</span>' +
+          '<span>' + escHtml(c.postedAt) + '</span>' +
+        '</div>' +
+        '<div class="comment-text">' + escHtml(c.text) + '</div>' +
+        '<button class="comment-like-btn' + (liked ? ' is-liked' : '') + '" data-comment-id="' + c.id + '"' + (liked ? ' disabled' : '') + '>👍 ' + c.likes + '</button>' +
+        '</div>';
+    }).join('');
+
+    // いいねボタン
+    list.querySelectorAll('.comment-like-btn:not(:disabled)').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var cid = btn.dataset.commentId;
+        btn.disabled = true;
+        fetch(COMMENT_GAS_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'like', commentId: cid })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          if (d.ok) {
+            likedComments[cid] = true;
+            btn.classList.add('is-liked');
+            btn.textContent = '👍 ' + d.likes;
+          }
+        })
+        .catch(function() { btn.disabled = false; });
+      });
+    });
+  }
+
+  // ── 投稿エリアを描画 ──
+  function renderPostArea() {
+    var area = document.getElementById('commentPostArea');
+    var nick = (typeof getStoredNickname === 'function') ? getStoredNickname() : '';
+    if (!nick) {
+      area.innerHTML = '<p class="comment-login-note">💡 コメントの投稿はDAOメンバーのみです。<br>ログインしてから投稿できます。</p>';
+      return;
+    }
+    area.innerHTML =
+      '<div style="font-size:0.82rem;color:var(--muted);margin-bottom:6px;">投稿者: <strong>' + escHtml(nick) + '</strong></div>' +
+      '<textarea id="commentTextarea" placeholder="この提案へのコメントを書いてください（500文字以内）" maxlength="500"></textarea>' +
+      '<div class="comment-post-row">' +
+        '<span class="comment-post-note" id="commentError"></span>' +
+        '<button class="comment-submit-btn" id="commentSubmitBtn">投稿する</button>' +
+      '</div>';
+
+    document.getElementById('commentSubmitBtn').addEventListener('click', function() {
+      var text = (document.getElementById('commentTextarea').value || '').trim();
+      var errEl = document.getElementById('commentError');
+      if (!text) { errEl.textContent = 'コメントを入力してください'; return; }
+      var btn = this;
+      btn.disabled = true;
+      errEl.textContent = '送信中…';
+      fetch(COMMENT_GAS_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'comment', proposalId: currentProposalId, alias: nick, text: text })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (d.ok) {
+          document.getElementById('commentTextarea').value = '';
+          errEl.textContent = '';
+          // カウント更新
+          commentCounts[currentProposalId] = (commentCounts[currentProposalId] || 0) + 1;
+          var countEl = document.querySelector('.comment-count[data-pid="' + currentProposalId + '"]');
+          if (countEl) countEl.textContent = commentCounts[currentProposalId];
+          loadComments(currentProposalId);
+        } else {
+          errEl.textContent = d.error || '送信に失敗しました';
+        }
+        btn.disabled = false;
+      })
+      .catch(function() { errEl.textContent = '通信エラーが発生しました'; btn.disabled = false; });
+    });
+  }
+
+  function escHtml(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── カードのコメントボタンに委譲イベント ──
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.comment-open-btn');
+    if (!btn) return;
+    var pid = btn.dataset.proposalId;
+    var title = btn.dataset.proposalTitle;
+    openCommentModal(pid, title);
+  });
+
+  // ── 初期ロード（renderProposals後にカウント反映）──
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(loadCommentCounts, 2000);
+  });
+
+  // proposalレンダリング後にカウントを反映させるため公開
+  window.__refreshCommentCounts = loadCommentCounts;
+})();
+</script>
 </body>
 </html>
