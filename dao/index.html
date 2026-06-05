@@ -4383,14 +4383,9 @@
       return tryStaticJson().then(function(data) {
         if (data && Array.isArray(data.proposals) && data.proposals.length > 0) {
           applyDaoData(data);
-          var age = data._generatedMs ? Date.now() - data._generatedMs : Infinity;
-          if (age > STATIC_MAX_AGE_MS) {
-            state.cacheStale = true;
-            renderProposals();
-            fetchFromGas();
-          }
         } else {
-          fetchFromGas();
+          state.loaded = false;
+          renderProposals();
         }
       });
     }
@@ -4427,7 +4422,7 @@
     fetchActionsStatus();
     setInterval(fetchActionsStatus, 5 * 60 * 1000);
     window.addEventListener('focus', function() { _retryCount = 0; loadDaoData(); fetchActionsStatus(); });
-    setInterval(function() { if (!state.loaded) fetchFromGas(); }, 10000);
+    // GAS_URLからのデータ取得は廃止。data.jsonのみを使用（二重取得による上書き問題を根絶）
 
     // 「最新の情報に更新」ボタン: GAS経由で GitHub Actions の update-dao-data.yml を即時起動。
     // GAS側で30秒デバウンス、ワークフローは固定なので一般公開しても安全。
