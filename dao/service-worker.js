@@ -3,7 +3,7 @@
    - 通知クリック時にアプリを前面化
    実証段階のため Web Push（VAPID）は未使用。通知はページ側のポーリングから出す。 */
 
-var CACHE_NAME = 'cocola-dao-v20';
+var CACHE_NAME = 'cocola-dao-v21';
 var CORE_ASSETS = [
   './',
   './index.html',
@@ -29,17 +29,6 @@ self.addEventListener('activate', function (event) {
       }));
     })
     .then(function () { return self.clients.claim(); })
-    // 既にコントロール下のタブをこの場で再ナビゲートし、新SWの fetch ハンドラを適用させる。
-    // これでユーザーが手動リロードしなくても古いHTMLから新HTMLへ即時切り替わる。
-    .then(function () {
-      return self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
-        list.forEach(function (client) {
-          if (client.url && client.url.indexOf('/dao/') !== -1 && 'navigate' in client) {
-            try { client.navigate(client.url); } catch (e) {}
-          }
-        });
-      });
-    })
   );
 });
 
