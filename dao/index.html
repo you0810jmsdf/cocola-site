@@ -908,6 +908,26 @@
       background: #fbfdfc;
     }
 
+    .ipfs-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid #c8e6c9;
+      border-radius: 8px;
+      background: #f1f8f2;
+      font-size: 0.82rem;
+      flex-wrap: wrap;
+    }
+    .ipfs-badge__icon { font-size: 1rem; }
+    .ipfs-badge__text { color: #2e7d32; font-weight: 600; }
+    .ipfs-badge__link, .ipfs-badge__minutes {
+      color: #388e3c;
+      text-decoration: underline;
+      white-space: nowrap;
+    }
+    .ipfs-badge__link:hover, .ipfs-badge__minutes:hover { color: #1b5e20; }
+
     .civic-like__text {
       display: grid;
       gap: 2px;
@@ -3468,6 +3488,7 @@
             '<span><b>' + numberText(proposal.noWeight) + '</b>非協力重み</span>' +
           '</div>' +
         '</div>' +
+        (proposal.ipfsUrl ? '<div class="ipfs-badge"><span class="ipfs-badge__icon">🔒</span><span class="ipfs-badge__text">IPFS証明済み</span><a class="ipfs-badge__link" href="' + escapeHtml(proposal.ipfsUrl) + '" target="_blank" rel="noopener">検証する ↗</a><a class="ipfs-badge__minutes" href="dao/minutes.html#' + escapeHtml(proposal.id) + '" target="_blank">議事録を見る</a></div>' : '') +
         '</article>';
     }
 
