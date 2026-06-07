@@ -92,7 +92,7 @@ body{margin:0;padding:12px;font-family:"Hiragino Kaku Gothic ProN","Meiryo",sans
 .member-picker__chip-remove{border:none;background:transparent;color:inherit;cursor:pointer;font-size:15px;line-height:1;padding:0 2px;font-family:inherit;}
 .member-picker__chip-remove:hover{color:#b91c1c;}
 .member-picker__input{border:none!important;outline:none!important;flex:1;min-width:120px;padding:4px!important;font:inherit;font-size:13px;background:transparent;width:auto!important;box-shadow:none!important;}
-.member-picker__menu{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ccc;border-radius:5px;max-height:220px;overflow-y:auto;z-index:50;box-shadow:0 4px 12px rgba(0,0,0,0.12);margin-top:2px;}
+.member-picker__menu{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ccc;border-radius:5px;max-height:300px;overflow-y:auto;z-index:50;box-shadow:0 4px 12px rgba(0,0,0,0.12);margin-top:2px;}
 .member-picker__menu-item{padding:7px 10px;cursor:pointer;font-size:13px;border-bottom:1px solid #f0f0f0;}
 .member-picker__menu-item:last-child{border-bottom:none;}
 .member-picker__menu-item:hover,.member-picker__menu-item.is-active{background:var(--green-light);color:var(--green-dark);}
@@ -853,7 +853,7 @@ function pickerRenderMenu_(pickerEl, query) {
     if (pickerHasValue_(pickerEl, n)) return false;
     if (!q) return true;
     return n.toLowerCase().indexOf(qLower) !== -1;
-  }).slice(0, 30);
+  });
 
   var html = '';
   if (candidates.length === 0 && !q) {
