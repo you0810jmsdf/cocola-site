@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-06-07</p>
+            <h2 class="cl-title">新メンバー登録検証 #10 改善・dao/data.json手動更新</h2>
+            <p class="cl-desc">
+              おいちゃんさん登録時の自動検証レポートで #6（dao/data.json未反映）・#10（Googleフォーム通知0件）が NG。
+              #6 は <code>gh workflow run update-dao-data.yml</code> で手動トリガーし解消。
+              #10 は検索クエリの <code>newer_than:1h</code> → <code>newer_than:6h</code> に拡大し、フォーム関連件名フィルタを追加。
+              未着の場合も ❌ではなく ⚠️詳細付きで報告する形に改善（<code>cocola-gas v97 @97/@98</code>）。
+            </p>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-06-07</p>
             <h2 class="cl-title">団体登録リスト: 所属団体3以上に対応・CBIメンバーを追加</h2>
             <p class="cl-desc">
               所属団体を「ヘッダー名で動的特定」する方式に改修し、団体3以降の登録に対応（<code>cocola-gas @96</code>）。
