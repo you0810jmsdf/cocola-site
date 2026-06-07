@@ -1216,7 +1216,7 @@ a {
       </div>
       <label class="search-box">
         <span>検索</span>
-        <input type="text" id="member-search-q" placeholder="名前・スキル・所属団体で検索" autocomplete="new-password">
+        <input type="search" id="member-search-q" placeholder="名前・スキル・所属団体で検索" autocomplete="off">
       </label>
     </div>
     <div class="meta-row">
@@ -1898,12 +1898,8 @@ document.querySelectorAll(".chip").forEach((chip) => {
 });
 
 const searchEl = document.getElementById("member-search-q");
-// Chromeはload後にも非同期でautofillを差し込むため rAF二重で確実にクリア
-window.addEventListener("load", () => {
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => { searchEl.value = ""; applyFilter(); });
-  });
-});
+// pagesowはbfcache復元も含めて毎表示時に発火するためセッション履歴復元を上書きできる
+window.addEventListener("pageshow", () => { searchEl.value = ""; applyFilter(); });
 searchEl.addEventListener("input", applyFilter);
 document.getElementById("mailBtn").addEventListener("click", copyMailingList);
 document.getElementById("modal-close").addEventListener("click", closeModal);
