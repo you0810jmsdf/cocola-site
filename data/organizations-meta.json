@@ -1,0 +1,26 @@
+{
+  "_comment": "団体ごとのメタ情報。nameはメンバーSSの所属団体名と完全一致させること。categoriesは印西市市民活動支援センターの分類を使用。",
+  "organizations": [
+    {
+      "name": "COCoLa",
+      "description": "印西市の地域コミュニティ。ものをつくる・まちをつくる・つながりをつくる・じぶんをつくる・食をつくる・ともにつくるの6活動を展開。",
+      "url": "https://you0810jmsdf.github.io/cocola-site/",
+      "categories": ["まちづくり", "子どもの健全育成", "連絡・助言・援助"],
+      "supportCenter": true
+    },
+    {
+      "name": "革工芸クラブ",
+      "description": "レザークラフトを通じた手づくり文化の普及活動。",
+      "url": "",
+      "categories": ["社会教育", "学芸・スポーツ"],
+      "supportCenter": false
+    },
+    {
+      "name": "CBI (Community Bank Inzai)",
+      "description": "印西市の地域コミュニティ投資・市民参加型まちづくりを推進する団体。",
+      "url": "",
+      "categories": ["まちづくり", "経済活動の活性化"],
+      "supportCenter": false
+    }
+  ]
+}
