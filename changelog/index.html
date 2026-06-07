@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-06-07</p>
+            <h2 class="cl-title">メンバー紹介: 役職欄に地区名（「千葉ニュータウン」）が誤表示される不具合を修正（<code>cocola-gas @92</code>）</h2>
+            <p class="cl-desc">
+              CiDAO 実証で入会フォームに「お住まいの地区」列を追加した際に列番号がずれ、
+              役職欄（本来「代表」「副代表」等）に地区名が表示されていた問題を修正。
+              <code>getMembers</code> の役職取得を列番号固定（<code>row[24]</code>）から
+              ヘッダー名による動的特定に変更し、今後フォーム項目が増えても列ズレで混入しないようにした。
+            </p>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-06-07</p>
             <h2 class="cl-title">今週のCOCoLa: 情報更新メンバーが新規入会にも二重表示される不具合を修正（<code>cocola-gas @91</code>）</h2>
             <p class="cl-desc">
               敬称付き（例「ゆうさん」）で情報更新フォームを提出すると、入会登録名（「ゆう」）と一致せず
