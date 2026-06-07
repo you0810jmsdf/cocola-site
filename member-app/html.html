@@ -1261,7 +1261,7 @@ a {
   <div class="pw-panel">
     <h3>🔒 管理者ログイン</h3>
     <p>パスワードを入力してください</p>
-    <input class="pw-input" id="pw-input" type="password" placeholder="パスワード" autocomplete="off">
+    <input class="pw-input" id="pw-input" type="password" placeholder="パスワード" autocomplete="current-password">
     <div class="pw-error" id="pw-error"></div>
     <div class="pw-btn-row">
       <button class="pw-submit-btn" id="pw-submit" type="button">ログイン</button>
@@ -1898,8 +1898,12 @@ document.querySelectorAll(".chip").forEach((chip) => {
 });
 
 const searchEl = document.getElementById("search");
-// ブラウザがJS実行後にautofillを差し込むケースに対応
-setTimeout(() => { searchEl.value = ""; }, 0);
+// Chromeはload後にも非同期でautofillを差し込むため rAF二重で確実にクリア
+window.addEventListener("load", () => {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => { searchEl.value = ""; applyFilter(); });
+  });
+});
 searchEl.addEventListener("input", applyFilter);
 document.getElementById("mailBtn").addEventListener("click", copyMailingList);
 document.getElementById("modal-close").addEventListener("click", closeModal);
