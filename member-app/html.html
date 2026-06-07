@@ -1216,7 +1216,7 @@ a {
       </div>
       <label class="search-box">
         <span>検索</span>
-        <input type="text" id="search" placeholder="名前・スキル・所属団体で検索" autocomplete="new-password">
+        <input type="text" id="member-search-q" placeholder="名前・スキル・所属団体で検索" autocomplete="new-password">
       </label>
     </div>
     <div class="meta-row">
@@ -1617,7 +1617,7 @@ function renderMembers(list) {
 }
 
 function applyFilter() {
-  const query = String(document.getElementById("search").value || "").toLowerCase();
+  const query = String(document.getElementById("member-search-q").value || "").toLowerCase();
 
   const filtered = allMembers.filter((member) => {
     const categoryMatched = activeCat === "all" || member.cats.includes(activeCat);
@@ -1897,7 +1897,7 @@ document.querySelectorAll(".chip").forEach((chip) => {
   });
 });
 
-const searchEl = document.getElementById("search");
+const searchEl = document.getElementById("member-search-q");
 // Chromeはload後にも非同期でautofillを差し込むため rAF二重で確実にクリア
 window.addEventListener("load", () => {
   requestAnimationFrame(() => {
