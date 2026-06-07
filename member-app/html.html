@@ -1426,7 +1426,20 @@ function buildMembers(rows) {
     }));
 }
 
+// 所属団体は getMembers が出力する groups(JSON, idx27) を優先。団体3以降にも自動対応。
+// 旧出力（groups無し）には固定列 18/20 でフォールバックする。
+const COL_GROUPS_JSON = 27;
 function buildGroups(row) {
+  if (row.length > COL_GROUPS_JSON && row[COL_GROUPS_JSON]) {
+    try {
+      const g = JSON.parse(row[COL_GROUPS_JSON]);
+      if (Array.isArray(g)) {
+        return g
+          .filter((x) => x && x.name)
+          .map((x) => ({ name: x.name, url: cleanUrl(x.url || "") }));
+      }
+    } catch (e) { /* fall through */ }
+  }
   return [
     { name: row[COL.otherGroups] || "", url: cleanUrl(row[COL.otherGroupUrl1] || "") },
     { name: row[COL.otherGroup2] || "", url: cleanUrl(row[COL.otherGroupUrl2] || "") },

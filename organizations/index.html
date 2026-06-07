@@ -472,26 +472,34 @@ async function main(){
 }
 
 // GAS rawデータのパース（member-appと同じ列番号に準拠）
+// 所属団体は getMembers が出力する groups(JSON, idx27) を優先。団体3以降にも自動対応。
+// 旧出力（groups無し）には固定列 18/20 でフォールバックする。
+const COL_GROUPS_JSON = 27;
 function parseMemberRows(rows){
   if(!rows || rows.length === 0) return [];
-  // COL は member-app/html.html と同一の列インデックス
-  const COL = {
-    nickname: 3, name: 4, photo: 6,
-    otherGroups: 18, otherGroupUrl1: 19,
-    otherGroup2: 20, otherGroupUrl2: 21,
-    daoStatus: 25,
-  };
+  const COL = { nickname: 3, name: 4, photo: 6, daoStatus: 25 };
   return rows.map((row, i) => ({
     id: String(i),
     nickname: row[COL.nickname] || '',
     name: row[COL.name] || '',
     photo: row[COL.photo] || '',
-    groups: [
-      { name: row[COL.otherGroups] || '', url: row[COL.otherGroupUrl1] || '' },
-      { name: row[COL.otherGroup2] || '', url: row[COL.otherGroupUrl2] || '' },
-    ].filter(g => g.name),
+    groups: extractGroups(row),
     daoStatus: row[COL.daoStatus] || '',
   }));
+}
+
+// row から所属団体配列を取り出す（groups JSON 優先・旧固定列フォールバック）
+function extractGroups(row){
+  if(row.length > COL_GROUPS_JSON && row[COL_GROUPS_JSON]){
+    try {
+      const g = JSON.parse(row[COL_GROUPS_JSON]);
+      if(Array.isArray(g)) return g.filter(x => x && x.name);
+    } catch(e){ /* fall through */ }
+  }
+  return [
+    { name: row[18] || '', url: row[19] || '' },
+    { name: row[20] || '', url: row[21] || '' },
+  ].filter(g => g.name);
 }
 
 main().catch(err => {
