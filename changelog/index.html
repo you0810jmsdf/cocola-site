@@ -118,6 +118,26 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-06-07</p>
+            <h2 class="cl-title">/join パスに参加登録リダイレクトページを追加（404修正）</h2>
+            <p class="cl-desc">
+              Threads投稿に貼られた参加登録URL（<code>/cocola-site/join</code>）が404になっていた問題を修正。
+              <code>join/index.html</code> を新設し、<code>/#join</code> へ自動転送するリダイレクトページを追加した。
+            </p>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-06-07</p>
+            <h2 class="cl-title">ゆうの所属団体に「1ccプロジェクト」を追加・団体URLの列ズレを修正</h2>
+            <p class="cl-desc">
+              ゆうの所属団体3つ目として「1ccプロジェクト」を会員名簿に追記し、メンバー紹介カードに3団体（革工芸クラブ／CBI／1ccプロジェクト）が並ぶようにした。
+              当初カードに反映されなかったのはブラウザキャッシュが原因で、公開 data.json・描画ロジックともに正常だった（ハードリロードで解消）。
+              あわせて、手動追記時に1ccのFacebook URLがCBIのURL欄へ入っていた列ズレを修正し、
+              URLを1ccプロジェクトのバナー側へ正しく紐付けた。<code>update-members-data.yml</code> 手動トリガーで公開反映を確認済み。
+            </p>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-06-07</p>
             <h2 class="cl-title">ゆうの貢献度が1ptに化けるバグを修正（敬称衝突の重複DAO行を削除＋累計優先ロジック化）</h2>
             <p class="cl-desc">
               メンバー紹介で「ゆう」の貢献度が本来の431ptではなく1ptと表示されていた問題を修正。
