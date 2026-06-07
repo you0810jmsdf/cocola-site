@@ -1897,7 +1897,10 @@ document.querySelectorAll(".chip").forEach((chip) => {
   });
 });
 
-document.getElementById("search").addEventListener("input", applyFilter);
+const searchEl = document.getElementById("search");
+// ブラウザがJS実行後にautofillを差し込むケースに対応
+setTimeout(() => { searchEl.value = ""; }, 0);
+searchEl.addEventListener("input", applyFilter);
 document.getElementById("mailBtn").addEventListener("click", copyMailingList);
 document.getElementById("modal-close").addEventListener("click", closeModal);
 document.getElementById("modal-bg").addEventListener("click", (event) => {
