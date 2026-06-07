@@ -124,7 +124,7 @@ details[open]>.month-summary::before{transform:rotate(90deg);}
   <div id="error-area"></div>
   <div id="search-area" style="margin-bottom:8px;">
     <div style="position:relative;">
-      <input id="search-input" type="search" placeholder="🔍 キーワードで絞り込む（タイトル・場所・説明）" oninput="_onSearch(this.value)" style="width:100%;box-sizing:border-box;padding:9px 36px 9px 12px;border:1px solid #ddd;border-radius:4px;font-size:14px;font-family:inherit;outline:none;color:#333;">
+      <input id="search-input" type="search" placeholder="🔍 キーワードで絞り込む（タイトル・場所・説明）" oninput="_onSearch(this.value)" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')" style="width:100%;box-sizing:border-box;padding:9px 36px 9px 12px;border:1px solid #ddd;border-radius:4px;font-size:14px;font-family:inherit;outline:none;color:#333;">
       <button id="search-clear" onclick="_clearSearch()" style="display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#aaa;font-size:18px;line-height:1;padding:0;" aria-label="クリア">✕</button>
     </div>
     <div id="search-count" style="font-size:12px;color:#888;margin-top:4px;min-height:1.4em;"></div>

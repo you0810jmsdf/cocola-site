@@ -3115,7 +3115,7 @@
             <p class="view-lead">COCoLaメンバーのスキルや「やりたいこと」から、つながりたい人を見つけられます。</p>
           </div>
           <label class="member-search">
-            <input type="text" id="memberSearch" placeholder="名前・スキル・やりたいこと・所属で検索" autocomplete="off">
+            <input type="search" id="memberSearch" placeholder="名前・スキル・やりたいこと・所属で検索" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')">
           </label>
           <div class="member-cats" id="memberCats"></div>
           <p class="member-count" id="memberCount"></p>
