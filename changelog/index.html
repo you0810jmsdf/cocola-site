@@ -118,6 +118,19 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-06-07</p>
+            <h2 class="cl-title">ゆうの貢献度が1ptに化けるバグを修正（敬称衝突の重複DAO行を削除＋累計優先ロジック化）</h2>
+            <p class="cl-desc">
+              メンバー紹介で「ゆう」の貢献度が本来の431ptではなく1ptと表示されていた問題を修正。
+              原因は DAOメンバーシートに <code>M0027「ゆうさん」</code>（1pt）の重複ゾンビ行が今日追加され、
+              <code>normalizeDaoNameKey_</code> が敬称「さん」を除去するため本物の <code>M0001「ゆう」</code>（431pt）と
+              同一キーに衝突、<code>getDaoPointMap_</code> の後勝ち構築で少ポイント側に上書きされていたこと。
+              ゾンビ行を物理削除し、<code>getDaoPointMap_</code> を「キー衝突時は累計が大きい方を採用」に変更して再発を防止した。
+              GAS @103 へ redeploy 後、<code>update-members-data.yml</code> を手動トリガーして公開 data.json に 431/427 を反映済み。
+            </p>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-06-07</p>
             <h2 class="cl-title">検索欄の過去値残りバグを全ページ水平展開で根治＋デプロイ検証スクリプト追加</h2>
             <p class="cl-desc">
               Chromeのフォーム値復元が原因で検索欄に過去の入力（例「Creema」）が残るバグを、
