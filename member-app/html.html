@@ -1216,7 +1216,7 @@ a {
       </div>
       <label class="search-box">
         <span>検索</span>
-        <input type="search" id="member-search-q" placeholder="名前・スキル・所属団体で検索" autocomplete="off">
+        <input type="search" id="member-search-q" placeholder="名前・スキル・所属団体で検索" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')">
       </label>
     </div>
     <div class="meta-row">
@@ -1898,9 +1898,19 @@ document.querySelectorAll(".chip").forEach((chip) => {
 });
 
 const searchEl = document.getElementById("member-search-q");
-// pagesowはbfcache復元も含めて毎表示時に発火するためセッション履歴復元を上書きできる
-window.addEventListener("pageshow", () => { searchEl.value = ""; applyFilter(); });
-searchEl.addEventListener("input", applyFilter);
+// Chromeのフォーム復元はreadonly解除後やpageshow後にも遅れて発火するため、
+// 初回表示から1.5秒間はユーザー入力がない限り強制クリアし続ける
+let _searchUserTyped = false;
+function _forceClearSearch() {
+  if (!_searchUserTyped && searchEl.value !== "") { searchEl.value = ""; applyFilter(); }
+}
+window.addEventListener("pageshow", _forceClearSearch);
+let _clearCount = 0;
+const _clearTimer = setInterval(() => {
+  _forceClearSearch();
+  if (++_clearCount > 15) clearInterval(_clearTimer);
+}, 100);
+searchEl.addEventListener("input", () => { _searchUserTyped = true; applyFilter(); });
 document.getElementById("mailBtn").addEventListener("click", copyMailingList);
 document.getElementById("modal-close").addEventListener("click", closeModal);
 document.getElementById("modal-bg").addEventListener("click", (event) => {
