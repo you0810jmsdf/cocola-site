@@ -118,6 +118,15 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-06-07</p>
+            <h2 class="cl-title">メンバー検索欄のブラウザオートコンプリートを完全無効化（再修正）</h2>
+            <p class="cl-desc">
+              前回の <code>autocomplete="off"</code> では Chrome/Edge が無視して「Creema」等の過去入力値が自動補完されるバグが継続。
+              <code>autocomplete="new-password"</code> に変更することで完全抑制。（<code>cocola-gas html.html</code> → <code>build_member_app.py</code> で同期）
+            </p>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-06-07</p>
             <h2 class="cl-title">メンバー検索欄のブラウザオートコンプリートを無効化</h2>
             <p class="cl-desc">
               メンバー一覧ページの検索欄に過去の入力値（例：「Creema」）がブラウザ補完で自動入力される問題を修正。
