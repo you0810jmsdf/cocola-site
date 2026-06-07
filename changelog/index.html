@@ -118,6 +118,18 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-06-07</p>
+            <h2 class="cl-title">検索欄の過去値残りバグを全ページ水平展開で根治＋デプロイ検証スクリプト追加</h2>
+            <p class="cl-desc">
+              Chromeのフォーム値復元が原因で検索欄に過去の入力（例「Creema」）が残るバグを、
+              <code>readonly</code> + <code>onfocus="this.removeAttribute('readonly')"</code> トリックで根治。
+              member-app に加え dao・events・organizations の全検索欄に水平展開（dao は PWA のため service-worker を v22 にバンプ）。
+              再発防止として本番URLを直接検証する <code>scripts/verify_deploy.ps1</code> を新設し、
+              「デプロイ未反映」と「ブラウザキャッシュ」を一発で切り分けられるようにした。
+            </p>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-06-07</p>
             <h2 class="cl-title">団体登録: つるちゃんをここのわカフェ所属に追加・登録フォームの団体欄順を整備</h2>
             <p class="cl-desc">
               つるちゃんの所属団体に「ここのわカフェ」を追加（ここのわカフェは計2名に）。
