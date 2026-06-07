@@ -226,7 +226,7 @@ a{color:inherit}
       <input class="search-input" id="search" type="text" placeholder="団体名・カテゴリー・メンバー名で検索">
     </div>
     <div class="toolbar-section">
-      <div class="toolbar-label">カテゴリーで絞り込む <span style="font-size:11px;font-weight:400">（印西市市民活動支援センター分類）</span></div>
+      <div class="toolbar-label">カテゴリーで絞り込む <span style="font-size:11px;font-weight:400">（印西市市民活動支援センター 9活動分野）</span></div>
       <div class="cats-wrap" id="catFilter"></div>
     </div>
   </div>
@@ -251,13 +251,10 @@ a{color:inherit}
 const MEMBER_API = 'https://script.google.com/macros/s/AKfycbxQ7gBHJQFVZEXcyisJdiL7xa64RcKzYjzBZLEGlkelSvxXCfPPHTW5eAVHB09aue1p/exec?mode=json';
 const META_URL   = '../data/organizations-meta.json';
 
-// 印西市市民活動支援センターの全カテゴリー
+// 印西市市民活動支援センター冊子『団体紹介』の9活動分野
 const ALL_CATS = [
-  '保険・医療','観光','環境保全','人権・平和','子どもの健全育成',
-  '経済活動の活性化','連絡・助言・援助','健康・福祉','社会教育',
-  '農山漁村・中山間','災害救援','国際協力','情報化社会の推進',
-  '職業・雇用','条例で定める活動','まちづくり','学芸・スポーツ',
-  '地域安全','男女共同参画','科学技術の振興','消費者保護','町会・自治会'
+  'まちづくり','奉仕活動','生きがいづくり','平和・人権','健康・福祉',
+  '自然・環境','子育て支援','歴史・文化・芸術','災害救援・地域安全'
 ];
 
 // アイコン配色ローテーション
@@ -294,6 +291,17 @@ function renderCatFilter(){
   });
 }
 
+// ── 団体名の表記ゆれ統合（メンバー自由入力のゆらぎを正規化）──
+// variant（メンバーSSの実値）→ canonical（organizations-meta.json の name）
+const ORG_ALIAS = {
+  '1ccプロジェクト': '1CCプロジェクト',
+  'らんか': 'みんなのおうちらんか'
+};
+function canonicalOrgName(name){
+  const key = String(name || '').trim();
+  return ORG_ALIAS[key] || key;
+}
+
 // ── メンバーAPIからorg集約 ────────────────────────────────
 function aggregateOrgs(members, metaMap){
   const map = new Map();
@@ -301,7 +309,7 @@ function aggregateOrgs(members, metaMap){
   members.forEach(m => {
     (m.groups || []).forEach(g => {
       if(!g.name) return;
-      const key = g.name.trim();
+      const key = canonicalOrgName(g.name);
       if(!map.has(key)){
         map.set(key, {
           name: key,
