@@ -728,6 +728,27 @@ a {
   box-shadow: 0 2px 8px rgba(29, 158, 117, 0.12);
 }
 
+.sort-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.84rem;
+  color: var(--muted);
+}
+
+.sort-select select {
+  height: 36px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--green-dark);
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  outline: none;
+}
+
 .col-selector {
   display: none;
   flex-wrap: wrap;
@@ -1227,6 +1248,15 @@ a {
           <button class="vbtn active" id="viewCard" type="button">カード</button>
           <button class="vbtn" id="viewList" type="button">リスト</button>
         </div>
+        <label class="sort-select">
+          <span>並び替え</span>
+          <select id="sortSelect">
+            <option value="default">デフォルト</option>
+            <option value="points_desc">貢献度（高い順）</option>
+            <option value="recent_desc">直近6ヶ月（高い順）</option>
+            <option value="name_asc">名前順（あいうえお）</option>
+          </select>
+        </label>
         <button class="mail-btn" id="mailBtn" type="button">メーリングリストをコピー</button>
       </div>
     </div>
@@ -1617,6 +1647,20 @@ function renderMembers(list) {
   });
 }
 
+function sortMembers(list) {
+  const key = document.getElementById("sortSelect").value;
+  if (key === "points_desc") {
+    return [...list].sort((a, b) => b.daoTotalPoints - a.daoTotalPoints);
+  }
+  if (key === "recent_desc") {
+    return [...list].sort((a, b) => b.daoRecentPoints - a.daoRecentPoints);
+  }
+  if (key === "name_asc") {
+    return [...list].sort((a, b) => (a.nickname || "").localeCompare(b.nickname || "", "ja"));
+  }
+  return list;
+}
+
 function applyFilter() {
   const query = String(document.getElementById("member-search-q").value || "").toLowerCase();
 
@@ -1638,15 +1682,16 @@ function applyFilter() {
 
     return categoryMatched && (!query || searchable.includes(query));
   });
+  const sorted = sortMembers(filtered);
 
   document.getElementById("meta").textContent =
     allMembers.length + "人のメンバー中 " + filtered.length + "人を表示";
 
-  currentFiltered = filtered;
+  currentFiltered = sorted;
   if (viewMode === "list") {
-    renderList(filtered);
+    renderList(sorted);
   } else {
-    renderMembers(filtered);
+    renderMembers(sorted);
   }
 }
 
@@ -1924,6 +1969,7 @@ document.addEventListener("keydown", (event) => {
 buildColSelector();
 document.getElementById("viewCard").addEventListener("click", () => setViewMode("card"));
 document.getElementById("viewList").addEventListener("click", () => setViewMode("list"));
+document.getElementById("sortSelect").addEventListener("change", applyFilter);
 loadMembers();
 
 // === Admin Panel ===
