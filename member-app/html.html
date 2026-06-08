@@ -1711,15 +1711,15 @@ async function loadMembers() {
   let rows = null;
   let updatedList = [];
   try {
-    const data = await tryStaticMembers();
-    rows = data.rows;
+    const response = await fetch(APP_URL + "?mode=json&ts=" + Date.now(), { credentials: 'omit' });
+    if (!response.ok) throw new Error("HTTP " + response.status);
+    const data = await response.json();
+    rows = data.rows || [];
     updatedList = data.recentUpdates || [];
   } catch (_) {
     try {
-      const response = await fetch(APP_URL + "?mode=json&ts=" + Date.now(), { credentials: 'omit' });
-      if (!response.ok) throw new Error("HTTP " + response.status);
-      const data = await response.json();
-      rows = data.rows || [];
+      const data = await tryStaticMembers();
+      rows = data.rows;
       updatedList = data.recentUpdates || [];
     } catch (error) {
       const banner = document.getElementById("err-banner");
