@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-06-09</p>
+            <h2 class="cl-title">チャット参加者への新着通知機能追加</h2>
+            <p class="cl-desc">
+              提案ディスカッションにコメントしたメンバーを「参加者」として記録し、30秒ごとに新着チェック。
+              タブが非アクティブ状態でも ServiceWorker 経由でシステム通知（ブラウザプッシュ）を表示。
+              参加中の提案IDをlocalStorageに保存し、ページを開き直しても通知が継続される。
+              コメントGAS（dao-comment-gas）に参加者シートと newSince モードを追加（v2 deploy済）。
+            </p>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-06-09</p>
             <h2 class="cl-title">DAO提案ディスカッションをLINE風チャットUIに刷新</h2>
             <p class="cl-desc">
               提案カードのコメント欄を掲示板スタイルからLINE風チャットバブルUIに全面リニューアル。
