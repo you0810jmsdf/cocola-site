@@ -1128,32 +1128,47 @@
 
     /* コメントセクション */
     .comment-section {
-      border-top: 1px solid var(--line);
-      padding: 10px 16px 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      border-top: 2px solid var(--green);
+      padding: 0;
     }
     .comment-open-btn {
-      background: none;
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      padding: 4px 14px;
-      font-size: 0.85rem;
-      color: var(--muted);
+      width: 100%;
+      background: linear-gradient(135deg, #2e7d4f 0%, #3a9e65 100%);
+      border: none;
+      border-radius: 0 0 12px 12px;
+      padding: 13px 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #fff;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 5px;
-      transition: border-color 0.15s, color 0.15s;
+      justify-content: space-between;
+      gap: 8px;
+      transition: background 0.15s, opacity 0.15s;
+      box-sizing: border-box;
     }
     .comment-open-btn:hover {
-      border-color: var(--green);
-      color: var(--green);
+      background: linear-gradient(135deg, #245f3c 0%, #2e7d4f 100%);
     }
-    .comment-open-btn .comment-count {
+    .comment-open-btn:active { opacity: 0.85; }
+    .comment-open-btn .comment-btn-left {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .comment-open-btn .comment-btn-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      opacity: 0.88;
+    }
+    .comment-open-btn .comment-count-badge {
+      background: rgba(255,255,255,0.22);
+      border-radius: 10px;
+      padding: 1px 9px;
       font-weight: 700;
-      color: var(--green);
     }
 
     /* チャットモーダル */
@@ -3573,7 +3588,10 @@
           '<button class="like-btn' + (liked ? ' is-liked' : '') + '" type="button" data-like-id="' + escapeHtml(proposal.id) + '"' + (liked ? ' disabled' : '') + '>' + (liked ? 'いいね済み' : 'いいね') + '</button>' +
         '</div>' +
         '<div class="comment-section">' +
-          '<button class="comment-open-btn" type="button" data-proposal-id="' + escapeHtml(proposal.id) + '" data-proposal-title="' + escapeHtml(proposal.title) + '">💬 <span class="comment-count" data-pid="' + escapeHtml(proposal.id) + '">' + (window.__commentCounts && window.__commentCounts[proposal.id] ? window.__commentCounts[proposal.id] : 0) + '</span> コメント</button>' +
+          '<button class="comment-open-btn" type="button" data-proposal-id="' + escapeHtml(proposal.id) + '" data-proposal-title="' + escapeHtml(proposal.title) + '">' +
+            '<span class="comment-btn-left">💬 みんなで話し合う</span>' +
+            '<span class="comment-btn-right"><span class="comment-count-badge"><span class="comment-count" data-pid="' + escapeHtml(proposal.id) + '">' + (window.__commentCounts && window.__commentCounts[proposal.id] ? window.__commentCounts[proposal.id] : 0) + '</span> 件の発言</span> ▶</span>' +
+          '</button>' +
         '</div>' +
         '<div class="vote-box" aria-label="投票状況">' +
           '<div class="progress-track" aria-hidden="true">' +
