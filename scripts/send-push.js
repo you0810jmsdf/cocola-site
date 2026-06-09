@@ -104,6 +104,37 @@ function buildMessages() {
     });
   }
 
+  // 既存提案のステータス変化・投票数増加を検知
+  const prevProposalMap = {};
+  (prev.proposals || []).forEach((p) => { prevProposalMap[p.id] = p; });
+
+  const STATUS_LABEL = { approved: '可決されました', expired: '期限切れになりました', voting: '投票受付中になりました' };
+
+  (cur.proposals || []).forEach((p) => {
+    const old = prevProposalMap[p.id];
+    if (!old) return; // 新規提案は上の newProposals で処理済み
+
+    // ステータス変化
+    if (old.statusKey !== p.statusKey && p.statusKey !== 'voting') {
+      const label = STATUS_LABEL[p.statusKey] || `ステータスが変わりました（${p.statusKey}）`;
+      messages.push({
+        title: `提案が${label}`,
+        body: p.title || p.id,
+        url: DAO_URL,
+      });
+    }
+
+    // 投票数増加（voting中のみ通知。ステータス変化と重複しないよう old.statusKey も確認）
+    if (p.statusKey === 'voting' && old.statusKey === 'voting' && typeof p.voteCount === 'number' && typeof old.voteCount === 'number' && p.voteCount > old.voteCount) {
+      const diff = p.voteCount - old.voteCount;
+      messages.push({
+        title: `「${p.title || p.id}」に投票がありました`,
+        body: `${diff > 1 ? diff + '票' : '1票'}追加（現在 ${p.voteCount} 票 / 賛成率 ${p.yesRate}%）`,
+        url: DAO_URL,
+      });
+    }
+  });
+
   const prevMembers = (prev.stats && prev.stats.members) || 0;
   const curMembers = (cur.stats && cur.stats.members) || 0;
   // prevMembers===0（パース失敗や初期状態）からの増加は誤検知のため通知しない。
