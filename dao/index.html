@@ -5867,6 +5867,15 @@
     ta.style.height = 'auto';
     errEl.textContent = '';
 
+    // 参加者として記録しポーリング開始
+    if (currentProposalId) {
+      var titleEl = document.getElementById('commentModalTitle');
+      var pTitle = titleEl ? titleEl.textContent.replace('💬 ', '') : currentProposalId;
+      addParticipated(currentProposalId, pTitle);
+      if (!lastSeenId[currentProposalId]) lastSeenId[currentProposalId] = Date.now();
+      startPoll(currentProposalId, pTitle);
+    }
+
     // 楽観的UI: 即座にバブルを表示
     var list = document.getElementById('commentList');
     var tempId = 'tmp_' + Date.now();
@@ -5879,23 +5888,30 @@
     var countEl = document.querySelector('.comment-count[data-pid="' + currentProposalId + '"]');
     if (countEl) countEl.textContent = commentCounts[currentProposalId];
 
+    var pid = currentProposalId;
     fetch(COMMENT_GAS_URL, {
       method: 'POST',
-      body: JSON.stringify({ action: 'comment', proposalId: currentProposalId, alias: nick, text: text })
+      body: JSON.stringify({ action: 'comment', proposalId: pid, alias: nick, text: text })
     })
     .then(function(r) { return r.json(); })
     .then(function(d) {
       btn.disabled = false;
       if (d.ok) {
-        // 仮バブルに本物のIDを付与し pending を解除
         bubble.classList.remove('pending');
-        if (d.id) { bubble.dataset.commentId = d.id; bubble.querySelector('.chat-bubble').dataset.commentId = d.id; }
+        if (d.id) {
+          bubble.dataset.commentId = d.id;
+          bubble.querySelector('.chat-bubble').dataset.commentId = d.id;
+          // ポーリングの既読IDを最新コメントIDに更新
+          lastSeenId[pid] = d.id;
+        }
         attachReactionEvents(list);
+        // Push購読エンドポイントをGASに登録（非同期・失敗しても無視）
+        sendParticipantSubscription(pid, nick);
       } else {
         errEl.textContent = d.error || '送信に失敗しました';
         bubble.remove();
-        commentCounts[currentProposalId] = Math.max(0, (commentCounts[currentProposalId] || 1) - 1);
-        if (countEl) countEl.textContent = commentCounts[currentProposalId];
+        commentCounts[pid] = Math.max(0, (commentCounts[pid] || 1) - 1);
+        if (countEl) countEl.textContent = commentCounts[pid];
       }
     })
     .catch(function() {
@@ -5904,6 +5920,144 @@
       bubble.remove();
     });
   }
+
+  // ── バックグラウンド通知ポーリング ──
+  var pollTimers = {};       // proposalId → intervalId
+  var lastSeenId = {};       // proposalId → 最後に確認したコメントID
+  var POLL_INTERVAL = 30000; // 30秒
+
+  // 参加中の提案IDをlocalStorageで管理
+  var PARTICIPATED_KEY = 'dao_participated_proposals';
+  function getParticipated() {
+    try { return JSON.parse(localStorage.getItem(PARTICIPATED_KEY) || '{}'); } catch(e) { return {}; }
+  }
+  function addParticipated(pid, title) {
+    var p = getParticipated();
+    p[pid] = title || pid;
+    localStorage.setItem(PARTICIPATED_KEY, JSON.stringify(p));
+  }
+
+  // モーダルを開いた時: lastSeenId を最新に更新してからポーリング開始
+  var _origOpen = openCommentModal;
+  openCommentModal = function(proposalId, proposalTitle) {
+    _origOpen(proposalId, proposalTitle);
+    // モーダルを開いたタイミングで「既読」IDをセット（初回のみ）
+    if (!lastSeenId[proposalId]) {
+      lastSeenId[proposalId] = Date.now();
+    }
+    startPoll(proposalId, proposalTitle);
+  };
+
+  // モーダルを閉じた時もポーリング継続（参加者なら）
+  var _origClose = closeCommentModal;
+  closeCommentModal = function() {
+    _origClose();
+    // ポーリングは止めない（バックグラウンドで通知するため）
+  };
+
+  function startPoll(proposalId, proposalTitle) {
+    if (pollTimers[proposalId]) return; // 既に走っている
+    pollTimers[proposalId] = setInterval(function() {
+      pollNewComments(proposalId, proposalTitle);
+    }, POLL_INTERVAL);
+  }
+
+  function pollNewComments(proposalId, proposalTitle) {
+    var since = lastSeenId[proposalId] || 0;
+    var myNick = (typeof getStoredNickname === 'function') ? getStoredNickname() : '';
+    fetch(COMMENT_GAS_URL + '?mode=newSince&proposalId=' + encodeURIComponent(proposalId) + '&since=' + since + '&t=' + Date.now())
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (!d.ok || !d.comments || d.comments.length === 0) return;
+        // 自分以外の新着コメントを抽出
+        var newFromOthers = d.comments.filter(function(c) { return c.alias !== myNick; });
+        if (newFromOthers.length === 0) {
+          // 自分のコメントのみ → IDだけ更新
+          lastSeenId[proposalId] = Math.max.apply(null, d.comments.map(function(c){ return c.id; }));
+          return;
+        }
+        // 最新IDを更新
+        lastSeenId[proposalId] = Math.max.apply(null, d.comments.map(function(c){ return c.id; }));
+
+        // モーダルが開いていれば追記して再スクロール
+        if (currentProposalId === proposalId) {
+          var list = document.getElementById('commentList');
+          d.comments.forEach(function(c) {
+            var existing = list.querySelector('[data-comment-id="' + c.id + '"]');
+            if (!existing) {
+              var row = buildBubble(c, myNick, false);
+              list.appendChild(row);
+            }
+          });
+          list.scrollTop = list.scrollHeight;
+          attachReactionEvents(list);
+          return;
+        }
+
+        // タブが非アクティブ or モーダル閉じている → システム通知
+        var latest = newFromOthers[newFromOthers.length - 1];
+        showChatNotification(proposalId, proposalTitle, latest.alias, latest.text);
+      })
+      .catch(function() {});
+  }
+
+  function showChatNotification(proposalId, proposalTitle, alias, text) {
+    if (!('Notification' in window)) return;
+    if (Notification.permission !== 'granted') return;
+    var body = alias + ': ' + text.slice(0, 80) + (text.length > 80 ? '…' : '');
+    // ServiceWorker 経由で表示（バックグラウンドタブでも出る）
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'SHOW_NOTIFICATION',
+        payload: {
+          title: '💬 ' + proposalTitle,
+          body: body,
+          tag: 'chat-' + proposalId,
+          url: './index.html#proposals'
+        }
+      });
+    } else {
+      new Notification('💬 ' + proposalTitle, { body: body, icon: '../assets/icons/icon-192.png' });
+    }
+  }
+
+  // コメント送信時に Push 購読情報も GAS に送る（参加者登録）
+  function getPushSubscription(callback) {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) { callback(null); return; }
+    navigator.serviceWorker.ready.then(function(reg) {
+      reg.pushManager.getSubscription().then(function(sub) {
+        callback(sub ? sub.toJSON() : null);
+      }).catch(function() { callback(null); });
+    }).catch(function() { callback(null); });
+  }
+
+  function sendParticipantSubscription(proposalId, nick) {
+    getPushSubscription(function(subJson) {
+      if (!subJson || !subJson.endpoint || !subJson.keys) return;
+      fetch(COMMENT_GAS_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'subscribe',
+          proposalId: proposalId,
+          alias: nick,
+          endpoint: subJson.endpoint,
+          p256dh: subJson.keys.p256dh,
+          auth: subJson.keys.auth
+        })
+      }).catch(function() {});
+    });
+  }
+
+  // ページロード時に参加中の提案のポーリングを再開
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+      var participated = getParticipated();
+      Object.keys(participated).forEach(function(pid) {
+        lastSeenId[pid] = Date.now(); // 既読を現在時刻にリセット
+        startPoll(pid, participated[pid]);
+      });
+    }, 3000);
+  });
 
   // ── カードのコメントボタンに委譲イベント ──
   document.addEventListener('click', function(e) {
