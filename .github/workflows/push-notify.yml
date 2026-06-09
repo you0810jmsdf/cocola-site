@@ -16,6 +16,9 @@ on:
     paths:
       - 'dao/data.json'
       - 'members/data.json'
+      - 'events/data.json'
+      - 'schedule/data.json'
+      - 'dangotsusin/data.json'
 
 concurrency:
   group: push-notify

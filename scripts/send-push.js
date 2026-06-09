@@ -30,8 +30,29 @@ const {
 
 const DAO_URL = 'https://you0810jmsdf.github.io/cocola-site/dao/';
 const MEMBER_APP_URL = 'https://you0810jmsdf.github.io/cocola-site/member-app/html.html';
+const EVENTS_URL = 'https://you0810jmsdf.github.io/cocola-site/events/';
+const SCHEDULE_URL = 'https://you0810jmsdf.github.io/cocola-site/schedule/';
+const DANGOTSUSIN_URL = 'https://you0810jmsdf.github.io/cocola-site/dangotsusin/';
 const COL_TS = 0;
 const COL_NICKNAME = 3;
+
+// 旧コミットの JSON を安全に読む（無ければ null）
+function readPrevJson(path) {
+  try {
+    return JSON.parse(execSync(`git show HEAD~1:${path}`, { encoding: 'utf8' }));
+  } catch (e) {
+    return null;
+  }
+}
+
+// 現コミットの JSON を安全に読む（無ければ null）
+function readCurJson(path) {
+  try {
+    return JSON.parse(fs.readFileSync(path, 'utf8'));
+  } catch (e) {
+    return null;
+  }
+}
 
 if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY || !PUSH_GAS_URL || !PUSH_API_TOKEN) {
   console.error('Missing required env vars (VAPID/PUSH).');
@@ -146,6 +167,35 @@ function buildMessages() {
     });
   }
 
+  // メンバー得点変動の検知（dao/data.json の members[].totalPoints 増加）
+  // 新規メンバーは prevMemPts に存在しないため対象外（別途メンバー増加通知で扱う）。
+  const prevMemPts = {};
+  (prev.members || []).forEach((m) => { if (m && m.nickname) prevMemPts[m.nickname] = m.totalPoints || 0; });
+  const gained = [];
+  (cur.members || []).forEach((m) => {
+    if (!m || !m.nickname) return;
+    const before = prevMemPts[m.nickname];
+    if (typeof before === 'number' && (m.totalPoints || 0) > before) {
+      gained.push({ nickname: m.nickname, diff: (m.totalPoints || 0) - before, total: m.totalPoints || 0 });
+    }
+  });
+  if (gained.length === 1) {
+    const g = gained[0];
+    messages.push({
+      title: `${g.nickname}さんがポイントを獲得しました`,
+      body: `+${g.diff} pt（累計 ${g.total} pt）`,
+      url: DAO_URL,
+    });
+  } else if (gained.length > 1) {
+    const names = gained.slice(0, 3).map((g) => g.nickname).join('・');
+    const more = gained.length > 3 ? ` 他${gained.length - 3}名` : '';
+    messages.push({
+      title: `${gained.length}名がポイントを獲得しました`,
+      body: `${names}${more}`,
+      url: DAO_URL,
+    });
+  }
+
   // members/data.json の rows 差分検知（新規メンバー登録の即時通知）
   try {
     const curMem = JSON.parse(fs.readFileSync('members/data.json', 'utf8'));
@@ -175,6 +225,81 @@ function buildMessages() {
     }
   } catch (e) {
     console.log('members/data.json diff skipped:', e.message);
+  }
+
+  // events/data.json の新規イベント検知（rows、キー= タイトル|ts、過去日付は除外）
+  try {
+    const curEv = readCurJson('events/data.json');
+    const prevEv = readPrevJson('events/data.json');
+    if (prevEv && Array.isArray(prevEv.rows) && curEv && Array.isArray(curEv.rows)) {
+      const prevKeys = new Set(prevEv.rows.map((r) => `${r.t}|${r.ts}`));
+      const newEvents = curEv.rows.filter((r) => !r.past && !prevKeys.has(`${r.t}|${r.ts}`));
+      if (newEvents.length === 1) {
+        messages.push({
+          title: '新しいイベント情報',
+          body: newEvents[0].t || 'イベントが追加されました',
+          url: EVENTS_URL,
+        });
+      } else if (newEvents.length > 1) {
+        messages.push({
+          title: `新しいイベントが${newEvents.length}件`,
+          body: 'タップしてイベント一覧を確認できます',
+          url: EVENTS_URL,
+        });
+      }
+    }
+  } catch (e) {
+    console.log('events/data.json diff skipped:', e.message);
+  }
+
+  // schedule/data.json の新規予定検知（items、キー= id）
+  try {
+    const curSc = readCurJson('schedule/data.json');
+    const prevSc = readPrevJson('schedule/data.json');
+    if (prevSc && Array.isArray(prevSc.items) && curSc && Array.isArray(curSc.items)) {
+      const prevIds = new Set(prevSc.items.map((it) => it.id));
+      const newItems = curSc.items.filter((it) => !prevIds.has(it.id));
+      if (newItems.length === 1) {
+        messages.push({
+          title: '新しい予定が登録されました',
+          body: newItems[0].title || '予定が追加されました',
+          url: SCHEDULE_URL,
+        });
+      } else if (newItems.length > 1) {
+        messages.push({
+          title: `新しい予定が${newItems.length}件`,
+          body: 'タップしてスケジュールを確認できます',
+          url: SCHEDULE_URL,
+        });
+      }
+    }
+  } catch (e) {
+    console.log('schedule/data.json diff skipped:', e.message);
+  }
+
+  // dangotsusin/data.json の新規お知らせ検知（items、キー= id）
+  try {
+    const curDg = readCurJson('dangotsusin/data.json');
+    const prevDg = readPrevJson('dangotsusin/data.json');
+    if (prevDg && Array.isArray(prevDg.items) && curDg && Array.isArray(curDg.items)) {
+      const prevIds = new Set(prevDg.items.map((it) => it.id));
+      const newItems = curDg.items.filter((it) => !prevIds.has(it.id));
+      if (newItems.length === 1) {
+        messages.push({
+          title: 'だんご通信に新着',
+          body: newItems[0].subject || '新しいお知らせがあります',
+          url: DANGOTSUSIN_URL,
+        });
+      } else if (newItems.length > 1) {
+        messages.push({
+          title: `だんご通信に新着${newItems.length}件`,
+          body: 'タップして確認できます',
+          url: DANGOTSUSIN_URL,
+        });
+      }
+    }
+  } catch (e) {
+    console.log('dangotsusin/data.json diff skipped:', e.message);
   }
 
   return messages;
