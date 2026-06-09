@@ -1156,28 +1156,28 @@
       color: var(--green);
     }
 
-    /* コメントモーダル */
+    /* チャットモーダル */
     .comment-modal-box {
-      background: var(--paper);
-      border-radius: 12px;
-      box-shadow: 0 12px 40px rgba(29,54,45,0.18);
+      background: #e8f0e9;
+      border-radius: 16px;
+      box-shadow: 0 12px 40px rgba(29,54,45,0.22);
       width: min(520px, 100%);
-      max-height: 80vh;
+      height: min(82vh, 700px);
       display: flex;
       flex-direction: column;
       overflow: hidden;
     }
     .comment-modal-header {
-      padding: 16px 20px 12px;
-      border-bottom: 1px solid var(--line);
+      padding: 14px 18px 12px;
+      background: var(--green-deep);
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
     .comment-modal-header h3 {
       margin: 0;
-      font-size: 1rem;
-      color: var(--ink);
+      font-size: 0.95rem;
+      color: #fff;
       flex: 1;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -1187,93 +1187,191 @@
       background: none;
       border: none;
       font-size: 1.4rem;
-      color: var(--muted);
+      color: rgba(255,255,255,0.8);
       cursor: pointer;
       padding: 0 0 0 12px;
       line-height: 1;
     }
+    /* チャットエリア */
     .comment-list {
       flex: 1;
       overflow-y: auto;
-      padding: 12px 20px;
+      padding: 16px 12px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
     .comment-empty {
       color: var(--muted);
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       text-align: center;
-      padding: 24px 0;
+      padding: 32px 0;
+      align-self: center;
     }
-    .comment-item {
-      border-bottom: 1px solid var(--line);
-      padding: 10px 0;
-    }
-    .comment-item:last-child { border-bottom: none; }
-    .comment-meta {
+    /* チャットバブル共通 */
+    .chat-row {
       display: flex;
-      justify-content: space-between;
-      font-size: 0.8rem;
-      color: var(--muted);
-      margin-bottom: 4px;
+      align-items: flex-end;
+      gap: 6px;
+      max-width: 88%;
+      position: relative;
     }
-    .comment-alias { font-weight: 700; color: var(--green-deep); }
-    .comment-text {
-      font-size: 0.9rem;
-      color: var(--ink);
+    .chat-row.is-me {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+    .chat-row.is-other {
+      align-self: flex-start;
+    }
+    .chat-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--green-deep);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .chat-row.is-me .chat-avatar {
+      background: var(--green);
+    }
+    .chat-col {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .chat-row.is-me .chat-col {
+      align-items: flex-end;
+    }
+    .chat-name {
+      font-size: 0.72rem;
+      color: var(--muted);
+      padding: 0 4px;
+    }
+    .chat-bubble {
+      padding: 9px 13px;
+      border-radius: 18px;
+      font-size: 0.88rem;
+      line-height: 1.5;
       white-space: pre-wrap;
       word-break: break-word;
-    }
-    .comment-like-btn {
-      background: none;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 2px 10px;
-      font-size: 0.78rem;
-      color: var(--muted);
+      position: relative;
       cursor: pointer;
-      margin-top: 6px;
+      user-select: text;
     }
-    .comment-like-btn:hover { border-color: var(--coral); color: var(--coral); }
-    .comment-like-btn.is-liked { border-color: var(--coral); color: var(--coral); }
-    .comment-post-area {
-      border-top: 1px solid var(--line);
-      padding: 14px 20px;
-      background: var(--wash);
+    .chat-row.is-other .chat-bubble {
+      background: #fff;
+      color: var(--ink);
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
     }
-    .comment-post-area textarea {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 8px 12px;
-      font-size: 0.9rem;
-      font-family: inherit;
-      resize: vertical;
-      min-height: 70px;
-      box-sizing: border-box;
+    .chat-row.is-me .chat-bubble {
+      background: #4caf60;
+      color: #fff;
+      border-bottom-right-radius: 4px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
     }
-    .comment-post-row {
+    .chat-row.is-me.pending .chat-bubble {
+      opacity: 0.7;
+    }
+    .chat-meta {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-top: 8px;
+      gap: 6px;
+      font-size: 0.7rem;
+      color: var(--muted);
+      padding: 0 4px;
+    }
+    /* リアクション */
+    .chat-reaction {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      padding: 1px 7px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: transform 0.1s;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .chat-reaction:active { transform: scale(1.2); }
+    .chat-reaction.is-liked { border-color: var(--coral); background: #fff0ee; }
+    /* リアクションポップアップ */
+    .reaction-popup {
+      position: absolute;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 24px;
+      padding: 6px 10px;
+      display: flex;
+      gap: 10px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      z-index: 100;
+      bottom: calc(100% + 6px);
+      font-size: 1.2rem;
+    }
+    .chat-row.is-me .reaction-popup { right: 0; }
+    .chat-row.is-other .reaction-popup { left: 0; }
+    .reaction-popup span { cursor: pointer; transition: transform 0.1s; }
+    .reaction-popup span:hover { transform: scale(1.3); }
+    /* 送信エリア */
+    .comment-post-area {
+      border-top: 1px solid rgba(0,0,0,0.08);
+      padding: 10px 12px;
+      background: #f5f7f5;
+      display: flex;
+      align-items: flex-end;
       gap: 8px;
     }
-    .comment-post-note { font-size: 0.8rem; color: var(--muted); }
+    .comment-post-area textarea {
+      flex: 1;
+      border: 1px solid #d0d8d0;
+      border-radius: 22px;
+      padding: 9px 16px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      resize: none;
+      min-height: 40px;
+      max-height: 120px;
+      box-sizing: border-box;
+      background: #fff;
+      line-height: 1.4;
+      outline: none;
+    }
+    .comment-post-area textarea:focus {
+      border-color: var(--green);
+    }
     .comment-submit-btn {
       background: var(--green);
       color: #fff;
       border: none;
-      border-radius: 8px;
-      padding: 7px 18px;
-      font-size: 0.9rem;
+      border-radius: 50%;
+      width: 42px;
+      height: 42px;
+      font-size: 1.2rem;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s, transform 0.1s;
     }
-    .comment-submit-btn:disabled { opacity: 0.5; cursor: default; }
-    .comment-error { font-size: 0.82rem; color: var(--coral); margin-top: 4px; }
+    .comment-submit-btn:hover { background: var(--green-deep); }
+    .comment-submit-btn:active { transform: scale(0.92); }
+    .comment-submit-btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+    .comment-error { font-size: 0.8rem; color: var(--coral); padding: 0 4px 6px; }
     .comment-login-note {
       font-size: 0.85rem;
       color: var(--muted);
       text-align: center;
-      padding: 10px 0 4px;
+      padding: 14px 12px;
+      background: #f5f7f5;
+      border-top: 1px solid rgba(0,0,0,0.08);
     }
 
     /* モーダルオーバーレイ */
@@ -5506,18 +5604,18 @@
   <script src="../assets/site-config.js?v=20260424"></script>
   <script src="../assets/page-tracker.js" data-page="DAO投票"></script>
 
-<!-- コメントモーダル -->
+<!-- チャットモーダル -->
 <div class="modal-overlay" id="commentModal" hidden aria-modal="true" role="dialog">
   <div class="comment-modal-box">
     <div class="comment-modal-header">
-      <h3 id="commentModalTitle">コメント</h3>
+      <h3 id="commentModalTitle">💬 ディスカッション</h3>
       <button class="comment-modal-close" id="commentModalClose" type="button" aria-label="閉じる">×</button>
     </div>
     <div class="comment-list" id="commentList">
       <p class="comment-empty">読み込み中…</p>
     </div>
-    <div class="comment-post-area" id="commentPostArea">
-      <!-- DAOメンバーログイン済みの場合に表示 -->
+    <div id="commentPostArea">
+      <!-- ログイン状態に応じて描画 -->
     </div>
   </div>
 </div>
@@ -5527,7 +5625,23 @@
   var COMMENT_GAS_URL = 'https://script.google.com/macros/s/AKfycbzI6vkv7yJTb5WfqevtCGeAJY9mt-7P07_0qAxGO82X3xFDqLXkceXHAPRe1UHZ-ZgR/exec';
   var commentCounts = window.__commentCounts = {};
   var likedComments = {};
+  var reactedComments = {};
   var currentProposalId = null;
+  var REACTIONS = ['❤️','👍','😄','🎉','🤔'];
+
+  function escHtml(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function avatarLetter(name) {
+    return escHtml((name || '？').charAt(0).toUpperCase());
+  }
+
+  function formatTime(s) {
+    if (!s) return '';
+    var m = String(s).match(/(\d{2}:\d{2})/);
+    return m ? m[1] : String(s).slice(-5);
+  }
 
   // ── コメント件数を全提案分まとめて取得 ──
   function loadCommentCounts() {
@@ -5564,7 +5678,7 @@
     if (e.target === this) closeCommentModal();
   });
 
-  // ── コメント一覧取得 ──
+  // ── チャット一覧取得 ──
   function loadComments(proposalId) {
     var list = document.getElementById('commentList');
     list.innerHTML = '<p class="comment-empty">読み込み中…</p>';
@@ -5579,42 +5693,118 @@
 
   function renderComments(comments) {
     var list = document.getElementById('commentList');
+    var myNick = (typeof getStoredNickname === 'function') ? getStoredNickname() : '';
     if (comments.length === 0) {
-      list.innerHTML = '<p class="comment-empty">まだコメントはありません。最初のコメントを投稿しましょう！</p>';
+      list.innerHTML = '<p class="comment-empty">まだ発言はありません<br>最初のひとことを投稿しましょう！</p>';
       return;
     }
-    list.innerHTML = comments.map(function(c) {
-      var liked = !!likedComments[c.id];
-      return '<div class="comment-item" data-comment-id="' + c.id + '">' +
-        '<div class="comment-meta">' +
-          '<span class="comment-alias">🙋 ' + escHtml(c.alias) + '</span>' +
-          '<span>' + escHtml(c.postedAt) + '</span>' +
-        '</div>' +
-        '<div class="comment-text">' + escHtml(c.text) + '</div>' +
-        '<button class="comment-like-btn' + (liked ? ' is-liked' : '') + '" data-comment-id="' + c.id + '"' + (liked ? ' disabled' : '') + '>👍 ' + c.likes + '</button>' +
-        '</div>';
-    }).join('');
+    list.innerHTML = '';
+    comments.forEach(function(c) {
+      list.appendChild(buildBubble(c, myNick, false));
+    });
+    list.scrollTop = list.scrollHeight;
+    attachReactionEvents(list);
+  }
 
-    // いいねボタン
-    list.querySelectorAll('.comment-like-btn:not(:disabled)').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        var cid = btn.dataset.commentId;
-        btn.disabled = true;
-        fetch(COMMENT_GAS_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'like', commentId: cid })
-        })
-        .then(function(r) { return r.json(); })
-        .then(function(d) {
-          if (d.ok) {
-            likedComments[cid] = true;
-            btn.classList.add('is-liked');
-            btn.textContent = '👍 ' + d.likes;
-          }
-        })
-        .catch(function() { btn.disabled = false; });
+  function buildBubble(c, myNick, isPending) {
+    var isMe = myNick && c.alias === myNick;
+    var row = document.createElement('div');
+    row.className = 'chat-row ' + (isMe ? 'is-me' : 'is-other') + (isPending ? ' pending' : '');
+    if (c.id) row.dataset.commentId = c.id;
+
+    var avatar = '<div class="chat-avatar">' + avatarLetter(c.alias) + '</div>';
+    var liked = !!likedComments[c.id];
+    var reaction = reactedComments[c.id] || '';
+    var likeCount = c.likes || 0;
+
+    var reactionBadge = (likeCount > 0 || reaction)
+      ? '<span class="chat-reaction' + (liked ? ' is-liked' : '') + '" data-comment-id="' + escHtml(c.id) + '">' +
+          (reaction || '👍') + ' ' + likeCount +
+        '</span>'
+      : '<span class="chat-reaction" data-comment-id="' + escHtml(c.id) + '" style="display:none">👍 0</span>';
+
+    var col = '<div class="chat-col">' +
+      (isMe ? '' : '<span class="chat-name">' + escHtml(c.alias) + '</span>') +
+      '<div class="chat-bubble" data-comment-id="' + escHtml(c.id) + '">' + escHtml(c.text) + '</div>' +
+      '<div class="chat-meta">' +
+        '<span>' + formatTime(c.postedAt) + '</span>' +
+        reactionBadge +
+      '</div>' +
+    '</div>';
+
+    row.innerHTML = avatar + col;
+    return row;
+  }
+
+  function attachReactionEvents(container) {
+    container.querySelectorAll('.chat-bubble').forEach(function(bubble) {
+      var longTimer = null;
+      bubble.addEventListener('dblclick', function() {
+        showReactionPopup(bubble);
+      });
+      bubble.addEventListener('touchstart', function() {
+        longTimer = setTimeout(function() { showReactionPopup(bubble); }, 500);
+      }, {passive: true});
+      bubble.addEventListener('touchend', function() {
+        clearTimeout(longTimer);
       });
     });
+    container.querySelectorAll('.chat-reaction').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var cid = btn.dataset.commentId;
+        if (likedComments[cid]) return;
+        sendReaction(cid, '👍', btn);
+      });
+    });
+  }
+
+  function showReactionPopup(bubble) {
+    closeAllPopups();
+    var cid = bubble.dataset.commentId;
+    if (!cid) return;
+    var popup = document.createElement('div');
+    popup.className = 'reaction-popup';
+    REACTIONS.forEach(function(emoji) {
+      var span = document.createElement('span');
+      span.textContent = emoji;
+      span.addEventListener('click', function() {
+        sendReaction(cid, emoji, null);
+        popup.remove();
+      });
+      popup.appendChild(span);
+    });
+    var row = bubble.closest('.chat-row');
+    row.style.position = 'relative';
+    row.appendChild(popup);
+    setTimeout(function() {
+      document.addEventListener('click', function handler(e) {
+        if (!popup.contains(e.target)) { popup.remove(); document.removeEventListener('click', handler); }
+      });
+    }, 10);
+  }
+
+  function closeAllPopups() {
+    document.querySelectorAll('.reaction-popup').forEach(function(p) { p.remove(); });
+  }
+
+  function sendReaction(cid, emoji, btnEl) {
+    if (likedComments[cid]) return;
+    likedComments[cid] = true;
+    reactedComments[cid] = emoji;
+    var row = document.querySelector('.chat-row[data-comment-id="' + cid + '"]');
+    if (row) {
+      var reactionEl = row.querySelector('.chat-reaction');
+      if (reactionEl) {
+        reactionEl.style.display = '';
+        reactionEl.classList.add('is-liked');
+        var curCount = parseInt(reactionEl.textContent.replace(/\D/g,'')) || 0;
+        reactionEl.textContent = emoji + ' ' + (curCount + 1);
+      }
+    }
+    fetch(COMMENT_GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'like', commentId: cid })
+    }).catch(function() {});
   }
 
   // ── 投稿エリアを描画 ──
@@ -5622,49 +5812,79 @@
     var area = document.getElementById('commentPostArea');
     var nick = (typeof getStoredNickname === 'function') ? getStoredNickname() : '';
     if (!nick) {
-      area.innerHTML = '<p class="comment-login-note">💡 コメントの投稿はDAOメンバーのみです。<br>ログインしてから投稿できます。</p>';
+      area.innerHTML = '<p class="comment-login-note">💡 ディスカッションへの参加はDAOメンバーのみです。<br>ログインして発言できます。</p>';
       return;
     }
     area.innerHTML =
-      '<div style="font-size:0.82rem;color:var(--muted);margin-bottom:6px;">投稿者: <strong>' + escHtml(nick) + '</strong></div>' +
-      '<textarea id="commentTextarea" placeholder="この提案へのコメントを書いてください（500文字以内）" maxlength="500"></textarea>' +
-      '<div class="comment-post-row">' +
-        '<span class="comment-post-note" id="commentError"></span>' +
-        '<button class="comment-submit-btn" id="commentSubmitBtn">投稿する</button>' +
-      '</div>';
+      '<div class="comment-post-area">' +
+        '<textarea id="commentTextarea" placeholder="メッセージを入力…" maxlength="500" rows="1"></textarea>' +
+        '<button class="comment-submit-btn" id="commentSubmitBtn" title="送信">➤</button>' +
+      '</div>' +
+      '<div class="comment-error" id="commentError"></div>';
 
+    var ta = document.getElementById('commentTextarea');
+    ta.addEventListener('input', function() {
+      ta.style.height = 'auto';
+      ta.style.height = Math.min(ta.scrollHeight, 120) + 'px';
+    });
+    ta.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        submitComment(nick);
+      }
+    });
     document.getElementById('commentSubmitBtn').addEventListener('click', function() {
-      var text = (document.getElementById('commentTextarea').value || '').trim();
-      var errEl = document.getElementById('commentError');
-      if (!text) { errEl.textContent = 'コメントを入力してください'; return; }
-      var btn = this;
-      btn.disabled = true;
-      errEl.textContent = '送信中…';
-      fetch(COMMENT_GAS_URL, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'comment', proposalId: currentProposalId, alias: nick, text: text })
-      })
-      .then(function(r) { return r.json(); })
-      .then(function(d) {
-        if (d.ok) {
-          document.getElementById('commentTextarea').value = '';
-          errEl.textContent = '';
-          // カウント更新
-          commentCounts[currentProposalId] = (commentCounts[currentProposalId] || 0) + 1;
-          var countEl = document.querySelector('.comment-count[data-pid="' + currentProposalId + '"]');
-          if (countEl) countEl.textContent = commentCounts[currentProposalId];
-          loadComments(currentProposalId);
-        } else {
-          errEl.textContent = d.error || '送信に失敗しました';
-        }
-        btn.disabled = false;
-      })
-      .catch(function() { errEl.textContent = '通信エラーが発生しました'; btn.disabled = false; });
+      submitComment(nick);
     });
   }
 
-  function escHtml(s) {
-    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  function submitComment(nick) {
+    var ta = document.getElementById('commentTextarea');
+    var errEl = document.getElementById('commentError');
+    var text = (ta.value || '').trim();
+    if (!text) return;
+    var btn = document.getElementById('commentSubmitBtn');
+    btn.disabled = true;
+    ta.value = '';
+    ta.style.height = 'auto';
+    errEl.textContent = '';
+
+    // 楽観的UI: 即座にバブルを表示
+    var list = document.getElementById('commentList');
+    var tempId = 'tmp_' + Date.now();
+    var tempComment = { id: tempId, alias: nick, text: text, postedAt: new Date().toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'}), likes: 0 };
+    var bubble = buildBubble(tempComment, nick, true);
+    list.appendChild(bubble);
+    list.scrollTop = list.scrollHeight;
+
+    commentCounts[currentProposalId] = (commentCounts[currentProposalId] || 0) + 1;
+    var countEl = document.querySelector('.comment-count[data-pid="' + currentProposalId + '"]');
+    if (countEl) countEl.textContent = commentCounts[currentProposalId];
+
+    fetch(COMMENT_GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'comment', proposalId: currentProposalId, alias: nick, text: text })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      btn.disabled = false;
+      if (d.ok) {
+        // 仮バブルに本物のIDを付与し pending を解除
+        bubble.classList.remove('pending');
+        if (d.id) { bubble.dataset.commentId = d.id; bubble.querySelector('.chat-bubble').dataset.commentId = d.id; }
+        attachReactionEvents(list);
+      } else {
+        errEl.textContent = d.error || '送信に失敗しました';
+        bubble.remove();
+        commentCounts[currentProposalId] = Math.max(0, (commentCounts[currentProposalId] || 1) - 1);
+        if (countEl) countEl.textContent = commentCounts[currentProposalId];
+      }
+    })
+    .catch(function() {
+      btn.disabled = false;
+      errEl.textContent = '通信エラーが発生しました';
+      bubble.remove();
+    });
   }
 
   // ── カードのコメントボタンに委譲イベント ──
@@ -5681,7 +5901,6 @@
     setTimeout(loadCommentCounts, 2000);
   });
 
-  // proposalレンダリング後にカウントを反映させるため公開
   window.__refreshCommentCounts = loadCommentCounts;
 })();
 </script>
