@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-06-09</p>
+            <h2 class="cl-title">運営管理画面に「投票者一覧（実名）」を統合・旧DAO-GAS依存を解消</h2>
+            <p class="cl-desc">
+              これまで「誰が投票したか（実名一覧）」は旧 cocola-dao-gas2（GitHub Actions非接続の旧系統）の管理ページを別タブで開く方式だった。
+              実名投票者APIを現用の cocola_topics GAS に移管（v206 @400、mode=adminVoters）し、
+              運営管理画面（admin/index.html）内にインライン表示するよう統合。別タブを開かず、絞り込み検索付きで投票者・投票内容・日時を一覧できる。
+              旧DAO-GASへの依存リンクを削除し、投票・集計・管理がすべて cocola_topics 1プロジェクトに集約された。
+            </p>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-06-09</p>
             <h2 class="cl-title">初投票でもDAOメンバーになれるよう改善（投票権の鶏卵問題を解消）</h2>
             <p class="cl-desc">
               これまでは、会員登録だけの「幽霊メンバー」が投票しても重み0で集計外となり、

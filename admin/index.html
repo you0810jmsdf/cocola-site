@@ -134,13 +134,17 @@
           <h2>投票状況の確認</h2>
         </div>
         <div class="apps-grid">
-          <article class="app-card">
+          <article class="app-card" style="grid-column:1/-1;">
             <p class="app-card__tag">運営</p>
             <h3>🗳️ 誰が投票したか（実名一覧）</h3>
-            <p>DAO 提案ごとの投票者を実名で確認できます。公開ページではハッシュ化されていますが、運営向け管理ビューでは投票者名・投票内容・日時を一覧表示します。未投票メンバーの把握にも使えます。</p>
-            <div class="app-card__actions">
-              <a class="button button--secondary" href="https://script.google.com/macros/s/AKfycbxM2ybpJqfWLL-MPnOwZqeBdHjN6IQh5QB-_LubZAG-bD0x8jLkgbUn7NYRzYLFOPfj7g/exec?admin=1" target="_blank" rel="noreferrer noopener">開く</a>
+            <p>DAO 提案ごとの投票者を実名で確認できます。公開ページではハッシュ化されていますが、運営向けには投票者名・投票内容・日時を一覧表示します。未投票メンバーの把握にも使えます。</p>
+            <div class="app-card__actions" style="flex-wrap:wrap;gap:10px;align-items:center;">
+              <button class="button button--secondary wf-btn" type="button" id="daoVotersBtn">投票者一覧を表示</button>
+              <input type="text" id="daoVotersFilter" placeholder="提案ID/投票者で絞り込み" style="display:none;padding:8px 10px;border:1px solid #d4dad6;border-radius:8px;font-size:0.9rem;min-width:200px;flex:1;">
+              <span class="wf-status" id="daoVotersCount"></span>
             </div>
+            <div class="wf-status" id="daoVotersStatus" style="margin-top:8px;"></div>
+            <div id="daoVotersTableWrap" style="overflow:auto;max-height:60vh;margin-top:8px;"></div>
           </article>
           <article class="app-card">
             <p class="app-card__tag">運営</p>
@@ -259,6 +263,98 @@
         })
         .finally(function () { btn.disabled = false; });
     }
+
+    // DAO投票者一覧（実名）— cocola_topics GAS の adminVoters を叩く（管理ゲート通過済みのため pw=cocola2026 を付与）
+    // 旧 cocola-dao-gas2 の ?admin=1 ページから移管（2026-06-09）。
+    (function setupDaoVoters() {
+      var TOPICS_EXEC_URL = 'https://script.google.com/macros/s/AKfycbzVs_W57Iphxcc5PHShXBNae63CKqjF5fB82tUkQwaf1vyuNWWLgtWZgglY7Qbuuft1/exec';
+      var btn = document.getElementById('daoVotersBtn');
+      var filterEl = document.getElementById('daoVotersFilter');
+      var countEl = document.getElementById('daoVotersCount');
+      var statusEl = document.getElementById('daoVotersStatus');
+      var tableWrap = document.getElementById('daoVotersTableWrap');
+      if (!btn) return;
+      var allRows = [];
+      var loaded = false;
+
+      function escapeHtml(s) {
+        return String(s == null ? '' : s)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      }
+      function voteBadge(vote, normalized) {
+        var color = '#66736e', bg = '#eef2f0';
+        if (normalized === 'yes') { color = '#1d8f6f'; bg = '#e6f4ee'; }
+        else if (normalized === 'no') { color = '#d4544a'; bg = '#fdecea'; }
+        else if (normalized === 'abstain') { color = '#7a6c1e'; bg = '#fcf6dc'; }
+        return '<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;color:' + color + ';background:' + bg + ';">' + escapeHtml(vote || '(未投票)') + '</span>';
+      }
+      function renderTable() {
+        var q = (filterEl.value || '').trim().toLowerCase();
+        var rows = allRows;
+        if (q) {
+          rows = rows.filter(function (r) {
+            return (String(r.proposalId).toLowerCase().indexOf(q) !== -1)
+              || (String(r.voter).toLowerCase().indexOf(q) !== -1)
+              || (String(r.title).toLowerCase().indexOf(q) !== -1);
+          });
+        }
+        countEl.textContent = '表示 ' + rows.length + ' / 全 ' + allRows.length + ' 件';
+        if (!rows.length) {
+          tableWrap.innerHTML = '<div style="padding:24px;text-align:center;color:#888;font-size:13px;">該当する投票履歴がありません</div>';
+          return;
+        }
+        var html = '<table style="width:100%;border-collapse:collapse;font-size:13px;">'
+          + '<thead><tr style="background:#f5f8f6;position:sticky;top:0;">'
+          + '<th style="padding:8px 10px;text-align:left;border-bottom:1px solid #e2ebe6;white-space:nowrap;">提案ID</th>'
+          + '<th style="padding:8px 10px;text-align:left;border-bottom:1px solid #e2ebe6;">提案タイトル</th>'
+          + '<th style="padding:8px 10px;text-align:left;border-bottom:1px solid #e2ebe6;white-space:nowrap;">投票者</th>'
+          + '<th style="padding:8px 10px;text-align:left;border-bottom:1px solid #e2ebe6;white-space:nowrap;">投票内容</th>'
+          + '<th style="padding:8px 10px;text-align:left;border-bottom:1px solid #e2ebe6;white-space:nowrap;">記録日時</th>'
+          + '</tr></thead><tbody>';
+        for (var i = 0; i < rows.length; i++) {
+          var r = rows[i];
+          html += '<tr style="border-bottom:1px solid #f0f4f1;">'
+            + '<td style="padding:6px 10px;font-family:ui-monospace,monospace;color:#1d8f6f;white-space:nowrap;">' + escapeHtml(r.proposalId) + '</td>'
+            + '<td style="padding:6px 10px;color:#1e2522;">' + escapeHtml(r.title) + '</td>'
+            + '<td style="padding:6px 10px;color:#1e2522;font-weight:600;white-space:nowrap;">' + escapeHtml(r.voter) + '</td>'
+            + '<td style="padding:6px 10px;white-space:nowrap;">' + voteBadge(r.vote, r.normalized) + '</td>'
+            + '<td style="padding:6px 10px;color:#888;font-family:ui-monospace,monospace;white-space:nowrap;">' + escapeHtml(r.timestamp) + '</td>'
+            + '</tr>';
+        }
+        html += '</tbody></table>';
+        tableWrap.innerHTML = html;
+      }
+      btn.addEventListener('click', function () {
+        if (loaded) {
+          var visible = tableWrap.style.display !== 'none';
+          tableWrap.style.display = visible ? 'none' : '';
+          filterEl.style.display = visible ? 'none' : '';
+          btn.textContent = visible ? '投票者一覧を表示' : '隠す';
+          return;
+        }
+        statusEl.textContent = '通信中…';
+        var url = TOPICS_EXEC_URL + '?mode=adminVoters&pw=' + encodeURIComponent('cocola2026') + '&t=' + Date.now();
+        fetch(url)
+          .then(function (r) { return r.json(); })
+          .then(function (j) {
+            if (!j || !j.ok) {
+              statusEl.textContent = '❌ ' + ((j && j.error) || '取得に失敗しました');
+              return;
+            }
+            allRows = j.rows || [];
+            loaded = true;
+            statusEl.textContent = '✅ 取得しました（' + allRows.length + '件）';
+            filterEl.style.display = '';
+            btn.textContent = '隠す';
+            renderTable();
+          })
+          .catch(function (err) {
+            statusEl.textContent = '通信エラー: ' + (err && err.message ? err.message : String(err));
+          });
+      });
+      filterEl.addEventListener('input', function () { if (allRows.length) renderTable(); });
+    })();
   </script>
 </body>
 </html>
