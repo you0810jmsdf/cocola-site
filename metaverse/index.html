@@ -83,37 +83,63 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* スタンプラリー */
-  #stampBookBtn {
+  /* 文化財パズルラリー */
+  #puzzleBtn {
     position: absolute; top: 52px; left: 10px; z-index: 21;
     background: rgba(20, 30, 40, 0.8); color: #fff; border: none;
     border-radius: 10px; padding: 8px 12px; font-size: 13px; cursor: pointer;
   }
-  #stampBookBtn .badge {
+  #puzzleBtn .badge {
     background: #e67e22; border-radius: 10px; padding: 1px 7px;
     font-size: 11px; margin-left: 4px; font-weight: bold;
   }
-  #stampBook {
+  #puzzlePanel {
     position: absolute; top: 92px; left: 10px; z-index: 25;
-    background: rgba(20, 30, 40, 0.92); color: #fff; border-radius: 12px;
-    padding: 12px 14px; width: 230px; font-size: 12px; display: none;
+    background: rgba(20, 30, 40, 0.94); color: #fff; border-radius: 12px;
+    padding: 12px 14px; width: min(92vw, 420px); font-size: 12px; display: none;
+    max-height: calc(100vh - 140px); overflow-y: auto;
   }
-  #stampBook h3 { margin: 0 0 8px; font-size: 14px; color: #ffd166; }
-  #stampBook ul { list-style: none; margin: 0; padding: 0; }
-  #stampBook li {
-    display: flex; align-items: center; gap: 8px;
+  #puzzlePanel h3 { margin: 0 0 8px; font-size: 14px; color: #ffd166; }
+  #puzzleBoard {
+    position: relative; width: 100%; aspect-ratio: 2 / 1;
+    border-radius: 8px; overflow: hidden; background: #111;
+  }
+  #puzzleBoard img { width: 100%; height: 100%; display: block; }
+  #puzzleMask {
+    position: absolute; inset: 0; display: grid;
+    grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(5, 1fr);
+  }
+  #puzzleMask .cell {
+    background: #2c3a4a; border: 1px solid rgba(255,255,255,0.08);
+    transition: opacity 0.8s ease;
+  }
+  #puzzleMask .cell.revealed { opacity: 0; pointer-events: none; }
+  #puzzlePanel ul { list-style: none; margin: 8px 0 0; padding: 0; max-height: 300px; overflow-y: auto; }
+  #puzzlePanel li {
+    display: flex; align-items: center; gap: 6px;
     padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.12);
     line-height: 1.4;
   }
-  #stampBook li:last-child { border-bottom: none; }
-  #stampBook li .mark { font-size: 18px; width: 24px; text-align: center; }
-  #stampBook li.got .mark { filter: none; }
-  #stampBook li:not(.got) { opacity: 0.55; }
-  #stampBook .resetBtn {
+  #puzzlePanel li:last-child { border-bottom: none; }
+  #puzzlePanel li .mark { font-size: 14px; width: 20px; text-align: center; flex-shrink: 0; }
+  #puzzlePanel li:not(.got) { opacity: 0.6; }
+  #puzzlePanel li .nm { flex: 1; }
+  #puzzlePanel li .desig { font-size: 10px; opacity: 0.7; }
+  #puzzlePanel li .goBtn {
+    flex-shrink: 0; border: none; border-radius: 6px; background: #3a7bd5;
+    color: #fff; font-size: 11px; padding: 4px 8px; cursor: pointer;
+  }
+  #puzzlePanel .resetBtn {
     margin-top: 8px; width: 100%; padding: 6px; border: none; border-radius: 8px;
     background: rgba(255,255,255,0.15); color: #fff; font-size: 11px; cursor: pointer;
   }
-  #stampBook .hint { font-size: 10px; opacity: 0.75; margin: 6px 0 0; line-height: 1.5; }
+  #puzzlePanel .hint { font-size: 10px; opacity: 0.75; margin: 6px 0 0; line-height: 1.5; }
+  #puzzlePanel .filterRow { display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap; }
+  #puzzlePanel .filterRow button {
+    border: none; border-radius: 6px; background: rgba(255,255,255,0.15);
+    color: #fff; font-size: 10px; padding: 3px 8px; cursor: pointer;
+  }
+  #puzzlePanel .filterRow button.active { background: #e67e22; }
 
   #stampToast {
     position: absolute; top: 30%; left: 50%; transform: translate(-50%, -50%) scale(0.8);
@@ -177,20 +203,32 @@
 
 <button id="panelToggle">📍 スポット</button>
 
-<button id="stampBookBtn">📖 スタンプ帳<span class="badge" id="stampCount">0/6</span></button>
-<div id="stampBook">
-  <h3>🎪 印西メタバース スタンプラリー</h3>
-  <ul id="stampList"></ul>
-  <p class="hint">各スポットまで歩いて近づく（50m以内）とスタンプが押されます。上空からの通過では押されません。</p>
-  <button class="resetBtn" id="stampResetBtn">記録をリセット</button>
+<button id="puzzleBtn">🧩 パズル帳<span class="badge" id="puzzleCount">0/50</span></button>
+<div id="puzzlePanel">
+  <h3>🧩 印西市文化財パズルラリー</h3>
+  <div id="puzzleBoard">
+    <img src="puzzle-art.svg" alt="印西の文化財風景パズル">
+    <div id="puzzleMask"></div>
+  </div>
+  <p class="hint">印西市の指定文化財50か所に近づく（80m以内）とパズルのピースが1枚ずつ開きます。50枚すべて集めると絵が完成！「▶行く」で文化財の近くまで飛べます（最後は自分で近づこう）。</p>
+  <div class="filterRow" id="desigFilter">
+    <button data-f="all" class="active">すべて</button>
+    <button data-f="国指定">国指定</button>
+    <button data-f="県指定">県指定</button>
+    <button data-f="市指定">市指定</button>
+    <button data-f="国登録">国登録</button>
+  </div>
+  <ul id="bunkazaiList"></ul>
+  <button class="resetBtn" id="puzzleResetBtn">記録をリセット</button>
 </div>
 
-<div id="stampToast"><span class="big">🎉</span><span id="stampToastText"></span></div>
+<div id="stampToast"><span class="big">🧩</span><span id="stampToastText"></span></div>
 
 <div id="completeModal">
   <div class="inner">
-    <h2>🏆 スタンプラリー コンプリート！</h2>
-    <p>印西市の6スポットをすべて巡りました！<br>おめでとうございます！</p>
+    <h2>🏆 文化財パズル コンプリート！</h2>
+    <div style="border-radius:10px;overflow:hidden;margin-bottom:12px;"><img src="puzzle-art.svg" style="width:100%;display:block;" alt="完成した印西の文化財風景"></div>
+    <p>印西市の指定文化財50か所をすべて巡り、絵が完成しました！<br>おめでとうございます！</p>
     <div class="password">合言葉：いんざいメタマスター</div>
     <p style="font-size:11px;opacity:0.8;">この画面のスクリーンショットがイベント参加の証明になります。</p>
     <button onclick="document.getElementById('completeModal').classList.remove('show')">閉じる</button>
@@ -209,7 +247,8 @@
   移動：<b>W A S D</b> ／ 矢印キー（<b>Shift</b>で加速）<br>
   上昇・下降：<b>E</b> ／ <b>Q</b>（飛行モード）<br>
   見回す：画面を<b>ドラッグ</b><br>
-  スポット看板を<b>クリック</b>で説明表示
+  スポット看板を<b>クリック</b>で説明表示<br>
+  🧩 文化財に<b>80m以内</b>まで近づくとパズルピース獲得
 </div>
 
 <div id="spotInfo">
@@ -336,17 +375,8 @@ SPOTS.forEach((spot, i) => {
   });
 });
 
-// 看板クリックで説明表示
-viewer.screenSpaceEventHandler.setInputAction(function (click) {
-  const picked = viewer.scene.pick(click.position);
-  if (Cesium.defined(picked) && picked.id && String(picked.id.id || "").startsWith("spot-")) {
-    const idx = parseInt(String(picked.id.id).replace("spot-", ""), 10);
-    const spot = SPOTS[idx];
-    document.getElementById("spotInfoTitle").textContent = "📍 " + spot.name;
-    document.getElementById("spotInfoDesc").textContent = spot.desc;
-    document.getElementById("spotInfo").style.display = "block";
-  }
-}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+// 看板クリックの説明表示は文化財看板と共通のハンドラで行う
+// （Cesium の setInputAction は同一イベントへの再登録で上書きされるため1本に統合）
 
 // ============================================================
 // スポット移動ボタン
@@ -539,39 +569,78 @@ walkBtn.onclick = () => setMode(true);
 flyBtn.onclick = () => setMode(false);
 
 // ============================================================
-// スタンプラリー（端末内完結・localStorage保存）
+// 印西市文化財パズルラリー（端末内完結・localStorage保存）
+// 文化財データ出典: 印西市内の文化財一覧 https://www.city.inzai.lg.jp/0000000354.html
 // ============================================================
-const STAMP_STORAGE_KEY = "cocola-metaverse-stamps-v1";
-const STAMP_RADIUS_M = 50;           // 獲得判定の水平距離(m)
-const STAMP_MAX_ELLIP_HEIGHT = 130;  // 上空通過での獲得を防ぐ楕円体高の上限(m)。印西の地表は楕円体高約60〜70mのため、地上〜低空のみ判定対象
+const PUZZLE_STORAGE_KEY = "cocola-metaverse-puzzle-v1";
+const PIECE_RADIUS_M = 80;           // 獲得判定の水平距離(m)。住所が「地先」等の文化財は座標が町中心になるため広めに設定
+const PIECE_MAX_ELLIP_HEIGHT = 150;  // 上空通過での獲得を防ぐ楕円体高の上限(m)。印西の地表は楕円体高約60〜70m
 
-let stamps = loadStamps(); // { スポットindex: 獲得日時ISO文字列 }
+let BUNKAZAI = [];                   // bunkazai.json から読み込む50件
+let pieces = loadPieces();           // { 文化財index: 獲得日時ISO文字列 }
+let desigFilterVal = "all";
 
-function loadStamps() {
+function loadPieces() {
   try {
-    const raw = localStorage.getItem(STAMP_STORAGE_KEY);
+    const raw = localStorage.getItem(PUZZLE_STORAGE_KEY);
     const data = raw ? JSON.parse(raw) : {};
     return (data && typeof data === "object" && !Array.isArray(data)) ? data : {};
   } catch (e) { return {}; }
 }
-function saveStamps() {
-  try { localStorage.setItem(STAMP_STORAGE_KEY, JSON.stringify(stamps)); } catch (e) {}
+function savePieces() {
+  try { localStorage.setItem(PUZZLE_STORAGE_KEY, JSON.stringify(pieces)); } catch (e) {}
 }
-function stampTotal() { return Object.keys(stamps).length; }
+function pieceTotal() { return Object.keys(pieces).length; }
 
-function renderStampBook() {
-  const list = document.getElementById("stampList");
+// パズル盤面（10×5＝50セル）。文化財index i のピース獲得でセル i が開く
+function buildPuzzleMask() {
+  const mask = document.getElementById("puzzleMask");
+  mask.innerHTML = "";
+  for (let i = 0; i < 50; i++) {
+    const cell = document.createElement("div");
+    cell.className = "cell";
+    cell.id = "pcell-" + i;
+    mask.appendChild(cell);
+  }
+}
+
+function renderPuzzle() {
+  for (let i = 0; i < 50; i++) {
+    const cell = document.getElementById("pcell-" + i);
+    if (cell) cell.classList.toggle("revealed", pieces[i] !== undefined);
+  }
+  document.getElementById("puzzleCount").textContent =
+    pieceTotal() + "/" + (BUNKAZAI.length || 50);
+
+  const list = document.getElementById("bunkazaiList");
   list.innerHTML = "";
-  SPOTS.forEach((spot, i) => {
+  BUNKAZAI.forEach((b, i) => {
+    if (desigFilterVal !== "all" && b.designation !== desigFilterVal) return;
+    const got = pieces[i] !== undefined;
     const li = document.createElement("li");
-    const got = stamps[i] !== undefined;
     li.className = got ? "got" : "";
-    const dateStr = got ? new Date(stamps[i]).toLocaleDateString("ja-JP") : "";
-    li.innerHTML = '<span class="mark">' + (got ? "✅" : "⚪") + '</span>' +
-      '<span>' + spot.name + (got ? '<br><small style="opacity:0.7;">' + dateStr + ' 獲得</small>' : "") + '</span>';
+    const nm = document.createElement("span");
+    nm.className = "nm";
+    nm.innerHTML = b.name + ' <span class="desig">［' + b.designation + "・" + b.type + "］</span>";
+    const mark = document.createElement("span");
+    mark.className = "mark";
+    mark.textContent = got ? "🧩" : "⚪";
+    const go = document.createElement("button");
+    go.className = "goBtn";
+    go.textContent = "▶行く";
+    go.onclick = function () { teleportNear(b); };
+    li.appendChild(mark); li.appendChild(nm); li.appendChild(go);
     list.appendChild(li);
   });
-  document.getElementById("stampCount").textContent = stampTotal() + "/" + SPOTS.length;
+}
+
+// 文化財の約300m南・上空200mへテレポート（最後の接近は自分で）
+function teleportNear(b) {
+  viewer.camera.flyTo({
+    destination: Cesium.Cartesian3.fromDegrees(b.lon, b.lat - 0.0027, 200),
+    orientation: { heading: 0, pitch: Cesium.Math.toRadians(-30), roll: 0 },
+    duration: 3,
+  });
 }
 
 let toastTimer = null;
@@ -583,54 +652,129 @@ function showStampToast(text) {
   toastTimer = setTimeout(() => { toast.classList.remove("show"); }, 2500);
 }
 
-function awardStamp(idx) {
-  stamps[idx] = new Date().toISOString();
-  saveStamps();
-  renderStampBook();
-  showStampToast("スタンプ獲得！ " + SPOTS[idx].name + "（" + stampTotal() + "/" + SPOTS.length + "）");
-  if (stampTotal() === SPOTS.length) {
+function awardPiece(idx) {
+  pieces[idx] = new Date().toISOString();
+  savePieces();
+  renderPuzzle();
+  showStampToast("ピース獲得！ " + BUNKAZAI[idx].name + "（" + pieceTotal() + "/" + BUNKAZAI.length + "）");
+  if (pieceTotal() === BUNKAZAI.length) {
     setTimeout(() => {
       document.getElementById("completeModal").classList.add("show");
     }, 2800);
   }
 }
 
+// 文化財データ読み込み＋看板設置
+async function loadBunkazai() {
+  try {
+    const res = await fetch("bunkazai.json");
+    const data = await res.json();
+    BUNKAZAI = data.spots;
+  } catch (e) {
+    console.error("bunkazai.json の読み込みに失敗:", e);
+    return;
+  }
+  const DESIG_COLOR = {
+    "国指定": "#e74c3c", "国登録": "#e67e22",
+    "県指定": "#9b59b6", "市指定": "#3498db",
+  };
+  BUNKAZAI.forEach((b, i) => {
+    viewer.entities.add({
+      id: "bunkazai-" + i,
+      position: Cesium.Cartesian3.fromDegrees(b.lon, b.lat, 40),
+      point: {
+        pixelSize: 11,
+        color: Cesium.Color.fromCssColorString(DESIG_COLOR[b.designation] || "#3498db"),
+        outlineColor: Cesium.Color.fromCssColorString("#1a2533"), outlineWidth: 2,
+        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+        // 遠すぎる看板は非表示にして描画負荷と画面の混雑を抑える
+        distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 8000),
+      },
+      label: {
+        text: "🧩 " + b.name,
+        font: "bold 12px sans-serif",
+        fillColor: Cesium.Color.WHITE,
+        outlineColor: Cesium.Color.fromCssColorString("#1a2533"),
+        outlineWidth: 4,
+        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+        pixelOffset: new Cesium.Cartesian2(0, -18),
+        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+        distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 2500),
+      },
+    });
+  });
+  renderPuzzle();
+}
+
+// 看板クリックで説明表示（6拠点スポット＋文化財の共通ハンドラ）
+viewer.screenSpaceEventHandler.setInputAction(function (click) {
+  const picked = viewer.scene.pick(click.position);
+  if (!Cesium.defined(picked) || !picked.id) return;
+  const id = String(picked.id.id || "");
+  if (id.startsWith("spot-")) {
+    const idx = parseInt(id.replace("spot-", ""), 10);
+    const spot = SPOTS[idx];
+    if (!spot) return;
+    document.getElementById("spotInfoTitle").textContent = "📍 " + spot.name;
+    document.getElementById("spotInfoDesc").textContent = spot.desc;
+    document.getElementById("spotInfo").style.display = "block";
+  } else if (id.startsWith("bunkazai-")) {
+    const idx = parseInt(id.replace("bunkazai-", ""), 10);
+    const b = BUNKAZAI[idx];
+    if (!b) return;
+    document.getElementById("spotInfoTitle").textContent = "🧩 " + b.name;
+    document.getElementById("spotInfoDesc").textContent =
+      "［" + b.designation + "・" + b.type + "］ 所在地: 印西市" + b.address +
+      (pieces[idx] !== undefined ? "（ピース獲得済み）" : "（80m以内に近づくとピース獲得）");
+    document.getElementById("spotInfo").style.display = "block";
+  }
+}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
 // 近接判定（500msごと・地上〜低空のみ）
-let lastStampCheck = 0;
+let lastPieceCheck = 0;
 viewer.clock.onTick.addEventListener(function () {
   const now = performance.now();
-  if (now - lastStampCheck < 500) return;
-  lastStampCheck = now;
-  if (!tileset) return; // 3Dワールド読み込み前は判定しない
-  if (stampTotal() === SPOTS.length) return;
+  if (now - lastPieceCheck < 500) return;
+  lastPieceCheck = now;
+  if (!tileset || BUNKAZAI.length === 0) return;
+  if (pieceTotal() === BUNKAZAI.length) return;
 
   const carto = Cesium.Cartographic.fromCartesian(viewer.camera.position);
-  if (carto.height > STAMP_MAX_ELLIP_HEIGHT) return;
+  if (carto.height > PIECE_MAX_ELLIP_HEIGHT) return;
 
   const lat = Cesium.Math.toDegrees(carto.latitude);
   const lon = Cesium.Math.toDegrees(carto.longitude);
-  SPOTS.forEach((spot, i) => {
-    if (stamps[i] !== undefined) return;
-    const dNorth = (lat - spot.lat) * 111320;
-    const dEast = (lon - spot.lon) * 111320 * Math.cos(carto.latitude);
-    if (Math.hypot(dNorth, dEast) <= STAMP_RADIUS_M) awardStamp(i);
+  BUNKAZAI.forEach((b, i) => {
+    if (pieces[i] !== undefined) return;
+    const dNorth = (lat - b.lat) * 111320;
+    const dEast = (lon - b.lon) * 111320 * Math.cos(carto.latitude);
+    if (Math.hypot(dNorth, dEast) <= PIECE_RADIUS_M) awardPiece(i);
   });
 });
 
-// スタンプ帳の開閉・リセット
-document.getElementById("stampBookBtn").onclick = function () {
-  const book = document.getElementById("stampBook");
-  book.style.display = (book.style.display === "block") ? "none" : "block";
+// パズル帳の開閉・指定区分フィルタ・リセット
+document.getElementById("puzzleBtn").onclick = function () {
+  const panel = document.getElementById("puzzlePanel");
+  panel.style.display = (panel.style.display === "block") ? "none" : "block";
 };
-document.getElementById("stampResetBtn").onclick = function () {
-  if (confirm("スタンプラリーの記録をリセットしますか？")) {
-    stamps = {};
-    saveStamps();
-    renderStampBook();
+document.getElementById("desigFilter").addEventListener("click", function (e) {
+  if (e.target.tagName !== "BUTTON") return;
+  desigFilterVal = e.target.getAttribute("data-f");
+  this.querySelectorAll("button").forEach((btn) => btn.classList.remove("active"));
+  e.target.classList.add("active");
+  renderPuzzle();
+});
+document.getElementById("puzzleResetBtn").onclick = function () {
+  if (confirm("パズルラリーの記録をリセットしますか？")) {
+    pieces = {};
+    savePieces();
+    renderPuzzle();
   }
 };
 
-renderStampBook();
+buildPuzzleMask();
+renderPuzzle();
+loadBunkazai();
 
 // ============================================================
 // 開始
