@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>COCoLaメタバース印西 | 印西市3Dワールド</title>
+<meta name="description" content="印西市をGoogle Photorealistic 3D Tilesでリアルに再現したCOCoLaのメタバースワールド。千葉ニュータウンの街を自由に歩けます。">
+<script src="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Cesium.js"></script>
+<link href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif; background: #000; }
+  #cesiumContainer { width: 100%; height: 100%; }
+
+  /* ヘッダー */
+  #mvHeader {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 12px; pointer-events: none;
+  }
+  #mvHeader .title {
+    background: rgba(20, 30, 40, 0.75); color: #fff; border-radius: 10px;
+    padding: 6px 14px; font-size: 14px; font-weight: bold; pointer-events: auto;
+  }
+  #mvHeader .title small { font-weight: normal; opacity: 0.8; margin-left: 6px; }
+  #backLink {
+    background: rgba(20, 30, 40, 0.75); color: #fff; text-decoration: none;
+    border-radius: 10px; padding: 6px 12px; font-size: 12px; pointer-events: auto;
+  }
+  #backLink:hover { background: rgba(20, 30, 40, 0.95); }
+
+  /* 操作パネル */
+  #controlPanel {
+    position: absolute; top: 52px; right: 10px; z-index: 20;
+    background: rgba(20, 30, 40, 0.8); color: #fff; border-radius: 12px;
+    padding: 10px; width: 190px; font-size: 12px;
+  }
+  #controlPanel h3 { margin: 0 0 6px; font-size: 13px; }
+  #controlPanel button {
+    display: block; width: 100%; margin: 4px 0; padding: 7px 8px;
+    border: none; border-radius: 8px; cursor: pointer; font-size: 12px;
+    background: #3a7bd5; color: #fff; text-align: left;
+  }
+  #controlPanel button:hover { background: #2f66b3; }
+  #controlPanel button.modeBtn { background: #2e8b57; }
+  #controlPanel button.modeBtn.active { background: #e67e22; }
+  #panelToggle {
+    position: absolute; top: 52px; right: 10px; z-index: 21;
+    background: rgba(20, 30, 40, 0.8); color: #fff; border: none;
+    border-radius: 10px; padding: 8px 10px; font-size: 13px; cursor: pointer; display: none;
+  }
+
+  /* 操作説明 */
+  #helpBox {
+    position: absolute; bottom: 36px; left: 10px; z-index: 20;
+    background: rgba(20, 30, 40, 0.75); color: #fff; border-radius: 10px;
+    padding: 8px 12px; font-size: 11px; line-height: 1.6; max-width: 270px;
+  }
+  #helpBox b { color: #ffd166; }
+
+  /* スポット情報 */
+  #spotInfo {
+    position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
+    z-index: 25; background: rgba(20, 30, 40, 0.9); color: #fff;
+    border-radius: 12px; padding: 12px 16px; max-width: 320px; font-size: 13px;
+    display: none;
+  }
+  #spotInfo h4 { margin: 0 0 6px; color: #ffd166; font-size: 14px; }
+  #spotInfo p { margin: 0; line-height: 1.6; }
+  #spotInfo .close { position: absolute; top: 6px; right: 10px; cursor: pointer; opacity: 0.7; }
+
+  /* ローディング・エラー */
+  #overlay {
+    position: absolute; inset: 0; z-index: 50; background: rgba(10, 16, 24, 0.95);
+    color: #fff; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; text-align: center; padding: 20px;
+  }
+  #overlay h2 { font-size: 18px; margin-bottom: 10px; }
+  #overlay p { font-size: 13px; line-height: 1.8; max-width: 480px; }
+  #overlay .spinner {
+    width: 36px; height: 36px; border: 4px solid rgba(255,255,255,0.2);
+    border-top-color: #3a7bd5; border-radius: 50%; margin-bottom: 16px;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* 仮想ジョイスティック（モバイル） */
+  #joystick {
+    position: absolute; bottom: 90px; left: 24px; z-index: 30;
+    width: 110px; height: 110px; border-radius: 50%;
+    background: rgba(255,255,255,0.12); border: 2px solid rgba(255,255,255,0.3);
+    display: none; touch-action: none;
+  }
+  #joystickKnob {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: 46px; height: 46px; border-radius: 50%;
+    background: rgba(255,255,255,0.55);
+  }
+  @media (pointer: coarse) {
+    #joystick { display: block; }
+    #helpBox { display: none; }
+    #controlPanel { display: none; }
+    #panelToggle { display: block; }
+  }
+</style>
+</head>
+<body>
+<div id="cesiumContainer"></div>
+
+<div id="mvHeader">
+  <div class="title">🌏 COCoLaメタバース印西<small>印西市3Dワールド</small></div>
+  <a id="backLink" href="../index.html">← COCoLaサイトへ戻る</a>
+</div>
+
+<button id="panelToggle">📍 スポット</button>
+<div id="controlPanel">
+  <h3>📍 スポットへ移動</h3>
+  <div id="spotButtons"></div>
+  <h3 style="margin-top:10px;">🎮 モード</h3>
+  <button id="walkModeBtn" class="modeBtn">🚶 歩行モード（地上視点）</button>
+  <button id="flyModeBtn" class="modeBtn active">🚁 飛行モード（自由視点）</button>
+</div>
+
+<div id="helpBox">
+  <b>操作方法</b><br>
+  移動：<b>W A S D</b> ／ 矢印キー（<b>Shift</b>で加速）<br>
+  上昇・下降：<b>E</b> ／ <b>Q</b>（飛行モード）<br>
+  見回す：画面を<b>ドラッグ</b><br>
+  スポット看板を<b>クリック</b>で説明表示
+</div>
+
+<div id="spotInfo">
+  <span class="close" onclick="document.getElementById('spotInfo').style.display='none'">✕</span>
+  <h4 id="spotInfoTitle"></h4>
+  <p id="spotInfoDesc"></p>
+</div>
+
+<div id="joystick"><div id="joystickKnob"></div></div>
+
+<div id="overlay">
+  <div class="spinner"></div>
+  <h2>印西市3Dワールドを読み込み中…</h2>
+  <p>Google Photorealistic 3D Tiles から印西市の街並みデータを取得しています。<br>通信環境により数十秒かかることがあります。</p>
+</div>
+
+<script>
+"use strict";
+
+// ============================================================
+// 設定
+// ============================================================
+const GOOGLE_MAPS_API_KEY = "AIzaSyB5oRAuKsGBhK3GwGAPAoKPAdOM5C1IwGs";
+const GOOGLE_3DTILES_URL = "https://tile.googleapis.com/v1/3dtiles/root.json?key=" + GOOGLE_MAPS_API_KEY;
+
+// 印西市の主要スポット（座標は国土地理院 住所検索API / OpenStreetMap Nominatim で取得）
+const SPOTS = [
+  { name: "千葉ニュータウン中央駅", lat: 35.799983, lon: 140.116119,
+    desc: "印西市の玄関口となる北総線の駅。駅周辺はCOCoLaの活動エリアの中心です。" },
+  { name: "イオンモール千葉ニュータウン", lat: 35.800167, lon: 140.111502,
+    desc: "千葉ニュータウン中央駅前の大型ショッピングモール。地域の暮らしの拠点です。" },
+  { name: "印西牧の原駅", lat: 35.803497, lon: 140.166716,
+    desc: "北総線の駅。周辺には大型商業施設が集まり、家族連れで賑わうエリアです。" },
+  { name: "BIG HOPガーデンモール印西", lat: 35.803195, lon: 140.162553,
+    desc: "印西牧の原駅前のアウトレットモール。観覧車がランドマークです。" },
+  { name: "印西市役所", lat: 35.832338, lon: 140.145795,
+    desc: "印西市の行政の中心。CiDAO（市民投票PoC）など行政連携の取り組みも進行中です。" },
+  { name: "木下駅（木下河岸）", lat: 35.838908, lon: 140.148377,
+    desc: "JR成田線の駅。利根川の舟運で栄えた木下河岸の歴史が残る、印西の旧市街エリアです。" },
+];
+
+const START_SPOT = SPOTS[0]; // 初期位置：千葉ニュータウン中央駅
+const WALK_EYE_HEIGHT = 1.7;   // 歩行モードの目線の高さ(m)
+const WALK_SPEED = 6;          // 歩行速度(m/s)
+const FLY_SPEED = 30;          // 飛行速度(m/s)
+const SPEED_BOOST = 4;         // Shift押下時の倍率
+
+// ============================================================
+// Cesium Viewer 初期化（Cesium ion 不使用・Google APIキーのみで動作）
+// ============================================================
+Cesium.Ion.defaultAccessToken = "";
+
+const viewer = new Cesium.Viewer("cesiumContainer", {
+  baseLayer: false,
+  baseLayerPicker: false,
+  geocoder: false,
+  homeButton: false,
+  sceneModePicker: false,
+  navigationHelpButton: false,
+  animation: false,
+  timeline: false,
+  fullscreenButton: false,
+  infoBox: false,
+  selectionIndicator: false,
+  requestRenderMode: false,
+});
+viewer.scene.globe.show = false;          // 地表はGoogle 3D Tilesに含まれるため非表示
+viewer.scene.skyAtmosphere.show = true;
+viewer.scene.screenSpaceCameraController.enableCollisionDetection = true;
+
+// ============================================================
+// Google Photorealistic 3D Tiles 読み込み
+// ============================================================
+let tileset = null;
+
+async function loadTileset() {
+  try {
+    tileset = await Cesium.Cesium3DTileset.fromUrl(GOOGLE_3DTILES_URL, {
+      showCreditsOnScreen: true, // Google規約上クレジット表示は必須
+    });
+    viewer.scene.primitives.add(tileset);
+    document.getElementById("overlay").style.display = "none";
+    flyToSpot(START_SPOT, 900);
+  } catch (e) {
+    showError(e);
+  }
+}
+
+function showError(e) {
+  const overlay = document.getElementById("overlay");
+  overlay.innerHTML =
+    '<h2>⚠️ 3D都市データの読み込みに失敗しました</h2>' +
+    '<p>Google Map Tiles API からデータを取得できませんでした。<br>' +
+    '考えられる原因：<br>' +
+    '・Google Cloud プロジェクトで <b>Map Tiles API</b> が有効化されていない<br>' +
+    '・APIキーのリファラ制限にこのページのURLが含まれていない<br>' +
+    '・一時的な通信エラー（再読み込みで直る場合があります）<br><br>' +
+    '<small>エラー詳細: ' + String(e).replace(/</g, "&lt;").substring(0, 300) + '</small></p>' +
+    '<p><button onclick="location.reload()" style="padding:10px 24px;border:none;border-radius:8px;background:#3a7bd5;color:#fff;font-size:14px;cursor:pointer;">再読み込み</button></p>';
+}
+
+// ============================================================
+// スポット看板（ビルボード＋ラベル）
+// ============================================================
+const SPOT_BILLBOARD_HEIGHT = 60; // 看板を建物より上に浮かせる高さ(m)
+
+SPOTS.forEach((spot, i) => {
+  viewer.entities.add({
+    id: "spot-" + i,
+    position: Cesium.Cartesian3.fromDegrees(spot.lon, spot.lat, SPOT_BILLBOARD_HEIGHT),
+    point: { pixelSize: 14, color: Cesium.Color.fromCssColorString("#ffd166"),
+             outlineColor: Cesium.Color.fromCssColorString("#1a2533"), outlineWidth: 3,
+             disableDepthTestDistance: Number.POSITIVE_INFINITY },
+    label: {
+      text: spot.name,
+      font: "bold 14px sans-serif",
+      fillColor: Cesium.Color.WHITE,
+      outlineColor: Cesium.Color.fromCssColorString("#1a2533"),
+      outlineWidth: 4,
+      style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+      pixelOffset: new Cesium.Cartesian2(0, -22),
+      disableDepthTestDistance: Number.POSITIVE_INFINITY,
+    },
+  });
+});
+
+// 看板クリックで説明表示
+viewer.screenSpaceEventHandler.setInputAction(function (click) {
+  const picked = viewer.scene.pick(click.position);
+  if (Cesium.defined(picked) && picked.id && String(picked.id.id || "").startsWith("spot-")) {
+    const idx = parseInt(String(picked.id.id).replace("spot-", ""), 10);
+    const spot = SPOTS[idx];
+    document.getElementById("spotInfoTitle").textContent = "📍 " + spot.name;
+    document.getElementById("spotInfoDesc").textContent = spot.desc;
+    document.getElementById("spotInfo").style.display = "block";
+  }
+}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+// ============================================================
+// スポット移動ボタン
+// ============================================================
+function flyToSpot(spot, height) {
+  viewer.camera.flyTo({
+    destination: Cesium.Cartesian3.fromDegrees(spot.lon, spot.lat - 0.006, height || 600),
+    orientation: {
+      heading: 0,
+      pitch: Cesium.Math.toRadians(-35),
+      roll: 0,
+    },
+    duration: 3,
+  });
+}
+
+const spotButtonsEl = document.getElementById("spotButtons");
+SPOTS.forEach((spot) => {
+  const btn = document.createElement("button");
+  btn.textContent = "📍 " + spot.name;
+  btn.onclick = () => flyToSpot(spot);
+  spotButtonsEl.appendChild(btn);
+});
+
+document.getElementById("panelToggle").onclick = function () {
+  const panel = document.getElementById("controlPanel");
+  panel.style.display = (panel.style.display === "block") ? "none" : "block";
+};
+
+// ============================================================
+// 移動操作（WASD＋ドラッグ視点＋仮想ジョイスティック）
+// ============================================================
+let walkMode = false; // false=飛行モード, true=歩行モード（地面吸着）
+const keys = {};
+
+document.addEventListener("keydown", (e) => { keys[e.code] = true; });
+document.addEventListener("keyup", (e) => { keys[e.code] = false; });
+window.addEventListener("blur", () => { Object.keys(keys).forEach((k) => { keys[k] = false; }); });
+
+// --- ドラッグで見回す（自前実装。Cesium標準操作は無効化して統一） ---
+viewer.scene.screenSpaceCameraController.enableRotate = false;
+viewer.scene.screenSpaceCameraController.enableTranslate = false;
+viewer.scene.screenSpaceCameraController.enableTilt = false;
+viewer.scene.screenSpaceCameraController.enableLook = false;
+viewer.scene.screenSpaceCameraController.enableZoom = true; // ホイールズームは残す
+
+let dragging = false;
+let lastX = 0, lastY = 0;
+const canvas = viewer.scene.canvas;
+const joystickEl = document.getElementById("joystick");
+
+canvas.addEventListener("pointerdown", (e) => {
+  if (e.target === joystickEl || joystickEl.contains(e.target)) return;
+  dragging = true; lastX = e.clientX; lastY = e.clientY;
+  canvas.setPointerCapture(e.pointerId);
+});
+canvas.addEventListener("pointermove", (e) => {
+  if (!dragging) return;
+  const dx = e.clientX - lastX;
+  const dy = e.clientY - lastY;
+  lastX = e.clientX; lastY = e.clientY;
+  const cam = viewer.camera;
+  cam.setView({
+    orientation: {
+      heading: cam.heading + dx * 0.003,
+      pitch: Cesium.Math.clamp(cam.pitch - dy * 0.003, Cesium.Math.toRadians(-89), Cesium.Math.toRadians(89)),
+      roll: 0,
+    },
+  });
+});
+canvas.addEventListener("pointerup", () => { dragging = false; });
+canvas.addEventListener("pointercancel", () => { dragging = false; });
+
+// --- 仮想ジョイスティック（モバイル） ---
+const joyState = { active: false, dx: 0, dy: 0 };
+const knob = document.getElementById("joystickKnob");
+
+joystickEl.addEventListener("pointerdown", (e) => {
+  joyState.active = true;
+  joystickEl.setPointerCapture(e.pointerId);
+  e.preventDefault();
+});
+joystickEl.addEventListener("pointermove", (e) => {
+  if (!joyState.active) return;
+  const rect = joystickEl.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  let dx = (e.clientX - cx) / (rect.width / 2);
+  let dy = (e.clientY - cy) / (rect.height / 2);
+  const len = Math.hypot(dx, dy);
+  if (len > 1) { dx /= len; dy /= len; }
+  joyState.dx = dx; joyState.dy = dy;
+  knob.style.left = (50 + dx * 32) + "%";
+  knob.style.top = (50 + dy * 32) + "%";
+  e.preventDefault();
+});
+function joyEnd() {
+  joyState.active = false; joyState.dx = 0; joyState.dy = 0;
+  knob.style.left = "50%"; knob.style.top = "50%";
+}
+joystickEl.addEventListener("pointerup", joyEnd);
+joystickEl.addEventListener("pointercancel", joyEnd);
+
+// --- 毎フレームの移動処理 ---
+let lastTime = undefined;
+viewer.clock.onTick.addEventListener(function () {
+  const now = performance.now();
+  const dt = lastTime === undefined ? 0.016 : Math.min((now - lastTime) / 1000, 0.1);
+  lastTime = now;
+
+  const cam = viewer.camera;
+  const baseSpeed = walkMode ? WALK_SPEED : FLY_SPEED;
+  const speed = baseSpeed * ((keys["ShiftLeft"] || keys["ShiftRight"]) ? SPEED_BOOST : 1) * dt;
+
+  let forward = 0, right = 0, up = 0;
+  if (keys["KeyW"] || keys["ArrowUp"]) forward += 1;
+  if (keys["KeyS"] || keys["ArrowDown"]) forward -= 1;
+  if (keys["KeyD"] || keys["ArrowRight"]) right += 1;
+  if (keys["KeyA"] || keys["ArrowLeft"]) right -= 1;
+  if (keys["KeyE"]) up += 1;
+  if (keys["KeyQ"]) up -= 1;
+
+  forward += -joyState.dy; // ジョイスティック上=前進
+  right += joyState.dx;
+
+  if (forward !== 0 || right !== 0 || up !== 0 || walkMode) {
+    // 歩行モードでは水平方向のみに移動（ピッチの影響を除去）
+    if (walkMode) {
+      const heading = cam.heading;
+      const carto = Cesium.Cartographic.fromCartesian(cam.position);
+      // ENU座標系で水平移動
+      const moveNorth = (forward * Math.cos(heading) - right * Math.sin(heading + Math.PI)) * speed;
+      const moveEast = (forward * Math.sin(heading) + right * Math.cos(heading + Math.PI * 2)) * speed;
+      const metersPerDegLat = 111320;
+      const metersPerDegLon = 111320 * Math.cos(carto.latitude);
+      const newLat = Cesium.Math.toDegrees(carto.latitude) + moveNorth / metersPerDegLat;
+      const newLon = Cesium.Math.toDegrees(carto.longitude) + moveEast / metersPerDegLon;
+
+      // 地面の高さに吸着（sampleHeightが使えない場合は現在高度を維持）
+      let groundHeight = undefined;
+      if (viewer.scene.sampleHeightSupported) {
+        groundHeight = viewer.scene.sampleHeight(
+          new Cesium.Cartographic(Cesium.Math.toRadians(newLon) , Cesium.Math.toRadians(newLat)),
+          [/* 全オブジェクト対象 */]
+        );
+      }
+      const targetHeight = (groundHeight !== undefined && groundHeight !== null)
+        ? groundHeight + WALK_EYE_HEIGHT
+        : carto.height;
+
+      cam.setView({
+        destination: Cesium.Cartesian3.fromDegrees(newLon, newLat, targetHeight),
+        orientation: { heading: cam.heading, pitch: cam.pitch, roll: 0 },
+      });
+    } else {
+      if (forward !== 0) cam.moveForward(forward * speed);
+      if (right !== 0) cam.moveRight(right * speed);
+      if (up !== 0) cam.moveUp(up * speed);
+    }
+  }
+});
+
+// ============================================================
+// モード切替
+// ============================================================
+const walkBtn = document.getElementById("walkModeBtn");
+const flyBtn = document.getElementById("flyModeBtn");
+
+function setMode(walk) {
+  walkMode = walk;
+  walkBtn.classList.toggle("active", walk);
+  flyBtn.classList.toggle("active", !walk);
+  if (walk) {
+    // 現在位置の真下の地面に降り立つ
+    const carto = Cesium.Cartographic.fromCartesian(viewer.camera.position);
+    let ground = undefined;
+    if (viewer.scene.sampleHeightSupported) {
+      ground = viewer.scene.sampleHeight(carto.clone());
+    }
+    const h = (ground !== undefined && ground !== null) ? ground + WALK_EYE_HEIGHT : 30;
+    viewer.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(
+        Cesium.Math.toDegrees(carto.longitude), Cesium.Math.toDegrees(carto.latitude), h),
+      orientation: { heading: viewer.camera.heading, pitch: 0, roll: 0 },
+      duration: 1.5,
+    });
+  }
+}
+walkBtn.onclick = () => setMode(true);
+flyBtn.onclick = () => setMode(false);
+
+// ============================================================
+// 開始
+// ============================================================
+loadTileset();
+</script>
+</body>
+</html>
