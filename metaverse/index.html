@@ -523,9 +523,10 @@ viewer.clock.onTick.addEventListener(function () {
           [/* 全オブジェクト対象 */]
         );
       }
+      // 地面高さが取れない場合は現在高度を維持（地中＝楕円体高75m未満には落とさない）
       const targetHeight = (groundHeight !== undefined && groundHeight !== null)
         ? groundHeight + WALK_EYE_HEIGHT
-        : carto.height;
+        : Math.max(carto.height, 75);
 
       cam.setView({
         destination: Cesium.Cartesian3.fromDegrees(newLon, newLat, targetHeight),
@@ -556,7 +557,11 @@ function setMode(walk) {
     if (viewer.scene.sampleHeightSupported) {
       ground = viewer.scene.sampleHeight(carto.clone());
     }
-    const h = (ground !== undefined && ground !== null) ? ground + WALK_EYE_HEIGHT : 30;
+    // 地面高さが取れない（タイル未ロード等）場合は現在高度を維持しつつ、
+    // 印西の地表（楕円体高約60〜70m）より下＝地中に潜らないよう75mを下限にする
+    const h = (ground !== undefined && ground !== null)
+      ? ground + WALK_EYE_HEIGHT
+      : Math.max(carto.height, 75);
     viewer.camera.flyTo({
       destination: Cesium.Cartesian3.fromDegrees(
         Cesium.Math.toDegrees(carto.longitude), Cesium.Math.toDegrees(carto.latitude), h),
