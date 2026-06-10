@@ -173,6 +173,37 @@
     color: #fff; font-size: 13px; cursor: pointer;
   }
 
+  /* 遊び方ガイド */
+  #howtoBtn {
+    position: absolute; top: 52px; left: 132px; z-index: 21;
+    background: rgba(20, 30, 40, 0.8); color: #fff; border: none;
+    border-radius: 10px; padding: 8px 12px; font-size: 13px; cursor: pointer;
+  }
+  #howtoModal {
+    position: absolute; inset: 0; z-index: 55; background: rgba(10, 16, 24, 0.88);
+    display: none; align-items: center; justify-content: center; padding: 16px;
+  }
+  #howtoModal.show { display: flex; }
+  #howtoModal .inner {
+    background: linear-gradient(160deg, #2c3e50, #1a2533); color: #fff;
+    border: 2px solid #3a7bd5; border-radius: 18px; padding: 22px 20px;
+    max-width: 440px; max-height: 86vh; overflow-y: auto; font-size: 13px;
+  }
+  #howtoModal h2 { color: #ffd166; font-size: 17px; margin: 0 0 4px; }
+  #howtoModal h3 { color: #7fc8ff; font-size: 14px; margin: 16px 0 6px; }
+  #howtoModal p, #howtoModal li { line-height: 1.8; margin: 0 0 6px; }
+  #howtoModal ul { margin: 0; padding-left: 18px; }
+  #howtoModal b { color: #ffd166; }
+  #howtoModal .keybox {
+    display: inline-block; background: rgba(255,255,255,0.15); border-radius: 5px;
+    padding: 0 7px; font-weight: bold; margin: 0 1px;
+  }
+  #howtoModal .closeRow { text-align: center; margin-top: 16px; }
+  #howtoModal .closeRow button {
+    padding: 10px 36px; border: none; border-radius: 10px; background: #3a7bd5;
+    color: #fff; font-size: 14px; cursor: pointer; font-weight: bold;
+  }
+
   /* 仮想ジョイスティック（モバイル） */
   #joystick {
     position: absolute; bottom: 90px; left: 24px; z-index: 30;
@@ -220,6 +251,46 @@
   </div>
   <ul id="bunkazaiList"></ul>
   <button class="resetBtn" id="puzzleResetBtn">記録をリセット</button>
+</div>
+
+<button id="howtoBtn">❓ 遊び方</button>
+<div id="howtoModal">
+  <div class="inner">
+    <h2>🌏 COCoLaメタバース印西 — 遊び方</h2>
+    <p>ここは、印西市の街並みをGoogleの3D都市データでリアルに再現したバーチャル空間です。空を飛んだり、地上を歩いたりしながら、本物そっくりの印西の街を自由に探検できます。</p>
+
+    <h3>🎮 操作方法</h3>
+    <p><b>パソコン：</b></p>
+    <ul>
+      <li>移動：<span class="keybox">W</span><span class="keybox">A</span><span class="keybox">S</span><span class="keybox">D</span> または矢印キー（<span class="keybox">Shift</span>で加速）</li>
+      <li>上昇／下降：<span class="keybox">E</span>／<span class="keybox">Q</span>（飛行モード時）</li>
+      <li>見回す：画面をマウスで<b>ドラッグ</b></li>
+    </ul>
+    <p><b>スマートフォン：</b></p>
+    <ul>
+      <li>移動：画面左下の<b>丸いスティック</b>を指でたおす</li>
+      <li>見回す：画面を<b>スワイプ</b></li>
+    </ul>
+
+    <h3>🚶 2つのモード</h3>
+    <ul>
+      <li><b>歩行モード</b>：地上の目線（高さ1.7m）で街を歩けます。文化財めぐりはこちらで</li>
+      <li><b>飛行モード</b>：空を自由に飛んで街を一望できます</li>
+    </ul>
+    <p>右側のパネル（スマホは「📍スポット」ボタン）から駅やモールへひとっ飛びもできます。</p>
+
+    <h3>🧩 文化財パズルラリー</h3>
+    <p>印西市の指定・登録文化財<b>50か所</b>がワールド内に隠れています。</p>
+    <ul>
+      <li>文化財に<b>80m以内</b>まで近づくと、パズルのピースが1枚開きます（上空を飛んで通過しただけでは開きません）</li>
+      <li>左上の「<b>🧩 パズル帳</b>」で集めたピースと文化財リストを確認できます</li>
+      <li>リストの「<b>▶行く</b>」を押すと文化財の近くまで飛べます。着いたら自分で近づいてみよう</li>
+      <li>50枚すべて集めると…<b>印西の風景の絵が完成</b>し、合言葉が表示されます🏆</li>
+    </ul>
+    <p>集めた記録はこの端末のブラウザに保存されるので、途中でやめても続きから遊べます。</p>
+
+    <div class="closeRow"><button onclick="closeHowto()">探検をはじめる！</button></div>
+  </div>
 </div>
 
 <div id="stampToast"><span class="big">🧩</span><span id="stampToastText"></span></div>
@@ -780,6 +851,24 @@ document.getElementById("puzzleResetBtn").onclick = function () {
 buildPuzzleMask();
 renderPuzzle();
 loadBunkazai();
+
+// ============================================================
+// 遊び方ガイド（初回訪問時は自動表示）
+// ============================================================
+const HOWTO_SEEN_KEY = "cocola-metaverse-howto-seen";
+
+function openHowto() {
+  document.getElementById("howtoModal").classList.add("show");
+}
+function closeHowto() {
+  document.getElementById("howtoModal").classList.remove("show");
+  try { localStorage.setItem(HOWTO_SEEN_KEY, "1"); } catch (e) {}
+}
+document.getElementById("howtoBtn").onclick = openHowto;
+
+let howtoSeen = false;
+try { howtoSeen = localStorage.getItem(HOWTO_SEEN_KEY) === "1"; } catch (e) {}
+if (!howtoSeen) openHowto();
 
 // ============================================================
 // 開始
