@@ -83,6 +83,70 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* スタンプラリー */
+  #stampBookBtn {
+    position: absolute; top: 52px; left: 10px; z-index: 21;
+    background: rgba(20, 30, 40, 0.8); color: #fff; border: none;
+    border-radius: 10px; padding: 8px 12px; font-size: 13px; cursor: pointer;
+  }
+  #stampBookBtn .badge {
+    background: #e67e22; border-radius: 10px; padding: 1px 7px;
+    font-size: 11px; margin-left: 4px; font-weight: bold;
+  }
+  #stampBook {
+    position: absolute; top: 92px; left: 10px; z-index: 25;
+    background: rgba(20, 30, 40, 0.92); color: #fff; border-radius: 12px;
+    padding: 12px 14px; width: 230px; font-size: 12px; display: none;
+  }
+  #stampBook h3 { margin: 0 0 8px; font-size: 14px; color: #ffd166; }
+  #stampBook ul { list-style: none; margin: 0; padding: 0; }
+  #stampBook li {
+    display: flex; align-items: center; gap: 8px;
+    padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.12);
+    line-height: 1.4;
+  }
+  #stampBook li:last-child { border-bottom: none; }
+  #stampBook li .mark { font-size: 18px; width: 24px; text-align: center; }
+  #stampBook li.got .mark { filter: none; }
+  #stampBook li:not(.got) { opacity: 0.55; }
+  #stampBook .resetBtn {
+    margin-top: 8px; width: 100%; padding: 6px; border: none; border-radius: 8px;
+    background: rgba(255,255,255,0.15); color: #fff; font-size: 11px; cursor: pointer;
+  }
+  #stampBook .hint { font-size: 10px; opacity: 0.75; margin: 6px 0 0; line-height: 1.5; }
+
+  #stampToast {
+    position: absolute; top: 30%; left: 50%; transform: translate(-50%, -50%) scale(0.8);
+    z-index: 40; background: rgba(230, 126, 34, 0.95); color: #fff;
+    border-radius: 16px; padding: 18px 26px; font-size: 16px; font-weight: bold;
+    text-align: center; display: none; box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+    transition: transform 0.3s ease, opacity 0.3s ease; opacity: 0;
+  }
+  #stampToast.show { display: block; transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  #stampToast .big { font-size: 34px; display: block; margin-bottom: 6px; }
+
+  #completeModal {
+    position: absolute; inset: 0; z-index: 60; background: rgba(10, 16, 24, 0.88);
+    display: none; align-items: center; justify-content: center; padding: 20px;
+  }
+  #completeModal.show { display: flex; }
+  #completeModal .inner {
+    background: linear-gradient(160deg, #2c3e50, #1a2533); color: #fff;
+    border: 2px solid #ffd166; border-radius: 18px; padding: 28px 24px;
+    max-width: 360px; text-align: center;
+  }
+  #completeModal h2 { color: #ffd166; font-size: 20px; margin: 0 0 10px; }
+  #completeModal p { font-size: 13px; line-height: 1.8; margin: 0 0 12px; }
+  #completeModal .password {
+    background: rgba(255, 209, 102, 0.15); border: 1px dashed #ffd166;
+    border-radius: 10px; padding: 10px; font-size: 16px; font-weight: bold;
+    color: #ffd166; margin-bottom: 14px;
+  }
+  #completeModal button {
+    padding: 9px 28px; border: none; border-radius: 10px; background: #3a7bd5;
+    color: #fff; font-size: 13px; cursor: pointer;
+  }
+
   /* 仮想ジョイスティック（モバイル） */
   #joystick {
     position: absolute; bottom: 90px; left: 24px; z-index: 30;
@@ -112,6 +176,26 @@
 </div>
 
 <button id="panelToggle">📍 スポット</button>
+
+<button id="stampBookBtn">📖 スタンプ帳<span class="badge" id="stampCount">0/6</span></button>
+<div id="stampBook">
+  <h3>🎪 印西メタバース スタンプラリー</h3>
+  <ul id="stampList"></ul>
+  <p class="hint">各スポットまで歩いて近づく（50m以内）とスタンプが押されます。上空からの通過では押されません。</p>
+  <button class="resetBtn" id="stampResetBtn">記録をリセット</button>
+</div>
+
+<div id="stampToast"><span class="big">🎉</span><span id="stampToastText"></span></div>
+
+<div id="completeModal">
+  <div class="inner">
+    <h2>🏆 スタンプラリー コンプリート！</h2>
+    <p>印西市の6スポットをすべて巡りました！<br>おめでとうございます！</p>
+    <div class="password">合言葉：いんざいメタマスター</div>
+    <p style="font-size:11px;opacity:0.8;">この画面のスクリーンショットがイベント参加の証明になります。</p>
+    <button onclick="document.getElementById('completeModal').classList.remove('show')">閉じる</button>
+  </div>
+</div>
 <div id="controlPanel">
   <h3>📍 スポットへ移動</h3>
   <div id="spotButtons"></div>
@@ -453,6 +537,100 @@ function setMode(walk) {
 }
 walkBtn.onclick = () => setMode(true);
 flyBtn.onclick = () => setMode(false);
+
+// ============================================================
+// スタンプラリー（端末内完結・localStorage保存）
+// ============================================================
+const STAMP_STORAGE_KEY = "cocola-metaverse-stamps-v1";
+const STAMP_RADIUS_M = 50;           // 獲得判定の水平距離(m)
+const STAMP_MAX_ELLIP_HEIGHT = 130;  // 上空通過での獲得を防ぐ楕円体高の上限(m)。印西の地表は楕円体高約60〜70mのため、地上〜低空のみ判定対象
+
+let stamps = loadStamps(); // { スポットindex: 獲得日時ISO文字列 }
+
+function loadStamps() {
+  try {
+    const raw = localStorage.getItem(STAMP_STORAGE_KEY);
+    const data = raw ? JSON.parse(raw) : {};
+    return (data && typeof data === "object" && !Array.isArray(data)) ? data : {};
+  } catch (e) { return {}; }
+}
+function saveStamps() {
+  try { localStorage.setItem(STAMP_STORAGE_KEY, JSON.stringify(stamps)); } catch (e) {}
+}
+function stampTotal() { return Object.keys(stamps).length; }
+
+function renderStampBook() {
+  const list = document.getElementById("stampList");
+  list.innerHTML = "";
+  SPOTS.forEach((spot, i) => {
+    const li = document.createElement("li");
+    const got = stamps[i] !== undefined;
+    li.className = got ? "got" : "";
+    const dateStr = got ? new Date(stamps[i]).toLocaleDateString("ja-JP") : "";
+    li.innerHTML = '<span class="mark">' + (got ? "✅" : "⚪") + '</span>' +
+      '<span>' + spot.name + (got ? '<br><small style="opacity:0.7;">' + dateStr + ' 獲得</small>' : "") + '</span>';
+    list.appendChild(li);
+  });
+  document.getElementById("stampCount").textContent = stampTotal() + "/" + SPOTS.length;
+}
+
+let toastTimer = null;
+function showStampToast(text) {
+  const toast = document.getElementById("stampToast");
+  document.getElementById("stampToastText").textContent = text;
+  toast.classList.add("show");
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { toast.classList.remove("show"); }, 2500);
+}
+
+function awardStamp(idx) {
+  stamps[idx] = new Date().toISOString();
+  saveStamps();
+  renderStampBook();
+  showStampToast("スタンプ獲得！ " + SPOTS[idx].name + "（" + stampTotal() + "/" + SPOTS.length + "）");
+  if (stampTotal() === SPOTS.length) {
+    setTimeout(() => {
+      document.getElementById("completeModal").classList.add("show");
+    }, 2800);
+  }
+}
+
+// 近接判定（500msごと・地上〜低空のみ）
+let lastStampCheck = 0;
+viewer.clock.onTick.addEventListener(function () {
+  const now = performance.now();
+  if (now - lastStampCheck < 500) return;
+  lastStampCheck = now;
+  if (!tileset) return; // 3Dワールド読み込み前は判定しない
+  if (stampTotal() === SPOTS.length) return;
+
+  const carto = Cesium.Cartographic.fromCartesian(viewer.camera.position);
+  if (carto.height > STAMP_MAX_ELLIP_HEIGHT) return;
+
+  const lat = Cesium.Math.toDegrees(carto.latitude);
+  const lon = Cesium.Math.toDegrees(carto.longitude);
+  SPOTS.forEach((spot, i) => {
+    if (stamps[i] !== undefined) return;
+    const dNorth = (lat - spot.lat) * 111320;
+    const dEast = (lon - spot.lon) * 111320 * Math.cos(carto.latitude);
+    if (Math.hypot(dNorth, dEast) <= STAMP_RADIUS_M) awardStamp(i);
+  });
+});
+
+// スタンプ帳の開閉・リセット
+document.getElementById("stampBookBtn").onclick = function () {
+  const book = document.getElementById("stampBook");
+  book.style.display = (book.style.display === "block") ? "none" : "block";
+};
+document.getElementById("stampResetBtn").onclick = function () {
+  if (confirm("スタンプラリーの記録をリセットしますか？")) {
+    stamps = {};
+    saveStamps();
+    renderStampBook();
+  }
+};
+
+renderStampBook();
 
 // ============================================================
 // 開始
