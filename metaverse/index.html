@@ -871,6 +871,117 @@ try { howtoSeen = localStorage.getItem(HOWTO_SEEN_KEY) === "1"; } catch (e) {}
 if (!howtoSeen) openHowto();
 
 // ============================================================
+// シネマティックモード（PR動画撮影用・?cinema=1 で起動）
+// カメラ自動運転＋テロップを表示する。通常利用には影響しない。
+// ============================================================
+const CINEMA = new URLSearchParams(location.search).get("cinema") === "1";
+
+function cinemaFlyTo(lon, lat, height, pitchDeg, headingDeg, durationSec) {
+  return new Promise((resolve) => {
+    viewer.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(lon, lat, height),
+      orientation: {
+        heading: Cesium.Math.toRadians(headingDeg || 0),
+        pitch: Cesium.Math.toRadians(pitchDeg),
+        roll: 0,
+      },
+      duration: durationSec,
+      complete: resolve,
+      cancel: resolve,
+    });
+  });
+}
+
+function cinemaCaption(text, ms) {
+  const el = document.getElementById("cinemaCaption");
+  el.innerHTML = text;
+  el.classList.add("show");
+  if (ms) setTimeout(() => el.classList.remove("show"), ms);
+}
+
+async function startCinema() {
+  // 通常UIを隠す
+  ["mvHeader", "controlPanel", "helpBox", "puzzleBtn", "howtoBtn",
+   "panelToggle", "joystick", "spotInfo", "puzzlePanel"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = "none";
+  });
+  document.getElementById("howtoModal").classList.remove("show");
+
+  // テロップ・エンド画面の要素を生成
+  const cap = document.createElement("div");
+  cap.id = "cinemaCaption";
+  document.body.appendChild(cap);
+  const style = document.createElement("style");
+  style.textContent =
+    "#cinemaCaption{position:absolute;left:50%;bottom:22%;transform:translateX(-50%);z-index:70;" +
+    "color:#fff;font-size:30px;font-weight:bold;text-align:center;line-height:1.6;width:92%;" +
+    "text-shadow:0 2px 14px rgba(0,0,0,0.9),0 0 4px rgba(0,0,0,0.9);opacity:0;transition:opacity 0.7s;}" +
+    "#cinemaCaption.show{opacity:1;}" +
+    "#cinemaCaption small{font-size:18px;font-weight:normal;display:block;margin-top:6px;}" +
+    "#cinemaEnd{position:absolute;inset:0;z-index:80;background:linear-gradient(160deg,#2c3e50,#1a2533);" +
+    "display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;" +
+    "color:#fff;opacity:0;transition:opacity 1.2s;pointer-events:none;}" +
+    "#cinemaEnd.show{opacity:1;}" +
+    "#cinemaEnd img{width:46%;max-width:260px;margin-bottom:22px;}" +
+    "#cinemaEnd h2{color:#ffd166;font-size:30px;margin:0 0 10px;}" +
+    "#cinemaEnd p{font-size:17px;line-height:1.9;margin:0;}";
+  document.head.appendChild(style);
+  const end = document.createElement("div");
+  end.id = "cinemaEnd";
+  end.innerHTML =
+    '<img src="../assets/COCoLa_Logo_transparent.png" alt="COCoLa">' +
+    "<h2>COCoLaメタバース印西</h2>" +
+    "<p>印西市文化財パズルラリー開催中<br>COCoLaサイトから今すぐ遊べます<br><b>「COCoLa 印西」で検索</b></p>";
+  document.body.appendChild(end);
+
+  // tileset読み込み完了を待つ
+  while (!tileset) { await new Promise((r) => setTimeout(r, 300)); }
+  await new Promise((r) => setTimeout(r, 2500)); // 初期タイルの描画安定待ち
+
+  // --- シーケンス（合計約26秒） ---
+  // 1. 上空から千葉ニュータウン中央駅へダイブ
+  viewer.camera.setView({
+    destination: Cesium.Cartesian3.fromDegrees(140.1161, 35.770, 2600),
+    orientation: { heading: 0, pitch: Cesium.Math.toRadians(-55), roll: 0 },
+  });
+  cinemaCaption("印西市が まるごと<br>メタバースになった", 4500);
+  await cinemaFlyTo(140.1161, 35.7935, 420, -32, 0, 5);
+
+  // 2. 駅前を低空で旋回ぎみに移動
+  cinemaCaption("本物そっくりの街を<br>自由に歩ける・飛べる", 4500);
+  await cinemaFlyTo(140.1185, 35.7975, 180, -22, -40, 5);
+
+  // 3. 文化財（宝珠院観音堂方面）へ接近
+  cinemaCaption("印西の文化財 <b>50か所</b>をめぐる<br>🧩 パズルラリー開催中", 5000);
+  await cinemaFlyTo(140.1173, 35.8170, 300, -30, 10, 5.5);
+
+  // 4. パズル演出（ピースが開いていくデモ・記録には保存しない）
+  const panel = document.getElementById("puzzlePanel");
+  panel.style.display = "block";
+  panel.style.zIndex = "75";
+  cinemaCaption("ピースを集めて<br>絵を完成させよう", 5000);
+  for (let i = 0; i < 50; i += 2) {
+    const cell = document.getElementById("pcell-" + i);
+    if (cell) cell.classList.add("revealed");
+    await new Promise((r) => setTimeout(r, 90));
+  }
+  for (let i = 1; i < 50; i += 2) {
+    const cell = document.getElementById("pcell-" + i);
+    if (cell) cell.classList.add("revealed");
+    await new Promise((r) => setTimeout(r, 40));
+  }
+  await new Promise((r) => setTimeout(r, 1200));
+
+  // 5. エンド画面
+  end.classList.add("show");
+  await new Promise((r) => setTimeout(r, 4500));
+  window.cinemaDone = true; // 録画スクリプトの終了検知用
+}
+
+if (CINEMA) startCinema();
+
+// ============================================================
 // 開始
 // ============================================================
 loadTileset();
