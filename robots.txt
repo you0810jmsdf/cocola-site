@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Disallow: /cocola-site/admin/
+Disallow: /cocola-site/gas/
+Disallow: /cocola-site/staff/
+Disallow: /cocola-site/node_modules/
+
+Sitemap: https://you0810jmsdf.github.io/cocola-site/sitemap.xml
