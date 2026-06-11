@@ -1075,6 +1075,24 @@
     .cancel-btn:hover {
       background: #fdf1f0;
     }
+    .edit-btn {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 4px 10px;
+      border: 1px solid var(--green);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--green-deep);
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 120ms;
+    }
+    .edit-btn:hover {
+      background: #eef8f3;
+    }
 
     /* 投票ボタン（カード内） */
     .vote-btn {
@@ -3323,7 +3341,7 @@
 <!-- 提案モーダル -->
 <div class="modal-overlay" id="proposalModal" hidden aria-modal="true" role="dialog">
   <div class="modal-box proposal-modal-box">
-    <h3>DAOに提案する</h3>
+    <h3 id="proposalModalTitle">DAOに提案する</h3>
     <p>提案者: <strong id="proposalAsName"></strong></p>
     <label class="modal-label" for="proposalTitleInput">提案タイトル <span class="req">必須</span></label>
     <input class="modal-input" type="text" id="proposalTitleInput" maxlength="60" placeholder="例：印西駅前にベンチを増やしたい">
@@ -3433,6 +3451,7 @@
     var CANCELLED_IDS_KEY = 'COCOLA_DAO_CANCELLED_IDS';
     var VOTED_IDS_KEY = 'COCOLA_DAO_VOTED_IDS';
     var NICKNAME_KEY = 'COCOLA_DAO_NICKNAME';
+    var openProposalEditModal = null;
     var actionButtons = document.querySelector('.action-panel .actions');
     if (actionButtons) {
       actionButtons.insertAdjacentHTML('afterend', '<p class="member-only-note">提案・投票はCOCoLaメンバー向けです。メンバー確認ができない回答は、提案一覧・投票結果・DAOポイントには反映されません。メンバー以外の方は、各提案カードの「市民いいね」で応援や関心をお知らせください。</p>');
@@ -3450,6 +3469,24 @@
     function numberText(value, suffix) {
       var number = Number(value) || 0;
       return (Math.round(number * 10) / 10) + (suffix || '');
+    }
+
+    function normalizeNameForCompare(value) {
+      return String(value || '').replace(/[\s\u3000]+/g, '').toLowerCase();
+    }
+
+    function isCurrentProposalOwner(proposal) {
+      var me = normalizeNameForCompare(getStoredNickname());
+      var proposer = normalizeNameForCompare(proposal && proposal.proposer);
+      return !!me && !!proposer && me === proposer;
+    }
+
+    function findProposalById(id) {
+      var proposals = (state.data && state.data.proposals) || [];
+      for (var i = 0; i < proposals.length; i += 1) {
+        if (String(proposals[i].id || '') === String(id || '')) return proposals[i];
+      }
+      return null;
     }
 
     function setFormLink(element, url) {
@@ -3576,6 +3613,9 @@
         '</div>' +
         '<div class="card-foot">' +
           '<button class="cancel-btn" type="button" data-cancel-id="' + escapeHtml(proposal.id) + '" data-cancel-title="' + escapeHtml(proposal.title) + '">取消</button>' +
+          (isVoting && isCurrentProposalOwner(proposal)
+            ? '<button class="edit-btn" type="button" data-edit-id="' + escapeHtml(proposal.id) + '">編集</button>'
+            : '') +
           (isVoting
             ? '<button class="vote-btn' + (voted ? ' is-voted' : '') + '" type="button" data-vote-id="' + escapeHtml(proposal.id) + '" data-vote-title="' + escapeHtml(proposal.title) + '">' + (voted ? '投票を変更' : '投票する') + '</button>'
             : (expired ? '<button class="vote-btn is-disabled" type="button" disabled aria-disabled="true" title="この提案は投票締切を過ぎました">投票終了</button>' : '')) +
@@ -4260,6 +4300,12 @@
         return;
       }
 
+      var editBtn = e.target.closest('[data-edit-id]');
+      if (editBtn) {
+        if (typeof openProposalEditModal === 'function') openProposalEditModal(editBtn.dataset.editId);
+        return;
+      }
+
       var btn = e.target.closest('[data-cancel-id]');
       if (!btn) return;
       openCancelModal(btn.dataset.cancelId, btn.dataset.cancelTitle);
@@ -4312,14 +4358,75 @@
       typeSelect.addEventListener('change', updateCategoryOptions);
       updateCategoryOptions();
 
+      var modalTitleEl = document.getElementById('proposalModalTitle');
+      var editingProposalId = '';
+
+      function resetProposalModalForm() {
+        titleInput.value = '';
+        detailInput.value = '';
+        needsInput.value = '';
+        if (attachmentInput) attachmentInput.value = '';
+        if (deadlineInput) deadlineInput.value = '';
+        typeSelect.selectedIndex = 0;
+        updateCategoryOptions();
+      }
+
+      function setProposalModalMode(isEdit) {
+        if (modalTitleEl) modalTitleEl.textContent = isEdit ? '提案を編集する' : 'DAOに提案する';
+        submitBtn.textContent = isEdit ? '修正を保存' : '提案する';
+      }
+
       function openProposalModal() {
         var me = getStoredNickname();
         if (!me) { window.alert('提案するにはログインしてください。'); return; }
+        editingProposalId = '';
+        setProposalModalMode(false);
         proposalAsName.textContent = me + ' さん';
         errorEl.textContent = '';
-        updateCategoryOptions();
+        resetProposalModalForm();
         proposalModal.hidden = false;
       }
+
+      openProposalEditModal = function (id) {
+        var me = getStoredNickname();
+        if (!me) { window.alert('編集するにはログインしてください。'); return; }
+        var proposal = findProposalById(id);
+        if (!proposal) { window.alert('対象の提案が見つかりませんでした。ページを再読み込みしてください。'); return; }
+        if (!isCurrentProposalOwner(proposal)) { window.alert('この提案は提案者本人のみ編集できます。'); return; }
+        if (proposal.statusKey !== 'voting' || isProposalExpired(proposal)) {
+          window.alert('投票中の提案のみ編集できます。');
+          return;
+        }
+        editingProposalId = String(proposal.id);
+        setProposalModalMode(true);
+        proposalAsName.textContent = me + ' さん';
+        errorEl.textContent = '';
+        titleInput.value = proposal.title || '';
+        typeSelect.value = proposalTypeLabel(resolveProposalType(proposal));
+        updateCategoryOptions();
+        if (proposal.category) {
+          var hasOption = false;
+          for (var i = 0; i < categorySelect.options.length; i += 1) {
+            if (categorySelect.options[i].value === proposal.category) { hasOption = true; break; }
+          }
+          if (!hasOption) {
+            var extraOption = document.createElement('option');
+            extraOption.value = proposal.category;
+            extraOption.textContent = proposal.category;
+            categorySelect.appendChild(extraOption);
+          }
+          categorySelect.value = proposal.category;
+        }
+        detailInput.value = proposal.detail || '';
+        needsInput.value = proposal.needs || '';
+        if (attachmentInput) attachmentInput.value = proposal.attachmentUrl || '';
+        if (deadlineInput) {
+          var deadlineMatch = String(proposal.deadline || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+          deadlineInput.value = deadlineMatch ? (deadlineMatch[1] + '-' + deadlineMatch[2] + '-' + deadlineMatch[3]) : '';
+        }
+        proposalModal.hidden = false;
+      };
+
       function closeProposalModal() { proposalModal.hidden = true; }
 
       proposalBtn.addEventListener('click', openProposalModal);
@@ -4338,46 +4445,81 @@
           errorEl.textContent = '企画提案書URLは https:// から始まるURLを入力してください。';
           return;
         }
+        var isEdit = !!editingProposalId;
+        if (isEdit) {
+          var editingProposal = findProposalById(editingProposalId);
+          if (!editingProposal || !isCurrentProposalOwner(editingProposal)) {
+            errorEl.textContent = 'この提案は提案者本人のみ編集できます。';
+            return;
+          }
+        }
         submitBtn.disabled = true;
         submitBtn.textContent = '送信中…';
         errorEl.textContent = '';
         var deadlineVal = (deadlineInput && deadlineInput.value) ? deadlineInput.value : '';
-        var url = GAS_URL + '?mode=submitProposal'
+        var needsVal = (needsInput.value || '').trim();
+        var url = GAS_URL + '?mode=' + (isEdit ? 'updateProposal' : 'submitProposal')
+          + (isEdit ? '&id=' + encodeURIComponent(editingProposalId) : '')
           + '&title=' + encodeURIComponent(title)
           + '&type=' + encodeURIComponent(typeSelect.value)
           + '&category=' + encodeURIComponent(categorySelect.value)
           + '&detail=' + encodeURIComponent(detail)
-          + '&needs=' + encodeURIComponent((needsInput.value || '').trim())
+          + '&needs=' + encodeURIComponent(needsVal)
           + '&proposer=' + encodeURIComponent(me)
-          + (deadlineVal ? '&deadline=' + encodeURIComponent(deadlineVal) : '')
-          + (attachmentUrl ? '&attachmentUrl=' + encodeURIComponent(attachmentUrl) : '');
+          // 編集時は空欄で「締切なし／URLなし」に戻せるよう、空でも必ず送る
+          + ((deadlineVal || isEdit) ? '&deadline=' + encodeURIComponent(deadlineVal) : '')
+          + ((attachmentUrl || isEdit) ? '&attachmentUrl=' + encodeURIComponent(attachmentUrl) : '');
         fetch(url)
           .then(function (r) { return r.json(); })
           .then(function (res) {
             if (res && res.ok) {
+              if (isEdit) {
+                var local = findProposalById(editingProposalId);
+                if (local) {
+                  local.title = title;
+                  local.proposalType = (typeSelect.value === '団体方針') ? 'dantai' : 'gyousei';
+                  local.category = categorySelect.value;
+                  local.detail = detail;
+                  local.needs = needsVal;
+                  local.attachmentUrl = attachmentUrl;
+                  local.deadline = deadlineVal ? (deadlineVal + 'T23:59:59+09:00') : '';
+                  renderProposals();
+                }
+              }
+              editingProposalId = '';
               closeProposalModal();
-              titleInput.value = '';
-              detailInput.value = '';
-              needsInput.value = '';
-              if (attachmentInput) attachmentInput.value = '';
-              if (deadlineInput) deadlineInput.value = '';
+              resetProposalModalForm();
+              setProposalModalMode(false);
               var notice = document.createElement('div');
               notice.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#2d7a2d;color:#fff;padding:.75rem 1.5rem;border-radius:8px;font-size:.95rem;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,.3)';
-              notice.textContent = '提案を受け付けました！一覧への反映に最大5分かかります。';
+              notice.textContent = isEdit
+                ? '修正を保存しました！一覧への反映に最大5分かかります。'
+                : '提案を受け付けました！一覧への反映に最大5分かかります。';
               document.body.appendChild(notice);
               setTimeout(function () { notice.remove(); }, 5000);
               _gasInFlight = false;
               fetchFromGas();
             } else {
-              errorEl.textContent = (res && res.error === 'duplicate')
-                ? '同じ内容の提案が直近に登録されています。'
-                : '提案の送信に失敗しました。少し待ってからもう一度お試しください。';
+              var errorCode = res && res.error;
+              if (errorCode === 'duplicate') {
+                errorEl.textContent = '同じ内容の提案が直近に登録されています。';
+              } else if (errorCode === 'unauthorized') {
+                errorEl.textContent = 'この提案は提案者本人のみ編集できます。';
+              } else if (errorCode === 'locked') {
+                errorEl.textContent = '投票中ではないため、この提案は編集できません。';
+              } else if (errorCode === 'not_found') {
+                errorEl.textContent = '対象の提案が見つかりませんでした。ページを再読み込みしてください。';
+              } else {
+                errorEl.textContent = isEdit
+                  ? '修正の保存に失敗しました。少し待ってからもう一度お試しください。'
+                  : '提案の送信に失敗しました。少し待ってからもう一度お試しください。';
+              }
             }
           })
           .catch(function () { errorEl.textContent = '通信エラーが発生しました。'; })
           .finally(function () {
             submitBtn.disabled = false;
-            submitBtn.textContent = '提案する';
+            submitBtn.textContent = editingProposalId ? '修正を保存' : '提案する';
           });
       });
     })();
