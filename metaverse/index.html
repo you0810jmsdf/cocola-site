@@ -945,6 +945,7 @@ function showZukanDetail(i) {
     '<span style="color:#ffd166;">' + "★".repeat(starsOf(b)) + "</span><br>" +
     "<small>" + (got ? "すみか: " + b.name + "<br>" + new Date(pieces[i]).toLocaleDateString("ja-JP") + " ゲット"
                      : "すみか: " + b.name + "<br>近くまで行くと出現するよ") + "</small></div></div>" +
+    (got && b.detailUrl ? '<a href="' + b.detailUrl + '" target="_blank" rel="noopener" style="display:block;margin-top:6px;padding:6px;border-radius:8px;border:1px solid #ffd166;background:rgba(255,209,102,0.12);color:#ffd166;font-size:12px;font-weight:bold;text-decoration:none;text-align:center;">🔎 実物を詳しく見る（市公式）</a>' : "") +
     '<button class="goBtn" style="margin-top:6px;width:100%;padding:6px;border:none;border-radius:8px;background:#3a7bd5;color:#fff;cursor:pointer;" ' +
     'onclick="teleportNear(BUNKAZAI[' + i + '])">▶ すみかの近くへ行く</button>';
 }
