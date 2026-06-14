@@ -1231,7 +1231,7 @@ async function startTeaser() {
   while (!tileset) { await new Promise((r) => setTimeout(r, 300)); }
   await new Promise((r) => setTimeout(r, 2500));
 
-  const idx = 0;            // 宝珠院観音堂（精霊ホウジュ）
+  const idx = 47;           // 吉高の大桜（精霊ヨシザクラ）
   const b = BUNKAZAI[idx];
 
   // 1. 上空から接近（飛ぶ）
@@ -1250,6 +1250,7 @@ async function startTeaser() {
   // 3. 精霊が出現（カード表示）
   cinemaCaption("文化財の精霊が <b>あらわれた！</b>", 3200);
   showEncounter(idx);
+  document.getElementById("encounterChar").innerHTML = ""; // 録画用：SVGを消す（カードは後でffmpeg合成）
   await new Promise((r) => setTimeout(r, 2800));
 
   // 4. ゲット
