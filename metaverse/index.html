@@ -1249,11 +1249,6 @@ async function startTeaser() {
   // 3. 精霊が出現（カード表示）
   cinemaCaption("文化財の精霊が <b>あらわれた！</b>", 3200);
   showEncounter(idx);
-  // 録画（仮想時間）対策：onloadに頼らず<img>を直接挿入し、ブラウザ通常読込で確実に表示
-  if (b.cardImage) {
-    document.getElementById("encounterChar").innerHTML =
-      '<img class="cardImg" src="' + b.cardImage + '" alt="">';
-  }
   await new Promise((r) => setTimeout(r, 2800));
 
   // 4. ゲット
