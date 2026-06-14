@@ -11,7 +11,7 @@
    "lon": 140.117325,
    "detailUrl": "https://www.city.inzai.lg.jp/0000004863.html",
    "spiritName": "ホウジュ",
-   "cardImage": "spirits/ホウジュ.png"
+   "cardImage": "spirits/ホウジュ.webp"
   },
   {
    "name": "泉福寺薬師堂",
@@ -22,7 +22,7 @@
    "lon": 140.168365,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005005.html",
    "spiritName": "センプク",
-   "cardImage": "spirits/センプク.png"
+   "cardImage": "spirits/センプク.webp"
   },
   {
    "name": "栄福寺薬師堂",
@@ -33,7 +33,7 @@
    "lon": 140.190826,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005006.html",
    "spiritName": "エイフク",
-   "cardImage": "spirits/エイフク.png"
+   "cardImage": "spirits/エイフク.webp"
   },
   {
    "name": "銅造不動明王立像",
@@ -44,7 +44,7 @@
    "lon": 140.134369,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005007.html",
    "spiritName": "フドラ",
-   "cardImage": "spirits/フドラ.png"
+   "cardImage": "spirits/フドラ.webp"
   },
   {
    "name": "木造薬師如来坐像・立像（七仏薬師）",
@@ -55,7 +55,7 @@
    "lon": 140.215973,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005008.html",
    "spiritName": "ナナヤク",
-   "cardImage": "spirits/ナナヤク.png"
+   "cardImage": "spirits/ナナヤク.webp"
   },
   {
    "name": "木下貝層",
@@ -66,7 +66,7 @@
    "lon": 140.156723,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005009.html",
    "spiritName": "キオロシ",
-   "cardImage": "spirits/キオロシ.png"
+   "cardImage": "spirits/キオロシ.webp"
   },
   {
    "name": "木造毘沙門天及び両脇侍立像",
@@ -77,7 +77,7 @@
    "lon": 140.138245,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005010.html",
    "spiritName": "ビシャモ",
-   "cardImage": "spirits/ビシャモ.png"
+   "cardImage": "spirits/ビシャモ.webp"
   },
   {
    "name": "木造延命地蔵菩薩坐像",
@@ -88,7 +88,7 @@
    "lon": 140.118103,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005013.html",
    "spiritName": "エンメ",
-   "cardImage": "spirits/エンメ.png"
+   "cardImage": "spirits/エンメ.webp"
   },
   {
    "name": "銅造十一面観音立像",
@@ -99,7 +99,7 @@
    "lon": 140.151993,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005014.html",
    "spiritName": "ジュウメン",
-   "cardImage": "spirits/ジュウメン.png"
+   "cardImage": "spirits/ジュウメン.webp"
   },
   {
    "name": "木造地蔵菩薩立像",
@@ -110,7 +110,7 @@
    "lon": 140.158615,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005015.html",
    "spiritName": "ジゾレ",
-   "cardImage": "spirits/ジゾレ.png"
+   "cardImage": "spirits/ジゾレ.webp"
   },
   {
    "name": "木造不動明王立像及び毘沙門天立像",
@@ -121,7 +121,7 @@
    "lon": 140.19693,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005035.html",
    "spiritName": "フドビシャ",
-   "cardImage": "spirits/フドビシャ.png"
+   "cardImage": "spirits/フドビシャ.webp"
   },
   {
    "name": "木造薬師如来坐像",
@@ -132,7 +132,7 @@
    "lon": 140.252396,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005036.html",
    "spiritName": "ヒラガ",
-   "cardImage": "spirits/ヒラガ.png"
+   "cardImage": "spirits/ヒラガ.webp"
   },
   {
    "name": "木造金剛力士像",
@@ -143,7 +143,7 @@
    "lon": 140.181854,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005037.html",
    "spiritName": "コンリキ",
-   "cardImage": "spirits/コンリキ.png"
+   "cardImage": "spirits/コンリキ.webp"
   },
   {
    "name": "梵鐘（応安二年在銘）",
@@ -154,7 +154,7 @@
    "lon": 140.137497,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005044.html",
    "spiritName": "オウアン",
-   "cardImage": "spirits/オウアン.png"
+   "cardImage": "spirits/オウアン.webp"
   },
   {
    "name": "鋳銅孔雀文磬",
@@ -165,7 +165,7 @@
    "lon": 140.215973,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005086.html",
    "spiritName": "クジャクケイ",
-   "cardImage": "spirits/クジャクケイ.png"
+   "cardImage": "spirits/クジャクケイ.webp"
   },
   {
    "name": "梵鐘（竜腹寺）",
@@ -176,7 +176,7 @@
    "lon": 140.193298,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005045.html",
    "spiritName": "リュウフク",
-   "cardImage": "spirits/リュウフク.png"
+   "cardImage": "spirits/リュウフク.webp"
   },
   {
    "name": "梵鐘（建武五年在銘）",
@@ -187,7 +187,7 @@
    "lon": 140.181854,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005046.html",
    "spiritName": "ケンム",
-   "cardImage": "spirits/ケンム.png"
+   "cardImage": "spirits/ケンム.webp"
   },
   {
    "name": "馬込遺跡出土瓦塔",
@@ -198,7 +198,7 @@
    "lon": 140.154739,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005128.html",
    "spiritName": "ガトウ",
-   "cardImage": "spirits/ガトウ.png"
+   "cardImage": "spirits/ガトウ.webp"
   },
   {
    "name": "押付の水塚",
@@ -209,7 +209,7 @@
    "lon": 140.211517,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005047.html",
    "spiritName": "ミズツカ",
-   "cardImage": "spirits/ミズツカ.png"
+   "cardImage": "spirits/ミズツカ.webp"
   },
   {
    "name": "鳥見神社の獅子舞",
@@ -220,7 +220,7 @@
    "lon": 140.169006,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005048.html",
    "spiritName": "トリミシシ",
-   "cardImage": "spirits/トリミシシ.png"
+   "cardImage": "spirits/トリミシシ.webp"
   },
   {
    "name": "浦部の神楽",
@@ -231,7 +231,7 @@
    "lon": 140.100479,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005050.html",
    "spiritName": "ウラベ",
-   "cardImage": "spirits/ウラベ.png"
+   "cardImage": "spirits/ウラベ.webp"
   },
   {
    "name": "鳥見神社の神楽",
@@ -242,7 +242,7 @@
    "lon": 140.197952,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005051.html",
    "spiritName": "カグライ",
-   "cardImage": "spirits/カグライ.png"
+   "cardImage": "spirits/カグライ.webp"
   },
   {
    "name": "将監のオニバス発生地",
@@ -253,7 +253,7 @@
    "lon": 140.208435,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005052.html",
    "spiritName": "オニバス",
-   "cardImage": "spirits/オニバス.png"
+   "cardImage": "spirits/オニバス.webp"
   },
   {
    "name": "弥陀一尊武蔵型板碑",
@@ -264,7 +264,7 @@
    "lon": 140.102264,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005054.html",
    "spiritName": "イタムサ",
-   "cardImage": "spirits/イタムサ.png"
+   "cardImage": "spirits/イタムサ.webp"
   },
   {
    "name": "弥陀三尊下総型板碑",
@@ -275,7 +275,7 @@
    "lon": 140.189499,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005055.html",
    "spiritName": "シモイタ",
-   "cardImage": "spirits/シモイタ.png"
+   "cardImage": "spirits/シモイタ.webp"
   },
   {
    "name": "板石塔婆（吉高）",
@@ -286,7 +286,7 @@
    "lon": 140.238235,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005056.html",
    "spiritName": "ヨシイタ",
-   "cardImage": "spirits/ヨシイタ.png"
+   "cardImage": "spirits/ヨシイタ.webp"
   },
   {
    "name": "板石塔婆（岩戸）",
@@ -297,7 +297,7 @@
    "lon": 140.167038,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005057.html",
    "spiritName": "イワイタ",
-   "cardImage": "spirits/イワイタ.png"
+   "cardImage": "spirits/イワイタ.webp"
   },
   {
    "name": "福聚院阿弥陀三尊立像",
@@ -308,7 +308,7 @@
    "lon": 140.199112,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005058.html",
    "spiritName": "フクジュ",
-   "cardImage": "spirits/フクジュ.png"
+   "cardImage": "spirits/フクジュ.webp"
   },
   {
    "name": "薬師如来立像",
@@ -319,7 +319,7 @@
    "lon": 140.179108,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005059.html",
    "spiritName": "タキヤク",
-   "cardImage": "spirits/タキヤク.png"
+   "cardImage": "spirits/タキヤク.webp"
   },
   {
    "name": "鋳銅鰐口（竹袋）",
@@ -330,7 +330,7 @@
    "lon": 140.157898,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005060.html",
    "spiritName": "ワニタケ",
-   "cardImage": "spirits/ワニタケ.png"
+   "cardImage": "spirits/ワニタケ.webp"
   },
   {
    "name": "観音寺鋳造鰐口",
@@ -341,7 +341,7 @@
    "lon": 140.102264,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005061.html",
    "spiritName": "カンワニ",
-   "cardImage": "spirits/カンワニ.png"
+   "cardImage": "spirits/カンワニ.webp"
   },
   {
    "name": "鋳銅鰐口（松虫）",
@@ -352,7 +352,7 @@
    "lon": 140.215973,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005062.html",
    "spiritName": "マツワニ",
-   "cardImage": "spirits/マツワニ.png"
+   "cardImage": "spirits/マツワニ.webp"
   },
   {
    "name": "曼荼羅掛軸",
@@ -363,7 +363,7 @@
    "lon": 140.207016,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005063.html",
    "spiritName": "マンダ",
-   "cardImage": "spirits/マンダ.png"
+   "cardImage": "spirits/マンダ.webp"
   },
   {
    "name": "龍湖寺絵馬",
@@ -374,7 +374,7 @@
    "lon": 140.18924,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005064.html",
    "spiritName": "エマリュウ",
-   "cardImage": "spirits/エマリュウ.png"
+   "cardImage": "spirits/エマリュウ.webp"
   },
   {
    "name": "吉岡家河岸関係文書",
@@ -385,7 +385,7 @@
    "lon": 140.155243,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005067.html",
    "spiritName": "カシモン",
-   "cardImage": "spirits/カシモン.png"
+   "cardImage": "spirits/カシモン.webp"
   },
   {
    "name": "常滑の大壺",
@@ -396,7 +396,7 @@
    "lon": 140.167038,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005065.html",
    "spiritName": "トコナメ",
-   "cardImage": "spirits/トコナメ.png"
+   "cardImage": "spirits/トコナメ.webp"
   },
   {
    "name": "小金牧鹿狩資料「村小旗」",
@@ -407,7 +407,7 @@
    "lon": 140.154739,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005066.html",
    "spiritName": "コガネ",
-   "cardImage": "spirits/コガネ.png"
+   "cardImage": "spirits/コガネ.webp"
   },
   {
    "name": "高札（五榜の掲示）",
@@ -418,7 +418,7 @@
    "lon": 140.230591,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005069.html",
    "spiritName": "ゴボウ",
-   "cardImage": "spirits/ゴボウ.png"
+   "cardImage": "spirits/ゴボウ.webp"
   },
   {
    "name": "別所の獅子舞",
@@ -429,7 +429,7 @@
    "lon": 140.158615,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005068.html",
    "spiritName": "ベッショ",
-   "cardImage": "spirits/ベッショ.png"
+   "cardImage": "spirits/ベッショ.webp"
   },
   {
    "name": "いなざき獅子舞",
@@ -440,7 +440,7 @@
    "lon": 140.127258,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005070.html",
    "spiritName": "イナザキ",
-   "cardImage": "spirits/イナザキ.png"
+   "cardImage": "spirits/イナザキ.webp"
   },
   {
    "name": "八幡神社の獅子舞",
@@ -451,7 +451,7 @@
    "lon": 140.198059,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005071.html",
    "spiritName": "ハチシシ",
-   "cardImage": "spirits/ハチシシ.png"
+   "cardImage": "spirits/ハチシシ.webp"
   },
   {
    "name": "月影の井",
@@ -462,7 +462,7 @@
    "lon": 140.106567,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005072.html",
    "spiritName": "ツキカゲ",
-   "cardImage": "spirits/ツキカゲ.png"
+   "cardImage": "spirits/ツキカゲ.webp"
   },
   {
    "name": "上宿古墳",
@@ -473,7 +473,7 @@
    "lon": 140.142044,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005073.html",
    "spiritName": "カミジュク",
-   "cardImage": "spirits/カミジュク.png"
+   "cardImage": "spirits/カミジュク.webp"
   },
   {
    "name": "武西の百庚申塚",
@@ -484,7 +484,7 @@
    "lon": 140.112488,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005074.html",
    "spiritName": "ヒャクシン",
-   "cardImage": "spirits/ヒャクシン.png"
+   "cardImage": "spirits/ヒャクシン.webp"
   },
   {
    "name": "泉新田大木戸野馬堀遺跡",
@@ -495,7 +495,7 @@
    "lon": 140.126434,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005075.html",
    "spiritName": "ノマホリ",
-   "cardImage": "spirits/ノマホリ.png"
+   "cardImage": "spirits/ノマホリ.webp"
   },
   {
    "name": "道作古墳群",
@@ -506,7 +506,7 @@
    "lon": 140.179489,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005083.html",
    "spiritName": "ミチツク",
-   "cardImage": "spirits/ミチツク.png"
+   "cardImage": "spirits/ミチツク.webp"
   },
   {
    "name": "掩体壕",
@@ -517,7 +517,7 @@
    "lon": 140.171341,
    "detailUrl": "https://www.city.inzai.lg.jp/0000006191.html",
    "spiritName": "エンタイ",
-   "cardImage": "spirits/エンタイ.png"
+   "cardImage": "spirits/エンタイ.webp"
   },
   {
    "name": "吉高の大桜",
@@ -528,7 +528,7 @@
    "lon": 140.231628,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005081.html",
    "spiritName": "ヨシザクラ",
-   "cardImage": "spirits/ヨシザクラ.png"
+   "cardImage": "spirits/ヨシザクラ.webp"
   },
   {
    "name": "藤の木",
@@ -539,7 +539,7 @@
    "lon": 140.197952,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005082.html",
    "spiritName": "フジノ",
-   "cardImage": "spirits/フジノ.png"
+   "cardImage": "spirits/フジノ.webp"
   },
   {
    "name": "岩井家住宅主屋（旧武蔵屋店舗）",
@@ -550,7 +550,7 @@
    "lon": 140.146774,
    "detailUrl": "https://www.city.inzai.lg.jp/0000005084.html",
    "spiritName": "ムサシヤ",
-   "cardImage": "spirits/ムサシヤ.png"
+   "cardImage": "spirits/ムサシヤ.webp"
   }
  ]
 }
