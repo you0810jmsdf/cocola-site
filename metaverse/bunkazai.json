@@ -8,7 +8,10 @@
    "type": "建造物",
    "address": "小倉1138",
    "lat": 35.819523,
-   "lon": 140.117325
+   "lon": 140.117325,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000004863.html",
+   "spiritName": "ホウジュ",
+   "cardImage": "spirits/ホウジュ.png"
   },
   {
    "name": "泉福寺薬師堂",
@@ -16,7 +19,10 @@
    "type": "建造物",
    "address": "岩戸1671",
    "lat": 35.763531,
-   "lon": 140.168365
+   "lon": 140.168365,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005005.html",
+   "spiritName": "センプク",
+   "cardImage": "spirits/センプク.png"
   },
   {
    "name": "栄福寺薬師堂",
@@ -24,7 +30,10 @@
    "type": "建造物",
    "address": "角田2",
    "lat": 35.787163,
-   "lon": 140.190826
+   "lon": 140.190826,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005006.html",
+   "spiritName": "エイフク",
+   "cardImage": "spirits/エイフク.png"
   },
   {
    "name": "銅造不動明王立像",
@@ -32,7 +41,10 @@
    "type": "彫刻",
    "address": "結縁寺516",
    "lat": 35.791004,
-   "lon": 140.134369
+   "lon": 140.134369,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005007.html",
+   "spiritName": "フドラ",
+   "cardImage": "spirits/フドラ.png"
   },
   {
    "name": "木造薬師如来坐像・立像（七仏薬師）",
@@ -40,7 +52,10 @@
    "type": "彫刻",
    "address": "松虫7",
    "lat": 35.789604,
-   "lon": 140.215973
+   "lon": 140.215973,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005008.html",
+   "spiritName": "ナナヤク",
+   "cardImage": "spirits/ナナヤク.png"
   },
   {
    "name": "木下貝層",
@@ -48,7 +63,10 @@
    "type": "天然記念物",
    "address": "木下1944",
    "lat": 35.836876,
-   "lon": 140.156723
+   "lon": 140.156723,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005009.html",
+   "spiritName": "キオロシ",
+   "cardImage": "spirits/キオロシ.png"
   },
   {
    "name": "木造毘沙門天及び両脇侍立像",
@@ -56,7 +74,10 @@
    "type": "彫刻",
    "address": "松崎396",
    "lat": 35.77879,
-   "lon": 140.138245
+   "lon": 140.138245,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005010.html",
+   "spiritName": "ビシャモ",
+   "cardImage": "spirits/ビシャモ.png"
   },
   {
    "name": "木造延命地蔵菩薩坐像",
@@ -64,7 +85,10 @@
    "type": "彫刻",
    "address": "和泉971",
    "lat": 35.818977,
-   "lon": 140.118103
+   "lon": 140.118103,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005013.html",
+   "spiritName": "エンメ",
+   "cardImage": "spirits/エンメ.png"
   },
   {
    "name": "銅造十一面観音立像",
@@ -72,7 +96,10 @@
    "type": "彫刻",
    "address": "木下777",
    "lat": 35.837219,
-   "lon": 140.151993
+   "lon": 140.151993,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005014.html",
+   "spiritName": "ジュウメン",
+   "cardImage": "spirits/ジュウメン.png"
   },
   {
    "name": "木造地蔵菩薩立像",
@@ -80,7 +107,10 @@
    "type": "彫刻",
    "address": "別所1005",
    "lat": 35.825386,
-   "lon": 140.158615
+   "lon": 140.158615,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005015.html",
+   "spiritName": "ジゾレ",
+   "cardImage": "spirits/ジゾレ.png"
   },
   {
    "name": "木造不動明王立像及び毘沙門天立像",
@@ -88,7 +118,10 @@
    "type": "彫刻",
    "address": "小林1615",
    "lat": 35.825325,
-   "lon": 140.19693
+   "lon": 140.19693,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005035.html",
+   "spiritName": "フドビシャ",
+   "cardImage": "spirits/フドビシャ.png"
   },
   {
    "name": "木造薬師如来坐像",
@@ -96,7 +129,10 @@
    "type": "彫刻",
    "address": "平賀2146",
    "lat": 35.754646,
-   "lon": 140.252396
+   "lon": 140.252396,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005036.html",
+   "spiritName": "ヒラガ",
+   "cardImage": "spirits/ヒラガ.png"
   },
   {
    "name": "木造金剛力士像",
@@ -104,7 +140,10 @@
    "type": "彫刻",
    "address": "滝1009",
    "lat": 35.819218,
-   "lon": 140.181854
+   "lon": 140.181854,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005037.html",
+   "spiritName": "コンリキ",
+   "cardImage": "spirits/コンリキ.png"
   },
   {
    "name": "梵鐘（応安二年在銘）",
@@ -112,7 +151,10 @@
    "type": "工芸品",
    "address": "大森2034-1",
    "lat": 35.830265,
-   "lon": 140.137497
+   "lon": 140.137497,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005044.html",
+   "spiritName": "オウアン",
+   "cardImage": "spirits/オウアン.png"
   },
   {
    "name": "鋳銅孔雀文磬",
@@ -120,7 +162,10 @@
    "type": "工芸品",
    "address": "松虫7",
    "lat": 35.789604,
-   "lon": 140.215973
+   "lon": 140.215973,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005086.html",
+   "spiritName": "クジャクケイ",
+   "cardImage": "spirits/クジャクケイ.png"
   },
   {
    "name": "梵鐘（竜腹寺）",
@@ -128,7 +173,10 @@
    "type": "工芸品",
    "address": "竜腹寺626",
    "lat": 35.802505,
-   "lon": 140.193298
+   "lon": 140.193298,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005045.html",
+   "spiritName": "リュウフク",
+   "cardImage": "spirits/リュウフク.png"
   },
   {
    "name": "梵鐘（建武五年在銘）",
@@ -136,7 +184,10 @@
    "type": "工芸品",
    "address": "滝1009",
    "lat": 35.819218,
-   "lon": 140.181854
+   "lon": 140.181854,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005046.html",
+   "spiritName": "ケンム",
+   "cardImage": "spirits/ケンム.png"
   },
   {
    "name": "馬込遺跡出土瓦塔",
@@ -144,7 +195,10 @@
    "type": "考古資料",
    "address": "木下1489-1",
    "lat": 35.838242,
-   "lon": 140.154739
+   "lon": 140.154739,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005128.html",
+   "spiritName": "ガトウ",
+   "cardImage": "spirits/ガトウ.png"
   },
   {
    "name": "押付の水塚",
@@ -152,7 +206,10 @@
    "type": "有形民俗文化財",
    "address": "押付",
    "lat": 35.819302,
-   "lon": 140.211517
+   "lon": 140.211517,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005047.html",
+   "spiritName": "ミズツカ",
+   "cardImage": "spirits/ミズツカ.png"
   },
   {
    "name": "鳥見神社の獅子舞",
@@ -160,7 +217,10 @@
    "type": "無形民俗文化財",
    "address": "平岡1476",
    "lat": 35.833988,
-   "lon": 140.169006
+   "lon": 140.169006,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005048.html",
+   "spiritName": "トリミシシ",
+   "cardImage": "spirits/トリミシシ.png"
   },
   {
    "name": "浦部の神楽",
@@ -168,7 +228,10 @@
    "type": "無形民俗文化財",
    "address": "浦部2125",
    "lat": 35.825478,
-   "lon": 140.100479
+   "lon": 140.100479,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005050.html",
+   "spiritName": "ウラベ",
+   "cardImage": "spirits/ウラベ.png"
   },
   {
    "name": "鳥見神社の神楽",
@@ -176,7 +239,10 @@
    "type": "無形民俗文化財",
    "address": "中根1339",
    "lat": 35.808392,
-   "lon": 140.197952
+   "lon": 140.197952,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005051.html",
+   "spiritName": "カグライ",
+   "cardImage": "spirits/カグライ.png"
   },
   {
    "name": "将監のオニバス発生地",
@@ -184,7 +250,10 @@
    "type": "天然記念物",
    "address": "将監",
    "lat": 35.834389,
-   "lon": 140.208435
+   "lon": 140.208435,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005052.html",
+   "spiritName": "オニバス",
+   "cardImage": "spirits/オニバス.png"
   },
   {
    "name": "弥陀一尊武蔵型板碑",
@@ -192,7 +261,10 @@
    "type": "歴史資料",
    "address": "浦部1978-1",
    "lat": 35.824989,
-   "lon": 140.102264
+   "lon": 140.102264,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005054.html",
+   "spiritName": "イタムサ",
+   "cardImage": "spirits/イタムサ.png"
   },
   {
    "name": "弥陀三尊下総型板碑",
@@ -200,7 +272,10 @@
    "type": "歴史資料",
    "address": "小林1841",
    "lat": 35.829006,
-   "lon": 140.189499
+   "lon": 140.189499,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005055.html",
+   "spiritName": "シモイタ",
+   "cardImage": "spirits/シモイタ.png"
   },
   {
    "name": "板石塔婆（吉高）",
@@ -208,7 +283,10 @@
    "type": "歴史資料",
    "address": "吉高533-1-2",
    "lat": 35.788116,
-   "lon": 140.238235
+   "lon": 140.238235,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005056.html",
+   "spiritName": "ヨシイタ",
+   "cardImage": "spirits/ヨシイタ.png"
   },
   {
    "name": "板石塔婆（岩戸）",
@@ -216,7 +294,10 @@
    "type": "歴史資料",
    "address": "岩戸1742",
    "lat": 35.763012,
-   "lon": 140.167038
+   "lon": 140.167038,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005057.html",
+   "spiritName": "イワイタ",
+   "cardImage": "spirits/イワイタ.png"
   },
   {
    "name": "福聚院阿弥陀三尊立像",
@@ -224,7 +305,10 @@
    "type": "彫刻",
    "address": "中根1378",
    "lat": 35.809856,
-   "lon": 140.199112
+   "lon": 140.199112,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005058.html",
+   "spiritName": "フクジュ",
+   "cardImage": "spirits/フクジュ.png"
   },
   {
    "name": "薬師如来立像",
@@ -232,7 +316,10 @@
    "type": "彫刻",
    "address": "滝1008-1",
    "lat": 35.818134,
-   "lon": 140.179108
+   "lon": 140.179108,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005059.html",
+   "spiritName": "タキヤク",
+   "cardImage": "spirits/タキヤク.png"
   },
   {
    "name": "鋳銅鰐口（竹袋）",
@@ -240,7 +327,10 @@
    "type": "工芸品",
    "address": "竹袋141",
    "lat": 35.830238,
-   "lon": 140.157898
+   "lon": 140.157898,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005060.html",
+   "spiritName": "ワニタケ",
+   "cardImage": "spirits/ワニタケ.png"
   },
   {
    "name": "観音寺鋳造鰐口",
@@ -248,7 +338,10 @@
    "type": "工芸品",
    "address": "浦部1978-1",
    "lat": 35.824989,
-   "lon": 140.102264
+   "lon": 140.102264,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005061.html",
+   "spiritName": "カンワニ",
+   "cardImage": "spirits/カンワニ.png"
   },
   {
    "name": "鋳銅鰐口（松虫）",
@@ -256,7 +349,10 @@
    "type": "工芸品",
    "address": "松虫7",
    "lat": 35.789604,
-   "lon": 140.215973
+   "lon": 140.215973,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005062.html",
+   "spiritName": "マツワニ",
+   "cardImage": "spirits/マツワニ.png"
   },
   {
    "name": "曼荼羅掛軸",
@@ -264,7 +360,10 @@
    "type": "工芸品",
    "address": "笠神725",
    "lat": 35.81892,
-   "lon": 140.207016
+   "lon": 140.207016,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005063.html",
+   "spiritName": "マンダ",
+   "cardImage": "spirits/マンダ.png"
   },
   {
    "name": "龍湖寺絵馬",
@@ -272,7 +371,10 @@
    "type": "工芸品",
    "address": "物木213",
    "lat": 35.820339,
-   "lon": 140.18924
+   "lon": 140.18924,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005064.html",
+   "spiritName": "エマリュウ",
+   "cardImage": "spirits/エマリュウ.png"
   },
   {
    "name": "吉岡家河岸関係文書",
@@ -280,7 +382,10 @@
    "type": "古文書",
    "address": "木下",
    "lat": 35.839233,
-   "lon": 140.155243
+   "lon": 140.155243,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005067.html",
+   "spiritName": "カシモン",
+   "cardImage": "spirits/カシモン.png"
   },
   {
    "name": "常滑の大壺",
@@ -288,7 +393,10 @@
    "type": "考古資料",
    "address": "岩戸1742",
    "lat": 35.763012,
-   "lon": 140.167038
+   "lon": 140.167038,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005065.html",
+   "spiritName": "トコナメ",
+   "cardImage": "spirits/トコナメ.png"
   },
   {
    "name": "小金牧鹿狩資料「村小旗」",
@@ -296,7 +404,10 @@
    "type": "歴史資料",
    "address": "木下1489-1",
    "lat": 35.838242,
-   "lon": 140.154739
+   "lon": 140.154739,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005066.html",
+   "spiritName": "コガネ",
+   "cardImage": "spirits/コガネ.png"
   },
   {
    "name": "高札（五榜の掲示）",
@@ -304,7 +415,10 @@
    "type": "歴史資料",
    "address": "酒直卜杭",
    "lat": 35.82774,
-   "lon": 140.230591
+   "lon": 140.230591,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005069.html",
+   "spiritName": "ゴボウ",
+   "cardImage": "spirits/ゴボウ.png"
   },
   {
    "name": "別所の獅子舞",
@@ -312,7 +426,10 @@
    "type": "無形民俗文化財",
    "address": "別所1005",
    "lat": 35.825386,
-   "lon": 140.158615
+   "lon": 140.158615,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005068.html",
+   "spiritName": "ベッショ",
+   "cardImage": "spirits/ベッショ.png"
   },
   {
    "name": "いなざき獅子舞",
@@ -320,7 +437,10 @@
    "type": "無形民俗文化財",
    "address": "和泉622",
    "lat": 35.820606,
-   "lon": 140.127258
+   "lon": 140.127258,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005070.html",
+   "spiritName": "イナザキ",
+   "cardImage": "spirits/イナザキ.png"
   },
   {
    "name": "八幡神社の獅子舞",
@@ -328,7 +448,10 @@
    "type": "無形民俗文化財",
    "address": "中根1092",
    "lat": 35.802647,
-   "lon": 140.198059
+   "lon": 140.198059,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005071.html",
+   "spiritName": "ハチシシ",
+   "cardImage": "spirits/ハチシシ.png"
   },
   {
    "name": "月影の井",
@@ -336,7 +459,10 @@
    "type": "史跡",
    "address": "浦部1261-2",
    "lat": 35.822369,
-   "lon": 140.106567
+   "lon": 140.106567,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005072.html",
+   "spiritName": "ツキカゲ",
+   "cardImage": "spirits/ツキカゲ.png"
   },
   {
    "name": "上宿古墳",
@@ -344,7 +470,10 @@
    "type": "史跡",
    "address": "大森2346-2",
    "lat": 35.832302,
-   "lon": 140.142044
+   "lon": 140.142044,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005073.html",
+   "spiritName": "カミジュク",
+   "cardImage": "spirits/カミジュク.png"
   },
   {
    "name": "武西の百庚申塚",
@@ -352,7 +481,10 @@
    "type": "史跡",
    "address": "武西学園台三丁目128",
    "lat": 35.793476,
-   "lon": 140.112488
+   "lon": 140.112488,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005074.html",
+   "spiritName": "ヒャクシン",
+   "cardImage": "spirits/ヒャクシン.png"
   },
   {
    "name": "泉新田大木戸野馬堀遺跡",
@@ -360,7 +492,10 @@
    "type": "史跡",
    "address": "草深1878-7",
    "lat": 35.811615,
-   "lon": 140.126434
+   "lon": 140.126434,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005075.html",
+   "spiritName": "ノマホリ",
+   "cardImage": "spirits/ノマホリ.png"
   },
   {
    "name": "道作古墳群",
@@ -368,7 +503,10 @@
    "type": "史跡",
    "address": "小林2826-1",
    "lat": 35.829266,
-   "lon": 140.179489
+   "lon": 140.179489,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005083.html",
+   "spiritName": "ミチツク",
+   "cardImage": "spirits/ミチツク.png"
   },
   {
    "name": "掩体壕",
@@ -376,7 +514,10 @@
    "type": "史跡",
    "address": "東の原3丁目108",
    "lat": 35.795147,
-   "lon": 140.171341
+   "lon": 140.171341,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000006191.html",
+   "spiritName": "エンタイ",
+   "cardImage": "spirits/エンタイ.png"
   },
   {
    "name": "吉高の大桜",
@@ -384,7 +525,10 @@
    "type": "天然記念物",
    "address": "吉高930-1-1",
    "lat": 35.784828,
-   "lon": 140.231628
+   "lon": 140.231628,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005081.html",
+   "spiritName": "ヨシザクラ",
+   "cardImage": "spirits/ヨシザクラ.png"
   },
   {
    "name": "藤の木",
@@ -392,7 +536,10 @@
    "type": "天然記念物",
    "address": "中根",
    "lat": 35.808392,
-   "lon": 140.197952
+   "lon": 140.197952,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005082.html",
+   "spiritName": "フジノ",
+   "cardImage": "spirits/フジノ.png"
   },
   {
    "name": "岩井家住宅主屋（旧武蔵屋店舗）",
@@ -400,7 +547,10 @@
    "type": "建造物",
    "address": "木下1645",
    "lat": 35.840096,
-   "lon": 140.146774
+   "lon": 140.146774,
+   "detailUrl": "https://www.city.inzai.lg.jp/0000005084.html",
+   "spiritName": "ムサシヤ",
+   "cardImage": "spirits/ムサシヤ.png"
   }
  ]
 }

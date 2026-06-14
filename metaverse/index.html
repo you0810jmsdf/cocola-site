@@ -212,6 +212,7 @@
   }
   #encounter.show { display: block; }
   #encounter .charBox svg { width: 90px; height: 90px; animation: charBounce 0.9s ease infinite; }
+  #encounter .charBox img.cardImg { width: auto; max-width: min(74vw, 220px); max-height: 180px; border-radius: 12px; }
   @keyframes charBounce {
     0%, 100% { transform: translateY(0); }
     45% { transform: translateY(-12px); }
@@ -222,6 +223,11 @@
   #encounter .getBtn {
     border: none; border-radius: 10px; background: #e67e22; color: #fff;
     font-size: 15px; font-weight: bold; padding: 10px 30px; cursor: pointer;
+  }
+  #encounter .detailBtn {
+    display: block; width: fit-content; margin: 0 auto 8px; padding: 7px 16px;
+    border: 1px solid #ffd166; border-radius: 10px; background: rgba(255, 209, 102, 0.12);
+    color: #ffd166; font-size: 12px; font-weight: bold; text-decoration: none; cursor: pointer;
   }
   #encounter .closeBtn {
     position: absolute; top: 6px; right: 10px; background: none; border: none;
@@ -324,6 +330,7 @@
   <div class="charBox" id="encounterChar"></div>
   <div class="ename" id="encounterName"></div>
   <div class="edesc" id="encounterDesc"></div>
+  <a class="detailBtn" id="encounterDetail" href="#" target="_blank" rel="noopener">🔎 実物を詳しく見る（市公式）</a>
   <button class="getBtn" onclick="confirmCatch()">ゲットする！</button>
 </div>
 
@@ -875,11 +882,22 @@ function showEncounter(idx) {
   encounterIdx = idx;
   const b = BUNKAZAI[idx];
   const tribe = SPIRIT_TRIBES[tribeOf(b)];
-  document.getElementById("encounterChar").innerHTML = tribe.svg;
+  const charEl = document.getElementById("encounterChar");
+  charEl.innerHTML = tribe.svg;
+  if (b.cardImage) {
+    const probe = new Image();
+    probe.onload = function () {
+      charEl.innerHTML = '<img class="cardImg" src="' + b.cardImage + '" alt="' + b.name + '">';
+    };
+    probe.src = b.cardImage;   // 画像が無ければ onload が発火せず SVG のまま（壊れ画像なし）
+  }
   document.getElementById("encounterName").textContent =
-    tribe.label + "があらわれた！ " + "★".repeat(starsOf(b));
+    (b.spiritName || tribe.label) + " があらわれた！ " + "★".repeat(starsOf(b));
   document.getElementById("encounterDesc").textContent =
     b.name + "（" + b.designation + "）にすんでいる精霊だ";
+  var dEl = document.getElementById("encounterDetail");
+  if (b.detailUrl) { dEl.href = b.detailUrl; dEl.style.display = "block"; }
+  else { dEl.style.display = "none"; }
   document.getElementById("encounter").classList.add("show");
 }
 
@@ -1081,7 +1099,8 @@ if (!howtoSeen) openHowto();
 // シネマティックモード（PR動画撮影用・?cinema=1 で起動）
 // カメラ自動運転＋テロップを表示する。通常利用には影響しない。
 // ============================================================
-const CINEMA = new URLSearchParams(location.search).get("cinema") === "1";
+const CINEMA_MODE = new URLSearchParams(location.search).get("cinema");
+const CINEMA = CINEMA_MODE === "1";
 
 function cinemaFlyTo(lon, lat, height, pitchDeg, headingDeg, durationSec) {
   return new Promise((resolve) => {
@@ -1186,7 +1205,61 @@ async function startCinema() {
   window.cinemaDone = true; // 録画スクリプトの終了検知用
 }
 
+// 告知teaser用シーケンス（?cinema=2・約17秒）飛ぶ→歩く→精霊出現→ゲット
+async function startTeaser() {
+  ["mvHeader", "controlPanel", "helpBox", "puzzleBtn", "howtoBtn",
+   "panelToggle", "joystick", "spotInfo", "puzzlePanel"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = "none";
+  });
+  document.getElementById("howtoModal").classList.remove("show");
+
+  const cap = document.createElement("div");
+  cap.id = "cinemaCaption";
+  document.body.appendChild(cap);
+  const style = document.createElement("style");
+  style.textContent =
+    "#cinemaCaption{position:absolute;left:50%;bottom:24%;transform:translateX(-50%);z-index:70;" +
+    "color:#fff;font-size:32px;font-weight:bold;text-align:center;line-height:1.6;width:92%;" +
+    "text-shadow:0 2px 14px rgba(0,0,0,0.9),0 0 4px rgba(0,0,0,0.9);opacity:0;transition:opacity 0.6s;}" +
+    "#cinemaCaption.show{opacity:1;}#cinemaCaption b{color:#ffd166;}";
+  document.head.appendChild(style);
+
+  while (!tileset) { await new Promise((r) => setTimeout(r, 300)); }
+  await new Promise((r) => setTimeout(r, 2500));
+
+  const idx = 0;            // 宝珠院観音堂（精霊ホウジュ）
+  const b = BUNKAZAI[idx];
+
+  // 1. 上空から接近（飛ぶ）
+  viewer.camera.setView({
+    destination: Cesium.Cartesian3.fromDegrees(b.lon, b.lat - 0.004, 700),
+    orientation: { heading: 0, pitch: Cesium.Math.toRadians(-40), roll: 0 },
+  });
+  cinemaCaption("メタバースの空を <b>飛ぶ</b>", 3200);
+  await cinemaFlyTo(b.lon, b.lat - 0.0022, 140, -16, 0, 4.5);
+
+  // 2. 地上に降りて歩く視点
+  cinemaCaption("降りて、<b>歩く</b>", 3000);
+  await cinemaFlyTo(b.lon, b.lat - 0.0014, 55, -6, 0, 3.2);
+  await cinemaFlyTo(b.lon, b.lat - 0.0009, 32, -3, 0, 2.6);
+
+  // 3. 精霊が出現（カード表示）
+  cinemaCaption("文化財の精霊が <b>あらわれた！</b>", 3200);
+  showEncounter(idx);
+  await new Promise((r) => setTimeout(r, 2800));
+
+  // 4. ゲット
+  cinemaCaption("タップで <b>ゲット！</b>", 2400);
+  await new Promise((r) => setTimeout(r, 1500));
+  confirmCatch();
+  await new Promise((r) => setTimeout(r, 1600));
+
+  window.cinemaDone = true; // 録画スクリプトの終了検知用
+}
+
 if (CINEMA) startCinema();
+else if (CINEMA_MODE === "2") startTeaser();
 
 // ============================================================
 // 開始
