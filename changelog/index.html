@@ -117,6 +117,18 @@
         <ul class="changelog-list">
 
           <li class="cl-entry">
+            <p class="cl-date">2026-06-17</p>
+            <h2 class="cl-title">投票ゾンビ復活の<strong>真の根治</strong>（cocola-dao-gas2 側の normalize 系2関数も upsert化 / <code>cocola-dao-gas2 v35 @91</code>）</h2>
+            <p class="cl-desc">
+              <strong>再発の真因</strong>: 2026-06-02 の v201（cocola_topics）で投票ゾンビ根治と思っていたが、実は <code>cocola-dao-gas2/dao-points.js</code> の <code>normalizeDaoVoteResponses_</code> (L2212) と <code>normalizeLatestDaoVoteResponse_</code> (L2250) が**未対策のまま直接 setValues/appendRow で書き込み続けていた**。両プロジェクトが同じシート (<code>1Xma1V92uN...</code>) に書き込む構造のため、cocola_topics 側だけ upsert化しても cocola-dao-gas2 側の経路で重複が再挿入されていた。今回再発時の状況：DAO投票シートが 370行に膨張、P0021「ゆう/反対/2026-04-19 18:56:29」が7行、P0025「ゆう/賛成」7行、P1009「ゆみ/賛成/2026-04-29 16:37:25」7行 など、前回 v200 で削除したのと**完全同一**のデータが復活。<strong>対処</strong>: cocola-dao-gas2 にも <code>upsertDaoVoteByVoterFromForm_</code> ヘルパー（10列構成版）を追加し、上記 normalize 系2関数を append→upsert に置換。これで両プロジェクトのどの経路を経ても (提案ID × 投票者) ユニーク性が**構造的に保証**される。<strong>クリーンアップ</strong>: cocola_topics に <code>runDaoVoteCleanupAll</code> 一括ラッパー新設（v208 @404）→ STEP1: ts キー dedupe で 370→125（245行削除）／STEP2: voter キー dedupe で 125→121（4行）／STEP3: 壊れた行除去で 121→<strong>94行</strong>（27行）=真のユニーク投票数(94)と完全一致。バックアップは各STEP のバックアップシート（<code>DAO投票_backup_*</code>）に自動退避済。<strong>GAS デプロイ</strong>: cocola-dao-gas2 v35 @91 ＋ cocola_topics v208 @404 として固定IDへ redeploy 済。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+              <span class="tag tag--improve">根治対策</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
             <p class="cl-date">2026-06-16</p>
             <h2 class="cl-title">DAO「みんなで話し合う」コメントに<strong>編集・削除機能</strong>を追加（本人のみ・⋯メニュー / <code>dao-comment-gas v3 @3</code>）</h2>
             <p class="cl-desc">
