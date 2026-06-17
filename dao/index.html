@@ -1350,6 +1350,26 @@
     }
     .chat-row.is-me .reaction-popup { right: 0; }
     .chat-row.is-other .reaction-popup { left: 0; }
+    .chat-actions-btn {
+      background: none; border: none; color: #888;
+      font-size: 16px; line-height: 1; padding: 2px 6px;
+      margin-left: 6px; cursor: pointer; border-radius: 4px;
+    }
+    .chat-actions-btn:hover { background: rgba(0,0,0,0.06); color: #333; }
+    .chat-actions-popup {
+      position: absolute; background: #fff;
+      border: 1px solid #d4dad6; border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      padding: 4px 0; z-index: 1000;
+      display: flex; flex-direction: column; min-width: 110px;
+    }
+    .chat-actions-popup button {
+      background: none; border: none;
+      padding: 8px 14px; text-align: left; cursor: pointer;
+      font-size: 13px; color: #333;
+    }
+    .chat-actions-popup button:hover { background: #f3efe3; }
+    .chat-row.is-me .chat-meta { position: relative; }
     .reaction-popup span { cursor: pointer; transition: transform 0.1s; }
     .reaction-popup span:hover { transform: scale(1.3); }
     /* 送信エリア */
@@ -5883,12 +5903,17 @@
         '</span>'
       : '<span class="chat-reaction" data-comment-id="' + escHtml(c.id) + '" style="display:none">👍 0</span>';
 
+    var actionsBtn = (isMe && !isPending && c.id)
+      ? '<button class="chat-actions-btn" data-comment-id="' + escHtml(c.id) + '" title="編集/削除">⋯</button>'
+      : '';
+
     var col = '<div class="chat-col">' +
       (isMe ? '' : '<span class="chat-name">' + escHtml(c.alias) + '</span>') +
       '<div class="chat-bubble" data-comment-id="' + escHtml(c.id) + '">' + escHtml(c.text) + '</div>' +
       '<div class="chat-meta">' +
         '<span>' + formatTime(c.postedAt) + '</span>' +
         reactionBadge +
+        actionsBtn +
       '</div>' +
     '</div>';
 
@@ -5915,6 +5940,107 @@
         if (likedComments[cid]) return;
         sendReaction(cid, '👍', btn);
       });
+    });
+    container.querySelectorAll('.chat-actions-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(ev) {
+        ev.stopPropagation();
+        showCommentActionsMenu(btn);
+      });
+    });
+  }
+
+  function showCommentActionsMenu(btn) {
+    closeAllPopups();
+    document.querySelectorAll('.chat-actions-popup').forEach(function(p) { p.remove(); });
+    var cid = btn.dataset.commentId;
+    if (!cid) return;
+    var nick = (typeof getStoredNickname === 'function') ? getStoredNickname() : '';
+    if (!nick) return;
+    var row = btn.closest('.chat-row');
+    var bubble = row ? row.querySelector('.chat-bubble') : null;
+
+    var menu = document.createElement('div');
+    menu.className = 'chat-actions-popup';
+
+    var editBtn = document.createElement('button');
+    editBtn.type = 'button';
+    editBtn.textContent = '✏️ 編集';
+    editBtn.addEventListener('click', function() {
+      menu.remove();
+      var currentText = bubble ? bubble.textContent : '';
+      var newText = prompt('メッセージを編集（500文字以内）', currentText);
+      if (newText === null) return;
+      newText = (newText || '').trim();
+      if (!newText || newText === currentText) return;
+      editCommentRequest(cid, newText, nick, bubble);
+    });
+
+    var delBtn = document.createElement('button');
+    delBtn.type = 'button';
+    delBtn.textContent = '🗑️ 削除';
+    delBtn.addEventListener('click', function() {
+      menu.remove();
+      if (!confirm('このコメントを削除します。よろしいですか？')) return;
+      deleteCommentRequest(cid, nick, row);
+    });
+
+    menu.appendChild(editBtn);
+    menu.appendChild(delBtn);
+    btn.parentElement.appendChild(menu);
+
+    setTimeout(function() {
+      document.addEventListener('click', function handler(e) {
+        if (!menu.contains(e.target) && e.target !== btn) {
+          menu.remove();
+          document.removeEventListener('click', handler);
+        }
+      });
+    }, 10);
+  }
+
+  function editCommentRequest(cid, newText, nick, bubbleEl) {
+    var origText = bubbleEl ? bubbleEl.textContent : '';
+    if (bubbleEl) bubbleEl.textContent = newText;
+    fetch(COMMENT_GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'edit', commentId: cid, alias: nick, text: newText })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (!d.ok) {
+        if (bubbleEl) bubbleEl.textContent = origText;
+        alert('編集に失敗しました: ' + (d.error || ''));
+      }
+    })
+    .catch(function() {
+      if (bubbleEl) bubbleEl.textContent = origText;
+      alert('通信エラーで編集に失敗しました');
+    });
+  }
+
+  function deleteCommentRequest(cid, nick, rowEl) {
+    if (rowEl) rowEl.style.opacity = '0.4';
+    fetch(COMMENT_GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'delete', commentId: cid, alias: nick })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.ok) {
+        if (rowEl) rowEl.remove();
+        if (currentProposalId) {
+          commentCounts[currentProposalId] = Math.max(0, (commentCounts[currentProposalId] || 1) - 1);
+          var countEl = document.querySelector('.comment-count[data-pid="' + currentProposalId + '"]');
+          if (countEl) countEl.textContent = commentCounts[currentProposalId];
+        }
+      } else {
+        if (rowEl) rowEl.style.opacity = '1';
+        alert('削除に失敗しました: ' + (d.error || ''));
+      }
+    })
+    .catch(function() {
+      if (rowEl) rowEl.style.opacity = '1';
+      alert('通信エラーで削除に失敗しました');
     });
   }
 

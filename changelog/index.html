@@ -117,6 +117,17 @@
         <ul class="changelog-list">
 
           <li class="cl-entry">
+            <p class="cl-date">2026-06-16</p>
+            <h2 class="cl-title">DAO「みんなで話し合う」コメントに<strong>編集・削除機能</strong>を追加（本人のみ・⋯メニュー / <code>dao-comment-gas v3 @3</code>）</h2>
+            <p class="cl-desc">
+              「コメント内容を修正したい、もしくは削除したい」要望に対応。<strong>GAS側</strong>: <code>dao-comment-gas/Code.gs</code> の <code>doPost</code> dispatcher に <code>action='delete'</code>/<code>action='edit'</code> を追加。<code>commentId</code> 該当行を取得し alias 一致を検証→ <code>deleteRow</code> or 本文列(4列目) <code>setValue</code>。**本人のコメントのみ削除/編集可能**（他人 alias なら <code>本人のコメントのみ削除/編集できます</code> エラー返却）。<strong>フロント側</strong>: <code>dao/index.html</code> の <code>buildBubble</code> で自分のコメント (<code>isMe && !isPending && c.id</code>) に <code>⋯</code> ボタン追加。クリックで <code>chat-actions-popup</code>（✏️編集／🗑️削除）表示。編集は <code>prompt</code> で新テキスト入力→ 楽観的UI更新→ POST失敗時は元に戻す。削除は <code>confirm</code> →楽観的に opacity 0.4 で淡色化→ 成功で <code>row.remove()</code> ＋ 件数カウンタ -1。GAS側 API 認証＋フロント側で他人コメントには UI 自体表示しない二重防御。<strong>デプロイ</strong>: dao-comment-gas v3 @3（固定ID <code>AKfycbzI6vkv7y...</code>）/ cocola-site dao/index.html＋service-worker.js v23→v24（PWAキャッシュバンプ）。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
             <p class="cl-date">2026-06-14</p>
             <h2 class="cl-title">メタバース：文化財の「精霊」50体カードと市公式の詳細リンクを追加</h2>
             <p class="cl-desc">
