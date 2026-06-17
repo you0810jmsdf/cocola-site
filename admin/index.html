@@ -154,6 +154,16 @@
               <a class="button button--secondary" href="../dao/index.html#members" target="_blank" rel="noreferrer noopener">開く</a>
             </div>
           </article>
+          <article class="app-card" style="grid-column:1/-1;">
+            <p class="app-card__tag">運営</p>
+            <h3>🧹 投票ゾンビ クリーンアップ</h3>
+            <p>DAO投票シートの重複行（同一(提案ID, 投票者, タイムスタンプ)の完全コピー／同じ人が同提案に複数行／提案IDや投票者が空の壊れた行）を一括削除し、真のユニーク投票のみに正規化します。各STEPごとに自動でバックアップシートに退避するので元に戻せます。実行に1〜2分かかります。</p>
+            <div class="app-card__actions" style="flex-wrap:wrap;gap:10px;align-items:center;">
+              <button class="button button--secondary wf-btn" type="button" id="daoCleanupBtn">クリーンアップを実行</button>
+              <span class="wf-status" id="daoCleanupStatus"></span>
+            </div>
+            <pre id="daoCleanupResult" style="margin:8px 0 0;padding:8px 10px;background:#f7f4ea;border:1px solid #e3ddcc;border-radius:6px;font-size:0.78rem;white-space:pre-wrap;color:#444;display:none;"></pre>
+          </article>
         </div>
       </section>
 
@@ -354,6 +364,59 @@
           });
       });
       filterEl.addEventListener('input', function () { if (allRows.length) renderTable(); });
+    })();
+
+    // DAO投票ゾンビ一括クリーンアップ — cocola_topics GAS の runDaoVoteCleanupAll を叩く
+    (function setupDaoCleanup() {
+      var TOPICS_EXEC_URL = 'https://script.google.com/macros/s/AKfycbzVs_W57Iphxcc5PHShXBNae63CKqjF5fB82tUkQwaf1vyuNWWLgtWZgglY7Qbuuft1/exec';
+      var btn = document.getElementById('daoCleanupBtn');
+      var status = document.getElementById('daoCleanupStatus');
+      var resultEl = document.getElementById('daoCleanupResult');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        var msg = '【警告】DAO投票シートの重複行・壊れた行を物理削除します。\n\n'
+                + '・対象: ts完全一致重複／同(提案,投票者)複数行／提案IDか投票者が空の行\n'
+                + '・バックアップは各STEPで自動退避（DAO投票_backup_*）\n'
+                + '・実行時間: 約30秒〜2分\n\n'
+                + '続行しますか？';
+        if (!confirm(msg)) return;
+        btn.disabled = true;
+        status.style.color = '#666';
+        status.textContent = '実行中…（最大2分）';
+        resultEl.style.display = 'none';
+        resultEl.textContent = '';
+        var url = TOPICS_EXEC_URL + '?mode=runDaoVoteCleanupAll&pw=cocola2026';
+        fetch(url)
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            if (d.ok) {
+              status.style.color = '#1d9e75';
+              status.textContent = '✓ クリーンアップ完了';
+              var r = d.result || {};
+              var s1 = r.step1 || {}, s2 = r.step2 || {}, s3 = r.step3 || {};
+              var lines = [
+                'STEP 1 (ts キー dedupe):      削除 ' + (s1.target || 0) + ' 行 / 残 ' + (s1.remaining != null ? s1.remaining : '-'),
+                'STEP 2 (proposal×voter dedupe): 削除 ' + (s2.target || 0) + ' 行 / 残 ' + (s2.remaining != null ? s2.remaining : '-'),
+                'STEP 3 (壊れた行除去):        削除 ' + (s3.target || 0) + ' 行 / 残 ' + (s3.remaining != null ? s3.remaining : '-'),
+                '',
+                'バックアップシート:',
+                '  ' + (s1.backup || '(なし)'),
+                '  ' + (s2.backup || '(なし)'),
+                '  ' + (s3.backup || '(なし)')
+              ];
+              resultEl.textContent = lines.join('\n');
+              resultEl.style.display = 'block';
+            } else {
+              status.style.color = '#e53e3e';
+              status.textContent = 'エラー: ' + (d.error || '不明');
+            }
+          })
+          .catch(function (err) {
+            status.style.color = '#e53e3e';
+            status.textContent = '通信エラー: ' + (err && err.message ? err.message : String(err));
+          })
+          .finally(function () { btn.disabled = false; });
+      });
     })();
   </script>
 </body>
