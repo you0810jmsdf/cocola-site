@@ -118,6 +118,18 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-06-17</p>
+            <h2 class="cl-title">DAO<strong>「投票結果と処置の記録」ページを新設</strong>（終了済み提案を一覧公開、処置編集は管理者または提案者本人 / <code>cocola-dao-gas2 v36 @92</code>）</h2>
+            <p class="cl-desc">
+              「投票案件をリスト化して、投票結果とその後の処置（編集可能）についてわかりやすく可視化したい。対象は投票が終了したもの、期限が終了したもの。別ページにまとめてメンバーや外部のものも見えるようにしたい」というユーザー要望に対応（Phase 1）。<strong>GAS側</strong>: <code>cocola-dao-gas2/dao-points.js</code> に <code>ensureNamedColumn_('処置内容')</code>/<code>'処置更新日時'</code> で DAO提案シートに2列を自動 ensure、<code>collectDaoProposalPageRows_</code> の戻り値に <code>actionNote</code>/<code>actionUpdatedAt</code> を追加し data.json に出力。<code>updateDaoProposalActionFromApp_</code> を新規実装、<strong>PW (cocola2026) または提案者本人 (ニックネーム照合)</strong>のどちらでも編集可能。更新履歴は <code>DAO提案更新履歴</code> シートに JSON で残す。<strong>フロント側</strong>: <code>cocola-site/dao/results.html</code> を新規作成。data.json から status が <code>approved</code>/<code>rejected</code>/<code>expired</code> の提案だけフィルタしてカード表示。フィルタタブ(すべて/承認/不採用/期限切れ)、ステータスバッジ色分け（緑/赤/グレー）、協力 vs 非協力の積み上げ棒グラフ、投票数、「📌 その後の処置」欄（未記入時は淡色）、「💬 議論を見る」リンク（<code>./index.html#chat-{id}</code>）、「✏️ 処置を編集」モーダル（認証ラジオ「管理者PW/提案者本人」→ 認証情報入力 → 800文字以内の textarea → 保存）。<strong>動線</strong>: <code>dao/index.html</code> 提案一覧の上にゴールド帯で「結果一覧を見る →」リンク。TOPページ <code>index.html</code> の DAO CTA に「📋 投票結果と処置」セカンダリボタン。<strong>GAS デプロイ</strong>: cocola-dao-gas2 v36 @92 として固定IDに redeploy 済。<strong>PWA キャッシュ</strong>: service-worker v24→v25 にバンプ。<strong>Phase 2 予定</strong>: 投票者属性別分析（年代/性別/地区、3人未満は「少数」表示）。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+              <span class="tag tag--improve">透明性向上</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-06-17</p>
             <h2 class="cl-title">運営管理画面に<strong>「DAO投票ゾンビ クリーンアップ」ボタン</strong>を追加（管理画面から1クリック実行 / <code>cocola_topics v209 @405</code>）</h2>
             <p class="cl-desc">
               ゾンビ確認時に即対処できるよう、運営管理画面の DAO セクション（「誰が投票したか」「DAOメンバー一覧」の隣）に <strong>「🧹 投票ゾンビ クリーンアップ」</strong> カードを新設。<strong>GAS側</strong>: <code>cocola_topics</code> のホワイトリストに <code>'runDaoVoteCleanupAll'</code> を追加、<code>dao-points.js doGetDao_</code> に <code>mode='runDaoVoteCleanupAll'</code> エンドポイントを実装。<code>getDaoAdminPassword_()</code> で PW 認証し、内部で <code>runDaoVoteCleanupAll</code>（STEP1 ts dedupe → STEP2 voter dedupe → STEP3 壊れた行除去）を順次実行。<strong>フロント側</strong>: <code>admin/index.html</code> に確認ダイアログ（実行内容・バックアップ取得・所要時間を明示）→ 実行中表示「実行中…（最大2分）」→ 結果表示（各STEPの削除件数・残行数・バックアップシート名を整形表示）。エラー時は赤色で詳細メッセージ。<strong>運用</strong>: <code>?admin=1</code> 表示で重複行を発見したらワンクリックで実行。各STEP のバックアップシート（<code>DAO投票_backup_*</code>）に自動退避するので元に戻せる。

@@ -134,6 +134,9 @@
     .dao-bar{background:#f0fff8;border-bottom:1px solid #b2dfce;padding:6px 16px;font-size:.82rem;color:#1d9e75;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
     .dao-bar__label{font-weight:700;white-space:nowrap}
     .dao-bar__item{display:inline-flex;align-items:center;gap:4px}
+    .dao-bar__item--proposal{align-items:flex-start;flex-direction:column;gap:2px;max-width:min(720px,100%)}
+    .dao-bar__meta{color:#4f7a68;font-size:.78rem}
+    .dao-bar__summary{color:#345d4f;font-size:.78rem;line-height:1.45}
     .dao-bar__item a{color:#1d9e75;text-decoration:underline}
     .freefree-bar{background:#fff8f0;border-bottom:1px solid #f5c880;padding:6px 16px;font-size:.82rem;color:#c07000;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
     .freefree-bar__label{font-weight:700;white-space:nowrap}
@@ -444,6 +447,7 @@
           </div>
           <div class="cta-card__actions">
             <a class="button button--primary" href="./dao/#proposals">提案・投票を見る</a>
+            <a class="button button--secondary" href="./dao/results.html">📋 投票結果と処置</a>
           </div>
         </div>
       </section>
@@ -613,26 +617,53 @@
   <script>
   (function () {
     const DAO_JSON = './dao/data.json';
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbxM2ybpJqfWLL-MPnOwZqeBdHjN6IQh5QB-_LubZAG-bD0x8jLkgbUn7NYRzYLFOPfj7g/exec?mode=json';
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzVs_W57Iphxcc5PHShXBNae63CKqjF5fB82tUkQwaf1vyuNWWLgtWZgglY7Qbuuft1/exec?mode=json';
     const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
     const ONE_DAY = 24 * 60 * 60 * 1000;
+    function escapeHtml(value) {
+      return String(value || '').replace(/[<>&"]/g, function (c) {
+        return ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' })[c];
+      });
+    }
+    function parseDaoDate(value) {
+      if (!value) return null;
+      var d = new Date(String(value).replace(/\//g, '-'));
+      return isNaN(d.getTime()) ? null : d;
+    }
+    function proposalDate(proposal) {
+      return parseDaoDate(proposal.submittedAt || proposal.createdAt || proposal.decidedAt || proposal.updatedAt);
+    }
+    function excerpt(value, maxLength) {
+      var text = String(value || '').replace(/\s+/g, ' ').trim();
+      if (!text) return '';
+      return text.length > maxLength ? text.slice(0, maxLength - 1) + '…' : text;
+    }
     function renderDaoBar(data) {
       const now = Date.now();
       const seen = new Set();
       const newProposals = (data.proposals || []).filter(p => {
-        const s = p.submittedAt;
-        if (!s) return false;
-        const d = new Date(s.replace(/\//g, '-'));
-        if (isNaN(d) || (now - d.getTime()) >= SEVEN_DAYS) return false;
-        if (seen.has(p.title)) return false;
-        seen.add(p.title);
+        const d = proposalDate(p);
+        if (!d || (now - d.getTime()) >= SEVEN_DAYS) return false;
+        const key = p.id || p.title;
+        if (seen.has(key)) return false;
+        seen.add(key);
         return true;
+      }).sort((a, b) => {
+        const da = proposalDate(a);
+        const db = proposalDate(b);
+        return (db ? db.getTime() : 0) - (da ? da.getTime() : 0);
       });
       if (newProposals.length) {
         document.getElementById('daoList').innerHTML = newProposals.map(p => {
-          const cat = p.category ? '【' + p.category + '】' : '';
-          const ts = (p.submittedAt || '').slice(0, 10).replace(/-/g, '/');
-          return '<span class="dao-bar__item"><a href="./dao/#proposals">' + cat + p.title + '</a>（' + p.proposer + '・' + ts + '）</span>';
+          const cat = p.category ? '【' + escapeHtml(p.category) + '】' : '';
+          const ts = (p.submittedAt || p.createdAt || p.decidedAt || '').slice(0, 10).replace(/-/g, '/');
+          const summary = excerpt(p.detail || p.needs || '', 72);
+          const href = './dao/#proposal-' + encodeURIComponent(p.id || '');
+          return '<span class="dao-bar__item dao-bar__item--proposal">'
+            + '<span><a href="' + href + '">' + cat + escapeHtml(p.title || '新しい提案') + '</a>'
+            + '<span class="dao-bar__meta">（' + escapeHtml(p.proposer || '提案者未記入') + '・' + escapeHtml(ts) + '）</span></span>'
+            + (summary ? '<span class="dao-bar__summary">' + escapeHtml(summary) + '</span>' : '')
+            + '</span>';
         }).join('<span style="margin:0 4px">·</span>');
         document.getElementById('daoBar').style.display = '';
         document.getElementById('noticePanel').style.display = '';
