@@ -5841,15 +5841,25 @@
   }
 
   // ── コメント件数を全提案分まとめて取得 ──
+  // 注意: GAS mode=counts が部分的なレスポンスを返した場合に表示を「0」に上書きしないよう、
+  //       辞書に pid が含まれているキーだけマージし、未掲載 pid は既存表示を維持する。
+  //       これにより「0件 ⇄ 3件」が交互に揺れる不具合（2026-06-18）を回避する。
   function loadCommentCounts() {
     fetch(COMMENT_GAS_URL + '?mode=counts&t=' + Date.now())
       .then(function(r) { return r.json(); })
       .then(function(d) {
         if (!d.ok) return;
-        commentCounts = d.counts || {};
+        var fresh = d.counts || {};
+        // 既存 commentCounts に「明示的に存在するキーだけ」上書きマージ
+        Object.keys(fresh).forEach(function(pid) {
+          commentCounts[pid] = fresh[pid];
+        });
         document.querySelectorAll('.comment-count').forEach(function(el) {
           var pid = el.dataset.pid;
-          el.textContent = commentCounts[pid] || 0;
+          // fresh に含まれていない pid は既存表示を維持（0で潰さない）
+          if (Object.prototype.hasOwnProperty.call(fresh, pid)) {
+            el.textContent = fresh[pid];
+          }
         });
       })
       .catch(function() {});

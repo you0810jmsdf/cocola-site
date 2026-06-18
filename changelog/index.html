@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-06-18</p>
+            <h2 class="cl-title">DAO <strong>コメント件数バッジが「0件⇄3件」で揺れる不具合を修正</strong>（GAS部分レスポンス耐性化）</h2>
+            <p class="cl-desc">
+              「P0046は、何件かチャットしていますが、０件になったり３件になったりの繰り返しです」というユーザー報告に対応。<strong>真因</strong>: <code>dao/index.html:5849-5853</code> の <code>loadCommentCounts()</code> が <code>commentCounts = d.counts || {};</code> で辞書を毎回まるごと置換し、表示ロジックが <code>commentCounts[pid] || 0</code> となっていたため、<code>dao-comment-gas</code> の <code>mode=counts</code> がたまに「<code>d.ok=true</code> だが部分的辞書（該当 pid を含まない）」を返したタイミングで表示が <strong>0 に上書き</strong>されていた。GAS 内部キャッシュ反映タイミング差やリクエストレース条件で 3 件と 0 件が交互に揺れていた。<strong>対処（A案・最小フォールバック）</strong>: <code>loadCommentCounts()</code> を「<code>fresh</code> 辞書に <code>hasOwnProperty(pid)</code> で明示的に含まれているキーだけ表示更新」に変更。未掲載 pid は既存表示を維持して 0 で潰さない。<code>commentCounts</code> も「明示的に存在するキーだけ上書きマージ」に変更（全置換しない）。<strong>副作用なし</strong>: GAS が正しく返した瞬間に反映される点は変わらず、ユーザーが投稿/削除時の楽観的更新（local +1/-1）にも影響しない。投票数・棒グラフは別経路（data.json）なのでこの修正の影響を受けない。<strong>PWA キャッシュ</strong>: <code>service-worker.js</code> CACHE_NAME を <code>v28→v29</code> にバンプ。<strong>残課題</strong>: GAS 側 <code>mode=counts</code> 自体の不安定さは残るので、再発頻度を見て B案（GAS 堅牢化）も検討。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-06-18</p>
             <h2 class="cl-title">DAO 提案・投票ページ（投票中カード）の<strong>棒グラフを結果ページと統一</strong>（有効投票権重み基準・3区画積み上げ）</h2>
             <p class="cl-desc">
               「提案中のものもその棒グラフで統一したい」というユーザー要望に対応。<strong>変更前</strong>: <code>dao/index.html</code> の投票中カードは単一の <code>.progress-bar</code>（緑→シアンのグラデーション）を <code>progressPercent</code> 幅だけ伸ばす旧仕様で、結果ページ（results.html）と表示ロジックが分かれていた。<strong>変更後</strong>: <code>renderProposal</code> 内の vote-box 描画を IIFE で書き換え、<code>yesWeight</code>/<code>noWeight</code>/<code>eligibleWeight</code>（既に <code>renderProposal</code> 冒頭で算出済み）から <strong>協力(緑) / 非協力(赤) / 未投票(透明)</strong> の3区画積み上げを生成。<strong>CSS</strong>: 旧 <code>.progress-bar</code> を撤廃して <code>.progress-yes</code>/<code>.progress-no</code>/<code>.progress-empty</code> を新設、<code>.progress-track</code> を flex 化・背景 <code>#eef2f0</code>＋枠線。<strong>vote-numbers ラベル</strong>: 「投票数 / 協力率 / 協力重み / 非協力重み」→「<strong>参加率 X%</strong> / 投票数 / 協力重み / 非協力重み」に変更し、下に「有効投票権 W 重み」を小さく追記。フォールバック: <code>eligibleWeight</code> が未設定または参加重みより小さい場合は参加重みを母数として扱う（results.html と同仕様）。<strong>PWA キャッシュ</strong>: <code>service-worker.js</code> CACHE_NAME を <code>v27→v28</code> にバンプ。
