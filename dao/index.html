@@ -969,18 +969,17 @@
     }
 
     .progress-track {
-      height: 12px;
+      height: 14px;
       overflow: hidden;
       border-radius: 8px;
-      background: #e7eeeb;
+      background: #eef2f0;
+      border: 1px solid #d8e1dc;
+      display: flex;
     }
 
-    .progress-bar {
-      height: 100%;
-      width: 0;
-      background: linear-gradient(90deg, var(--green), var(--cyan));
-      transition: width 240ms ease;
-    }
+    .progress-yes { height: 100%; background: var(--green); transition: width 240ms ease; }
+    .progress-no  { height: 100%; background: var(--coral); transition: width 240ms ease; }
+    .progress-empty { height: 100%; flex: 1; background: transparent; }
 
     .vote-numbers {
       display: grid;
@@ -3657,17 +3656,31 @@
             '<span class="comment-btn-right"><span class="comment-count-badge"><span class="comment-count" data-pid="' + escapeHtml(proposal.id) + '">' + (window.__commentCounts && window.__commentCounts[proposal.id] ? window.__commentCounts[proposal.id] : 0) + '</span> 件の発言</span> ▶</span>' +
           '</button>' +
         '</div>' +
-        '<div class="vote-box" aria-label="投票状況">' +
-          '<div class="progress-track" aria-hidden="true">' +
-            '<div class="progress-bar" style="width: ' + escapeHtml(proposal.progressPercent) + '%"></div>' +
-          '</div>' +
-          '<div class="vote-numbers">' +
-            '<span><b>' + numberText(proposal.voteCount || 0) + '人</b>投票数</span>' +
-            '<span><b>' + numberText(proposal.yesRate, '%') + '</b>協力率</span>' +
-            '<span><b>' + numberText(proposal.yesWeight) + '</b>協力重み</span>' +
-            '<span><b>' + numberText(proposal.noWeight) + '</b>非協力重み</span>' +
-          '</div>' +
-        '</div>' +
+        (function() {
+          var yes = Number(proposal.yesWeight) || 0;
+          var no = Number(proposal.noWeight) || 0;
+          var elig = Number(eligible) || 0;
+          var participated = yes + no;
+          if (elig < participated) elig = participated;
+          var yesPct = elig > 0 ? Math.round((yes / elig) * 1000) / 10 : 0;
+          var noPct = elig > 0 ? Math.round((no / elig) * 1000) / 10 : 0;
+          var partPct = elig > 0 ? Math.round((participated / elig) * 1000) / 10 : 0;
+          var restPct = Math.max(0, 100 - yesPct - noPct);
+          return '<div class="vote-box" aria-label="投票状況">' +
+            '<div class="progress-track" aria-label="参加率 ' + partPct + '% (協力 ' + yesPct + '% / 非協力 ' + noPct + '%)">' +
+              '<div class="progress-yes" style="width:' + yesPct + '%"></div>' +
+              '<div class="progress-no" style="width:' + noPct + '%"></div>' +
+              '<div class="progress-empty" style="width:' + restPct + '%"></div>' +
+            '</div>' +
+            '<div class="vote-numbers">' +
+              '<span><b>' + partPct + '%</b>参加率</span>' +
+              '<span><b>' + numberText(proposal.voteCount || 0) + '人</b>投票数</span>' +
+              '<span><b>' + numberText(proposal.yesWeight) + '</b>協力重み</span>' +
+              '<span><b>' + numberText(proposal.noWeight) + '</b>非協力重み</span>' +
+            '</div>' +
+            '<div style="font-size:0.72rem;color:var(--muted);margin-top:4px;">有効投票権 ' + numberText(elig) + ' 重み</div>' +
+          '</div>';
+        })() +
         (proposal.ipfsUrl ? '<div class="ipfs-badge"><span class="ipfs-badge__icon">🔒</span><span class="ipfs-badge__text">IPFS証明済み</span><a class="ipfs-badge__link" href="' + escapeHtml(proposal.ipfsUrl) + '" target="_blank" rel="noopener">検証する ↗</a><a class="ipfs-badge__minutes" href="https://you0810jmsdf.github.io/cocola-site/dao/minutes.html#' + escapeHtml(proposal.id) + '" target="_blank">議事録を見る</a></div>' : '') +
         '</article>';
     }
