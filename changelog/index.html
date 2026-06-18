@@ -117,6 +117,18 @@
         <ul class="changelog-list">
 
           <li class="cl-entry">
+            <p class="cl-date">2026-06-18</p>
+            <h2 class="cl-title">全ページに<strong>アクセスカウンタを導入</strong>（フッター中央・控えめバッジ表示 / 専用GAS <code>cocola-access-counter-gas v1 @1</code>）</h2>
+            <p class="cl-desc">
+              「サイトの全ページにアクセスカウンタを付けたい」というユーザー要望に対応。<strong>専用GAS新設</strong>: <code>cocola-access-counter-gas</code>（standalone）を新規作成し <code>mode=track</code> エンドポイントを実装。ページごとに <code>AccessLog</code>（生ログ）と <code>PageSummary</code>（page別累計）の2シートに記録し、レスポンスでそのページの累計 <code>count</code> を返す。初回 doGet で集計用 SS「COCoLa-AccessCounter」を自動作成・<code>ScriptProperties.SHEET_ID</code> に保存する <code>getSpreadsheet_()</code> 構造。<code>LockService</code> で同時アクセス時の二重カウント防止。<strong>フロント側</strong>: 既存 <code>cocola-site/assets/page-tracker.js</code> を全面改修。<code>window.COCOLA_ACCESS_COUNTER_URL</code>（site-config.js 経由）に <code>fetch</code> し、受け取った <code>count</code> をフッター中央に控えめバッジ（白半透明・茶色文字・<code>border-radius:999px</code> のピル型・<code>bottom:8px</code>・<code>pointer-events:none</code>）として表示。失敗時はバッジ非表示でページ機能に影響なし（fail-safe）。<strong>配信範囲</strong>: 既存読込済10ページに加え、未読込だった14ページ（adventure/bunkazai-map/dangotsusin/dao(checkin/minutes/results)/events/lab(index/cidao-roadmap/sbt-mockup)/metaverse/organizations/schedule(index/how-to-use)）に <code>&lt;script src=&quot;.../assets/site-config.js&quot;&gt;</code>＋<code>&lt;script src=&quot;.../assets/page-tracker.js&quot; data-page=&quot;…&quot;&gt;</code> を追加。<strong>除外</strong>: 管理系（admin/、gas/、staff/scan.html、member-app/html.html）、リダイレクト専用（join/index.html）の計6ページ。<strong>events/index.html の置換</strong>: 旧 cocola_topics への <code>mode=pageview</code> インライン呼び出しを削除し新カウンタに統一。<strong>site-config.js</strong>: <code>window.COCOLA_ACCESS_COUNTER_URL</code> を追加。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+              <span class="tag tag--improve">運用改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
             <p class="cl-date">2026-06-17</p>
             <h2 class="cl-title">DAO<strong>「投票結果と処置の記録」ページを新設</strong>（終了済み提案を一覧公開、処置編集は管理者または提案者本人 / <code>cocola-dao-gas2 v36 @92</code>）</h2>
             <p class="cl-desc">

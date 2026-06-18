@@ -102,7 +102,14 @@
     .btn:hover { background: var(--wash); }
     .btn--primary { background: var(--green); color: #fff; border-color: var(--green); }
     .btn--primary:hover { background: var(--green-deep); }
+    .btn--warn { background: var(--yellow); color: #4a3a08; border-color: var(--yellow); }
+    .btn--warn:hover { background: #c89720; }
     .empty { text-align: center; color: var(--muted); padding: 40px 20px; font-size: 0.9rem; }
+    .extend-history {
+      background: #f3f7f5; border: 1px dashed var(--line); border-radius: 8px;
+      padding: 8px 10px; margin-top: 8px;
+      font-size: 0.75rem; color: var(--muted); white-space: pre-wrap;
+    }
     /* モーダル */
     .modal-backdrop {
       position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 9000;
@@ -159,6 +166,33 @@
     処置の編集は、管理者または提案者本人のみ可能です。
   </div>
 
+  <!-- 期限再設定モーダル -->
+  <div class="modal-backdrop" id="extendModalBackdrop">
+    <div class="modal">
+      <h2>📅 期限を再設定して復活</h2>
+      <p id="extendModalInfo" style="font-size:0.82rem;color:var(--muted);margin:0 0 8px;"></p>
+      <p style="font-size:0.78rem;color:var(--muted);margin:0 0 12px;">
+        期限切れの提案を再度「投票中」に戻します。新しい締切は明日以降の日付を指定してください。
+      </p>
+
+      <label>新しい投票締切（明日以降）</label>
+      <input type="date" id="extendDateInput">
+
+      <label>変更理由（任意・履歴に残ります）</label>
+      <input type="text" id="extendReasonInput" placeholder="例: 追加議論が必要なため2週間延長">
+
+      <label>管理者パスワード</label>
+      <input type="password" id="extendPwInput" placeholder="管理者PW">
+
+      <div class="modal__error" id="extendModalError"></div>
+
+      <div class="modal__actions">
+        <button class="btn" id="extendModalCancel" type="button">キャンセル</button>
+        <button class="btn btn--warn" id="extendModalSave" type="button">復活させる</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 編集モーダル -->
   <div class="modal-backdrop" id="modalBackdrop">
     <div class="modal">
@@ -187,7 +221,8 @@
   </div>
 
   <script>
-    var GAS_URL = 'https://script.google.com/macros/s/AKfycbxM2ybpJqfWLL-MPnOwZqeBdHjN6IQh5QB-_LubZAG-bD0x8jLkgbUn7NYRzYLFOPfj7g/exec';
+    // cocola_topics（現用）の固定デプロイID。cocola-dao-gas2 は 2026-06-09 退役。
+    var GAS_URL = 'https://script.google.com/macros/s/AKfycbzVs_W57Iphxcc5PHShXBNae63CKqjF5fB82tUkQwaf1vyuNWWLgtWZgglY7Qbuuft1/exec';
     var STATIC_JSON = './data.json';
     var allProposals = [];
     var currentFilter = 'all';
@@ -255,6 +290,14 @@
       if (p.decidedAt) meta.push('判定: ' + escapeHtml(p.decidedAt));
 
       var discussionLink = './index.html#chat-' + encodeURIComponent(p.id || '');
+      var extendBtnHtml = '';
+      if (p.statusKey === 'expired') {
+        extendBtnHtml = '<button class="btn btn--warn" type="button" onclick="openExtendModal(\'' + encodeURIComponent(p.id) + '\')">📅 期限を再設定して復活</button>';
+      }
+      var historyHtml = '';
+      if (p.extendHistory) {
+        historyHtml = '<div class="extend-history">📅 期限延長履歴:\n' + escapeHtml(p.extendHistory) + '</div>';
+      }
       return '<article class="card" id="card-' + escapeAttr(p.id) + '">'
         + '<div class="card__head">'
         +   '<span class="card__id">' + escapeHtml(p.id) + '</span>'
@@ -265,9 +308,11 @@
         + progressBar(p.yesWeight, p.noWeight)
         + '<div class="bar-info">投票数: ' + (Number(p.voteCount) || 0) + ' 件</div>'
         + actionHtml(p)
+        + historyHtml
         + '<div class="actions">'
         +   '<a class="btn" href="' + discussionLink + '">💬 議論を見る</a>'
         +   '<button class="btn btn--primary" type="button" onclick="openEditModal(\'' + encodeURIComponent(p.id) + '\')">✏️ 処置を編集</button>'
+        +   extendBtnHtml
         + '</div>'
         + '</article>';
     }
@@ -399,7 +444,102 @@
         .finally(function () { saveBtn.disabled = false; });
     });
 
+    // 期限再設定モーダル
+    var extendingId = null;
+    function openExtendModal(encodedId) {
+      var id = decodeURIComponent(encodedId);
+      var p = allProposals.find(function (x) { return x.id === id; });
+      if (!p) return;
+      extendingId = id;
+      document.getElementById('extendModalInfo').textContent =
+        id + ' / ' + p.title + ' / 旧締切: ' + (p.deadline ? String(p.deadline).slice(0, 10) : '(未設定)');
+      var input = document.getElementById('extendDateInput');
+      // 最小値=明日
+      var d = new Date();
+      d.setDate(d.getDate() + 1);
+      var y = d.getFullYear();
+      var m = String(d.getMonth() + 1).padStart(2, '0');
+      var day = String(d.getDate()).padStart(2, '0');
+      var tomorrowStr = y + '-' + m + '-' + day;
+      input.min = tomorrowStr;
+      input.value = tomorrowStr;
+      document.getElementById('extendReasonInput').value = '';
+      document.getElementById('extendPwInput').value = '';
+      document.getElementById('extendModalError').textContent = '';
+      document.getElementById('extendModalBackdrop').classList.add('is-open');
+    }
+    window.openExtendModal = openExtendModal;
+
+    function closeExtendModal() {
+      document.getElementById('extendModalBackdrop').classList.remove('is-open');
+      extendingId = null;
+    }
+
+    document.getElementById('extendModalCancel').addEventListener('click', closeExtendModal);
+    document.getElementById('extendModalBackdrop').addEventListener('click', function (e) {
+      if (e.target === document.getElementById('extendModalBackdrop')) closeExtendModal();
+    });
+
+    document.getElementById('extendModalSave').addEventListener('click', function () {
+      if (!extendingId) return;
+      var newDeadline = document.getElementById('extendDateInput').value;
+      var reason = document.getElementById('extendReasonInput').value.trim();
+      var pw = document.getElementById('extendPwInput').value.trim();
+      var errEl = document.getElementById('extendModalError');
+      errEl.textContent = '';
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(newDeadline)) {
+        errEl.textContent = '新しい締切日を選んでください';
+        return;
+      }
+      if (!pw) {
+        errEl.textContent = '管理者パスワードを入力してください';
+        return;
+      }
+      var btn = document.getElementById('extendModalSave');
+      btn.disabled = true;
+      var params = 'mode=extendDeadline'
+        + '&id=' + encodeURIComponent(extendingId)
+        + '&newDeadline=' + encodeURIComponent(newDeadline)
+        + '&reason=' + encodeURIComponent(reason)
+        + '&pw=' + encodeURIComponent(pw);
+      fetch(GAS_URL + '?' + params)
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (d.ok) {
+            closeExtendModal();
+            alert('期限を再設定しました。\n' +
+              '旧締切: ' + (d.oldDeadline || '(未設定)') + '\n' +
+              '新締切: ' + d.newDeadline + '\n' +
+              'ステータス: ' + d.newStatus + '\n\n' +
+              '※ GASキャッシュ更新まで最大1分、data.json反映まで最大5分です。\n' +
+              '反映後、この提案は「投票中」となり結果ページからは外れます。');
+            // ローカル更新（ステータスを投票中に変更）
+            var p = allProposals.find(function (x) { return x.id === d.id; });
+            if (p) {
+              p.statusKey = 'voting';
+              p.status = d.newStatus;
+              p.deadline = d.newDeadline;
+              p.extendHistory = d.history || '';
+            }
+            applyFilter();
+          } else {
+            var msg = '失敗: ' + (d.error || '不明');
+            if (d.error === 'unauthorized') msg = '認証エラー: 管理者PWが一致しません';
+            if (d.error === 'deadline_in_past') msg = '締切は今日以降を指定してください';
+            if (d.error === 'invalid_deadline_format') msg = '締切の形式が不正です（YYYY-MM-DD）';
+            if (d.error === 'not_found') msg = '提案が見つかりません';
+            errEl.textContent = msg;
+          }
+        })
+        .catch(function (err) {
+          errEl.textContent = '通信エラー: ' + (err && err.message ? err.message : String(err));
+        })
+        .finally(function () { btn.disabled = false; });
+    });
+
     loadProposals();
   </script>
+  <script src="../assets/site-config.js"></script>
+  <script src="../assets/page-tracker.js" data-page="DAO投票結果"></script>
 </body>
 </html>

@@ -1,4 +1,5 @@
 window.COCOLA_TOPICS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzVs_W57Iphxcc5PHShXBNae63CKqjF5fB82tUkQwaf1vyuNWWLgtWZgglY7Qbuuft1/exec';
+window.COCOLA_ACCESS_COUNTER_URL = 'https://script.google.com/macros/s/AKfycbxMJ5RVonkBgnyD7d95yYVtOx5fDFVmq1yVTkVcqYZ4RUfbCUixN99iAZWDi2vIztbv5w/exec';
 window.COCOLA_APP_LINKS = {
   creatorsMap: 'https://you0810jmsdf.github.io/creators-map/',
   heritageMap: 'https://you0810jmsdf.github.io/cocola-site/bunkazai-map/',
