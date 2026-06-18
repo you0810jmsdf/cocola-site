@@ -3,10 +3,11 @@
    - 通知クリック時にアプリを前面化
    実証段階のため Web Push（VAPID）は未使用。通知はページ側のポーリングから出す。 */
 
-var CACHE_NAME = 'cocola-dao-v25';
+var CACHE_NAME = 'cocola-dao-v26';
 var CORE_ASSETS = [
   './',
   './index.html',
+  './results.html',
   './manifest.webmanifest',
   '../assets/icons/icon-192.png',
   '../assets/icons/icon-512.png'
