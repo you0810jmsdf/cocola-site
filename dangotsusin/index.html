@@ -372,7 +372,7 @@
   }
 
   function fetchData() {
-    fetch(DATA_URL + '?t=' + Date.now())
+    fetch(DATA_URL + '?t=' + Date.now(), { cache: 'no-store' })
       .then(function (res) {
         if (!res.ok) throw new Error('HTTP ' + res.status);
         return res.json();
