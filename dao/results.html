@@ -77,12 +77,15 @@
     .card__title { margin: 4px 0 6px; font-size: 1.05rem; font-weight: 600; color: var(--ink); }
     .card__meta { font-size: 0.78rem; color: var(--muted); margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 12px; }
     .bar-wrap {
-      background: var(--wash); border-radius: 8px; overflow: hidden; height: 18px;
+      background: #eef2f0; border-radius: 8px; overflow: hidden; height: 18px;
       display: flex; margin: 8px 0 4px; border: 1px solid var(--line);
+      position: relative;
     }
     .bar-yes { background: var(--green); height: 100%; }
     .bar-no  { background: var(--coral); height: 100%; }
+    .bar-empty { background: transparent; height: 100%; flex: 1; }
     .bar-info { font-size: 0.78rem; color: var(--muted); margin-bottom: 12px; }
+    .bar-info b { color: var(--ink); font-weight: 600; }
     .action {
       background: #fbf7ee; border: 1px solid #e9dbb0; border-radius: 10px;
       padding: 12px 14px; margin-top: 8px;
@@ -251,18 +254,32 @@
       return '<span class="badge badge--expired">' + escapeHtml(status || '') + '</span>';
     }
 
-    function progressBar(yesWeight, noWeight) {
+    function fmtNum(n) {
+      var v = Number(n) || 0;
+      return (Math.round(v * 10) / 10).toString();
+    }
+
+    function progressBar(yesWeight, noWeight, eligibleWeight) {
       var yes = Number(yesWeight) || 0;
       var no = Number(noWeight) || 0;
-      var total = yes + no;
-      if (total <= 0) return '<div class="bar-wrap"></div><div class="bar-info">投票なし</div>';
-      var yesPct = Math.round((yes / total) * 1000) / 10;
-      var noPct = Math.round((no / total) * 1000) / 10;
-      return '<div class="bar-wrap" aria-label="協力率 ' + yesPct + '% / 非協力率 ' + noPct + '%">'
+      var eligible = Number(eligibleWeight) || 0;
+      var participated = yes + no;
+      // 有効投票権が未設定／参加重みより小さい場合は参加重みを母数とみなす
+      if (eligible < participated) eligible = participated;
+      if (eligible <= 0) {
+        return '<div class="bar-wrap"></div><div class="bar-info">投票なし（有効投票権データなし）</div>';
+      }
+      var yesPct = Math.round((yes / eligible) * 1000) / 10;
+      var noPct = Math.round((no / eligible) * 1000) / 10;
+      var participationPct = Math.round((participated / eligible) * 1000) / 10;
+      var restPct = Math.max(0, 100 - yesPct - noPct);
+      return '<div class="bar-wrap" aria-label="参加率 ' + participationPct + '% (協力 ' + yesPct + '% / 非協力 ' + noPct + '%)">'
         + '<div class="bar-yes" style="width:' + yesPct + '%"></div>'
         + '<div class="bar-no" style="width:' + noPct + '%"></div>'
+        + '<div class="bar-empty" style="width:' + restPct + '%"></div>'
         + '</div>'
-        + '<div class="bar-info">協力 ' + yes + ' / 非協力 ' + no + '（' + yesPct + '% 協力）</div>';
+        + '<div class="bar-info">参加率 <b>' + participationPct + '%</b>'
+        +   '（協力 ' + fmtNum(yes) + ' / 非協力 ' + fmtNum(no) + ' / 有効投票権 ' + fmtNum(eligible) + '）</div>';
     }
 
     function actionHtml(p) {
@@ -305,7 +322,7 @@
         + '</div>'
         + '<h2 class="card__title">' + escapeHtml(p.title) + '</h2>'
         + '<div class="card__meta">' + meta.map(function (m) { return '<span>' + m + '</span>'; }).join('') + '</div>'
-        + progressBar(p.yesWeight, p.noWeight)
+        + progressBar(p.yesWeight, p.noWeight, p.eligibleWeight)
         + '<div class="bar-info">投票数: ' + (Number(p.voteCount) || 0) + ' 件</div>'
         + actionHtml(p)
         + historyHtml
