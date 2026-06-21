@@ -117,6 +117,18 @@
         <ul class="changelog-list">
 
           <li class="cl-entry">
+            <p class="cl-date">2026-06-21</p>
+            <h2 class="cl-title">GitHub Actions の <strong>data 更新 workflow が大量に「Run failed」通知を発生させていた不具合を修正</strong>（push 競合の自動リトライ実装）</h2>
+            <p class="cl-desc">
+              「run fail のメールが膨大でかなりメールボックスがいっぱいになっている」というユーザー報告に対応。<strong>真因</strong>: <code>update-members-data</code> / <code>update-dao-data</code> / <code>update-events-data</code> / <code>update-dangotsusin-data</code> / <code>update-schedule-data</code> / <code>sync-event-sources</code> の各 workflow が 5 分間隔の cron で同時起動し、それぞれが <code>data.json</code> をコミットして <code>main</code> に push する際に <code>cannot lock ref 'refs/heads/main'</code> エラーで競合・失敗していた。<code>git pull --rebase origin main &amp;&amp; git push</code> を 1 回だけ実行する旧仕様だったため、同時刻に 2 本以上のジョブが走ると後勝ち側が即失敗していた。<strong>対処</strong>: 6 本すべての workflow の最終ステップを <code>for i in 1 2 3 4 5; do git pull --rebase origin main &amp;&amp; git push &amp;&amp; exit 0; sleep 3; done</code> の 5 回リトライ方式に変更。<strong>効果</strong>: push 直後の最新3回連続で <code>conclusion=success</code> を確認。Gmail 受信トレイへの大量 <code>Run failed</code> 通知が解消される見込み。<strong>残課題</strong>: 5 回でも失敗するレアケースが発生した場合は、cron 間隔のずらし or 単一統合 workflow への集約を検討。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--fix">不具合修正</span>
+              <span class="tag tag--improve">CI改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
             <p class="cl-date">2026-06-18</p>
             <h2 class="cl-title">DAO <strong>コメント件数バッジが「0件⇄3件」で揺れる不具合を修正</strong>（GAS部分レスポンス耐性化）</h2>
             <p class="cl-desc">
