@@ -1,9 +1,10 @@
 name: Update members data
 
+# 2026-07-30: メンバー管理継続のため schedule 復活（他のupdate-*系はworkflow_dispatchのみ維持）
 on:
   schedule:
-    - cron: '*/5 * * * *'    # 5分ごと
-  workflow_dispatch:           # 手動実行も可
+    - cron: '*/5 * * * *'    # 5分ごと（入会・退会即反映のため）
+  workflow_dispatch:
 
 jobs:
   update:

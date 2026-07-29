@@ -1,9 +1,8 @@
 name: Update Dangotsusin data
 
+# 2026-07-29: サイト運営停止に伴い schedule 無効化。手動起動のみ。
 on:
-  schedule:
-    - cron: '0 1 1 * *'   # 毎月1日 AM10時JST（月次更新）
-  workflow_dispatch:        # 手動実行も可
+  workflow_dispatch:
 
 concurrency:
   group: update-dangotsusin-data

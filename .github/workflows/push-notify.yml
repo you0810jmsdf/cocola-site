@@ -1,5 +1,6 @@
 name: Push Notify
 
+# 2026-07-29: サイト運営停止に伴い push 自動発火を無効化。手動起動のみ。
 on:
   workflow_dispatch:
     inputs:
@@ -11,14 +12,6 @@ on:
         description: '通知本文'
         required: true
         default: 'お知らせがあります'
-  push:
-    branches: [main]
-    paths:
-      - 'dao/data.json'
-      - 'members/data.json'
-      - 'events/data.json'
-      - 'schedule/data.json'
-      - 'dangotsusin/data.json'
 
 concurrency:
   group: push-notify

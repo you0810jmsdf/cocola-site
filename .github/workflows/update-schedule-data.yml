@@ -1,9 +1,8 @@
 name: Update schedule data
 
+# 2026-07-29: サイト運営停止に伴い schedule 無効化。手動起動のみ。
 on:
-  schedule:
-    - cron: '*/5 * * * *'    # 5分ごと
-  workflow_dispatch:           # 手動実行も可
+  workflow_dispatch:
 
 jobs:
   update:

@@ -113,6 +113,25 @@
       </section>
 
       <section class="content-section">
+        <p class="section-label">2026年7月</p>
+        <ul class="changelog-list">
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-07-30</p>
+            <h2 class="cl-title">サイト運営一部停止（<strong>入会・退会・メンバー管理のみ継続</strong>）</h2>
+            <p class="cl-desc">
+              ユーザー指示「サイト自体を閉鎖」に基づき、通知・自動配信・失敗通知メールを含む運営系機能を全面停止。<strong>停止対象</strong>: (a) GitHub Actions 8ワークフロー（<code>health-check</code> / <code>push-notify</code> / <code>sync-event-sources</code> / <code>update-dao-data</code> / <code>update-events-data</code> / <code>update-schedule-data</code> / <code>update-dangotsusin-data</code>）を <code>on: workflow_dispatch</code> のみに変更（schedule/push/repository_dispatch を削除）。(b) GAS 定期トリガー削除（<code>cocola_topics</code> の <code>selfCheck</code>（毎日08:00メール送信）・<code>sendEveningPreview</code>（毎日18:00メール）・<code>postTodayEventsToThreads</code>（毎日07:00 Threads自動投稿）・<code>fetchKouhouInzaiEvents</code>・<code>weeklyFetchInzaiEvents</code>・<code>scanDriveEventImages</code>、<code>cocola-dao-gas2</code> の <code>processDaoPointsFromAllRows</code>・<code>dailyDaoLedgerAudit_</code>・<code>onDaoProposalFormSubmit_</code>、<code>freefree-clasp</code> の <code>checkExpiredPosters</code>・<code>sendMonthlyReports</code>・<code>weeklyBackup</code>）。(c) トップページ LP から使えなくなった機能への導線を削除（ナビ4項目・通知パネル4バー・DAOセクション・DANGO/SCHEDULE/DAO/FREEFREE の JavaScript）＋冒頭に閉鎖のお知らせバナー追加。<strong>継続機能</strong>: 入会・退会・メンバー紹介ページ（<code>cocola-gas</code> の <code>onFormSubmit</code> トリガー保護／<code>update-members-data.yml</code> の schedule のみ復活で <code>members/data.json</code> 5分ごと更新継続）。<strong>効果</strong>: 「WEB巡回健康チェックやその自動通知」「SNS自動配信失敗通知」の毎日メール送信が停止。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--infra">運営停止</span>
+              <span class="tag tag--improve">通知OFF</span>
+            </div>
+          </li>
+
+        </ul>
+      </section>
+
+      <section class="content-section">
         <p class="section-label">2026年6月</p>
         <ul class="changelog-list">
 

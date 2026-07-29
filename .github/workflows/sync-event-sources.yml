@@ -1,9 +1,8 @@
 name: Sync event sources list
 
+# 2026-07-29: サイト運営停止に伴い schedule 無効化。手動起動のみ。
 on:
-  schedule:
-    - cron: '0 0 * * *'    # 毎日0時（UTC）= JST 9時
-  workflow_dispatch:         # 手動実行も可
+  workflow_dispatch:
 
 jobs:
   sync:

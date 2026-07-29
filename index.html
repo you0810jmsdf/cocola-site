@@ -166,19 +166,15 @@
         <a href="#purpose">目的と事業内容</a>
         <a href="#categories">6つのつくる</a>
         <a href="./apps/">APPS/LINKS</a>
-        <a data-app-link="eventsList" href="https://you0810jmsdf.github.io/cocola-site/events/" target="_blank" rel="noreferrer noopener">千葉ニュータウンイベント一覧</a>
         <a href="#voices">活動の雰囲気</a>
         <a href="#movie">動画</a>
         <a href="#topics">最新トピックス</a>
         <a href="#join">参加する</a>
         <a href="./member-app/html.html">メンバー紹介</a>
         <a href="./organizations/">団体紹介</a>
-        <a href="./dao/#proposals">提案／投票</a>
         <a href="./lab/">🧪 研究室</a>
         <a href="./metaverse/">🌏 メタバース印西</a>
         <a href="./adventure/">🐾 いんざい冒険図鑑リアル</a>
-        <a href="./schedule/">メンバーカレンダー</a>
-        <a href="./dangotsusin/">だんご通信</a>
         <a href="./changelog/">更新履歴</a>
         <a class="admin-trigger-btn" href="./admin/index.html">🔒 管理</a>
       </nav>
@@ -197,27 +193,27 @@
         <span class="update-bar__label">情報更新</span>
         <span id="updateList"></span>
       </div>
-      <div class="schedule-bar" id="scheduleBar" style="display:none">
-        <span class="schedule-bar__label">📅 新規予定</span>
-        <span id="scheduleList"></span>
-      </div>
-      <div class="dao-bar" id="daoBar" style="display:none">
-        <span class="dao-bar__label">💡 DAO新規提案</span>
-        <span id="daoList"></span>
-      </div>
-      <div class="freefree-bar" id="freefreeBar" style="display:none">
-        <span class="freefree-bar__label">📋 FreeFree新着</span>
-        <span id="freefreeList"></span>
-      </div>
-      <div class="dango-bar" id="dangoBar" style="display:none">
-        <span class="dango-bar__label">📰 だんご通信</span>
-        <span id="dangoList"></span>
-      </div>
     </div>
 
     <!-- 旧・管理者モーダル（パスワード／統計／手動更新）は admin/index.html に統合済み -->
 
     <main id="top">
+      <section class="shutdown-notice" style="background:#fff4e1;border:2px solid #e0a44e;border-radius:12px;padding:20px 24px;margin:24px 16px;max-width:1080px;margin-left:auto;margin-right:auto;">
+        <h2 style="color:#a56100;font-size:1.4rem;margin:0 0 12px;">🔔 サイト運営一部停止のお知らせ</h2>
+        <p style="margin:0 0 8px;line-height:1.7;">
+          COCoLa サイトのイベント一覧・DAO提案／投票・メンバーカレンダー・だんご通信・FreeFree掲示板・CiDAO印西投票 の
+          機能提供を停止しました。関連ページの自動更新も停止しております。
+        </p>
+        <p style="margin:0 0 8px;line-height:1.7;">
+          <strong>メンバー管理（入会・退会・メンバー紹介）は継続</strong>しております。
+          入会・退会は下記フォームからお手続きください。
+        </p>
+        <p style="margin:12px 0 0;">
+          <a class="button button--primary" href="#join">入会・退会フォームへ</a>
+          <a class="button button--secondary" href="./member-app/html.html" style="margin-left:8px;">メンバー紹介を見る</a>
+        </p>
+      </section>
+
       <section class="hero">
         <div class="hero__copy">
           <p class="eyebrow">Chiba-New-Town Open Community Lab</p>
@@ -429,29 +425,6 @@
         </div>
       </section>
 
-      <section id="dao" class="section">
-        <div class="section-heading">
-          <p class="eyebrow">提案／投票</p>
-          <h2>みんなで決める、COCoLa</h2>
-          <p>COCoLaは、参加するみんなでつくるDAO型コミュニティです。</p>
-        </div>
-        <div class="cta-card">
-          <div>
-            <p class="eyebrow">COCoLa DAO</p>
-            <h3>あなたの「やりたい」を提案しよう。</h3>
-            <p>
-              イベント企画や活動アイデアをフォームから提案できます。
-              提案は投票で判断され、承認されると実現に向けて動き出します。
-              参加・主催・提案・投票でポイントが貯まり、あなたの貢献度が見える化されます。
-            </p>
-          </div>
-          <div class="cta-card__actions">
-            <a class="button button--primary" href="./dao/#proposals">提案・投票を見る</a>
-            <a class="button button--secondary" href="./dao/results.html">📋 投票結果と処置</a>
-          </div>
-        </div>
-      </section>
-
       <section id="join" class="section section--cta">
         <div class="cta-card">
           <div>
@@ -476,86 +449,11 @@
         <a href="#top">トップへ戻る</a>
         <a href="./categories/mono/">6つのつくるを見る</a>
         <a href="./apps/">APPS/LINKSを見る</a>
-        <a href="./dao/#proposals">提案／投票を見る</a>
       </div>
     </footer>
   </div>
   <!-- 旧・管理モーダル関連JS（パスワード／統計／手動更新）は admin/index.html に統合済み -->
 
-  <script>
-  (function () {
-    var DANGO_JSON = './dangotsusin/data.json';
-    var SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
-    fetch(DANGO_JSON + '?t=' + Math.floor(Date.now() / 60000), { credentials: 'omit' })
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        var items = Array.isArray(data) ? data : (data.items || []);
-        var now = Date.now();
-        var seen = new Set();
-        var recent = items.filter(function (item) {
-          if (!item.date) return false;
-          var d = new Date(item.date);
-          if (isNaN(d) || (now - d.getTime()) >= SEVEN_DAYS) return false;
-          if (seen.has(item.date)) return false;
-          seen.add(item.date);
-          return true;
-        });
-        if (recent.length) {
-          document.getElementById('dangoList').innerHTML = recent.map(function (item) {
-            var ts = item.date.slice(0, 10).replace(/-/g, '/');
-            var subj = item.subject || 'だんご通信';
-            return '<span class="dango-bar__item"><a href="./dangotsusin/">' + subj + '</a>（' + ts + '）</span>';
-          }).join('<span style="margin:0 4px">·</span>');
-          document.getElementById('dangoBar').style.display = '';
-          document.getElementById('noticePanel').style.display = '';
-        }
-      }).catch(function () {});
-  })();
-  </script>
-  <script>
-  (function () {
-    var SCHEDULE_JSON = './schedule/data.json';
-    var SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
-    function parseCreatedAt(s) {
-      if (!s) return null;
-      var d = new Date(s);
-      if (!isNaN(d)) return d;
-      d = new Date(String(s).replace(/\//g, '-'));
-      return isNaN(d) ? null : d;
-    }
-    function fmtDate(s) {
-      if (!s) return '';
-      var t = String(s).replace(/-/g, '/');
-      var m = t.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})/);
-      if (!m) return t;
-      return m[2] + '/' + m[3];
-    }
-    fetch(SCHEDULE_JSON + '?t=' + Math.floor(Date.now() / 60000), { credentials: 'omit' })
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        var items = (data && Array.isArray(data.items)) ? data.items : [];
-        var now = Date.now();
-        var recent = items.filter(function (it) {
-          var d = parseCreatedAt(it.createdAt);
-          return d && (now - d.getTime()) < SEVEN_DAYS;
-        });
-        recent.sort(function (a, b) {
-          return parseCreatedAt(b.createdAt).getTime() - parseCreatedAt(a.createdAt).getTime();
-        });
-        if (!recent.length) return;
-        document.getElementById('scheduleList').innerHTML = recent.map(function (it) {
-          var title = String(it.title || '予定').replace(/[<>&"]/g, function (c) {
-            return ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' })[c];
-          });
-          var dateLabel = fmtDate(it.date);
-          return '<span class="schedule-bar__item"><a href="./schedule/">' + title + '</a>（' + dateLabel + ' 開催予定）</span>';
-        }).join('<span style="margin:0 4px">·</span>');
-        document.getElementById('scheduleBar').style.display = '';
-        document.getElementById('noticePanel').style.display = '';
-      })
-      .catch(function () {});
-  })();
-  </script>
   <script src="./assets/site-config.js?v=20260424"></script>
   <script src="./assets/page-tracker.js" data-page="COCoLaトップ"></script>
   <script src="./assets/category-topics.js"></script>
@@ -609,96 +507,6 @@
           return '<span class="update-bar__item"><a href="./member-app/html.html">' + nick + 'さん</a>（' + ts + ' 情報更新）</span>';
         }).join('<span style="margin:0 4px">·</span>');
         document.getElementById('updateBar').style.display = '';
-        document.getElementById('noticePanel').style.display = '';
-      }
-    }).catch(() => {});
-  })();
-  </script>
-  <script>
-  (function () {
-    const DAO_JSON = './dao/data.json';
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzVs_W57Iphxcc5PHShXBNae63CKqjF5fB82tUkQwaf1vyuNWWLgtWZgglY7Qbuuft1/exec?mode=json';
-    const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
-    const ONE_DAY = 24 * 60 * 60 * 1000;
-    function escapeHtml(value) {
-      return String(value || '').replace(/[<>&"]/g, function (c) {
-        return ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' })[c];
-      });
-    }
-    function parseDaoDate(value) {
-      if (!value) return null;
-      var d = new Date(String(value).replace(/\//g, '-'));
-      return isNaN(d.getTime()) ? null : d;
-    }
-    function proposalDate(proposal) {
-      return parseDaoDate(proposal.submittedAt || proposal.createdAt || proposal.decidedAt || proposal.updatedAt);
-    }
-    function excerpt(value, maxLength) {
-      var text = String(value || '').replace(/\s+/g, ' ').trim();
-      if (!text) return '';
-      return text.length > maxLength ? text.slice(0, maxLength - 1) + '…' : text;
-    }
-    function renderDaoBar(data) {
-      const now = Date.now();
-      const seen = new Set();
-      const newProposals = (data.proposals || []).filter(p => {
-        const d = proposalDate(p);
-        if (!d || (now - d.getTime()) >= SEVEN_DAYS) return false;
-        const key = p.id || p.title;
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      }).sort((a, b) => {
-        const da = proposalDate(a);
-        const db = proposalDate(b);
-        return (db ? db.getTime() : 0) - (da ? da.getTime() : 0);
-      });
-      if (newProposals.length) {
-        document.getElementById('daoList').innerHTML = newProposals.map(p => {
-          const cat = p.category ? '【' + escapeHtml(p.category) + '】' : '';
-          const ts = (p.submittedAt || p.createdAt || p.decidedAt || '').slice(0, 10).replace(/-/g, '/');
-          const summary = excerpt(p.detail || p.needs || '', 72);
-          const href = './dao/#proposal-' + encodeURIComponent(p.id || '');
-          return '<span class="dao-bar__item dao-bar__item--proposal">'
-            + '<span><a href="' + href + '">' + cat + escapeHtml(p.title || '新しい提案') + '</a>'
-            + '<span class="dao-bar__meta">（' + escapeHtml(p.proposer || '提案者未記入') + '・' + escapeHtml(ts) + '）</span></span>'
-            + (summary ? '<span class="dao-bar__summary">' + escapeHtml(summary) + '</span>' : '')
-            + '</span>';
-        }).join('<span style="margin:0 4px">·</span>');
-        document.getElementById('daoBar').style.display = '';
-        document.getElementById('noticePanel').style.display = '';
-      }
-    }
-    fetch(DAO_JSON + '?t=' + Math.floor(Date.now() / 60000), { credentials: 'omit' })
-      .then(r => r.json())
-      .then(data => {
-        if (data._generatedMs && (Date.now() - data._generatedMs) > ONE_DAY) {
-          return fetch(GAS_URL, { redirect: 'follow' }).then(r => r.json());
-        }
-        return data;
-      })
-      .then(renderDaoBar)
-      .catch(e => console.warn('[DAO bar]', e));
-  })();
-  </script>
-  <script>
-  (function () {
-    const FF_API = 'https://script.google.com/macros/s/AKfycbx94vdZCnI_kxOoyvCyVHBpVSVBVg2eUei0LQcqp0qf4buGzcdg-AadP9ec51s1jaYIGg/exec?page=api';
-    const FF_URL = 'https://you0810jmsdf.github.io/freefree/';
-    const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
-    fetch(FF_API, { redirect: 'follow' }).then(r => r.json()).then(data => {
-      const now = Date.now();
-      const recent = (data.posters || []).filter(p => {
-        const d = new Date(p.start_date);
-        return !isNaN(d) && (now - d.getTime()) >= 0 && (now - d.getTime()) < SEVEN_DAYS;
-      });
-      if (recent.length) {
-        document.getElementById('freefreeList').innerHTML = recent.map(p => {
-          const name = (p.business && p.business.business_name) ? p.business.business_name : '';
-          const ts = (p.start_date || '').slice(0, 10).replace(/-/g, '/');
-          return '<span class="freefree-bar__item"><a href="' + FF_URL + '" target="_blank" rel="noreferrer noopener">' + p.title + '</a>（' + (name ? name + '・' : '') + ts + ' 掲載開始）</span>';
-        }).join('<span style="margin:0 4px">·</span>');
-        document.getElementById('freefreeBar').style.display = '';
         document.getElementById('noticePanel').style.display = '';
       }
     }).catch(() => {});
