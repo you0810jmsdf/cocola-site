@@ -1502,15 +1502,7 @@ function daoPointsHTML(member) {
 
 function bannerHTML(member) {
   const items = [];
-  if (member.internalRole) {
-    items.push(
-      '<span class="member-banner member-banner--role">'
-      + '<span class="member-banner__icon">■</span>'
-      + '<span class="member-banner__label">役職</span>'
-      + '<span>' + esc(member.internalRole) + '</span>'
-      + '</span>'
-    );
-  }
+  // 2026-07-30: 市民活動団体登録解除に伴い「役職」バッジ非表示
   (member.groups || []).forEach((group) => {
     const inner = '<span class="member-banner__icon">□</span>'
       + '<span class="member-banner__label">所属団体</span>'
@@ -1800,7 +1792,6 @@ const LIST_COLS = [
   { id: "name",           label: "名前",         defaultOn: true },
   { id: "job",            label: "職業",         defaultOn: true },
   { id: "cats",           label: "カテゴリ",     defaultOn: true },
-  { id: "internalRole",   label: "役職",         defaultOn: false },
   { id: "daoTotalPoints", label: "貢献度Pt",     defaultOn: false },
   { id: "daoStatus",      label: "DAOステータス", defaultOn: false },
   { id: "academyBatch",   label: "アカデミー期", defaultOn: false },
