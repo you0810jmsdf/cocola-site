@@ -1,10 +1,17 @@
 name: Update members data
 
 # 2026-07-30: メンバー管理継続のため schedule 復活（他のupdate-*系はworkflow_dispatchのみ維持）
+# 2026-08-07: push処理を rebase方式 → fetch+reset方式 に変更（衝突による連続失敗の恒久対策）
 on:
   schedule:
     - cron: '*/5 * * * *'    # 5分ごと（入会・退会即反映のため）
   workflow_dispatch:
+
+# update-*-data 系は全て main に push するため、リポジトリ共通グループで直列化する。
+# （members と dao が同時 push して rebase 衝突を起こす事故の再発防止）
+concurrency:
+  group: cocola-site-main-push
+  cancel-in-progress: false
 
 jobs:
   update:
@@ -19,17 +26,17 @@ jobs:
         run: |
           curl -sL \
             "https://script.google.com/macros/s/AKfycbyRVO7fLJx62HS6W3M2_bmPIP9y6stpiVJFM429NMKXzlV24_wGx97xms22QLb1VHsX/exec?mode=json&t=$(date +%s)" \
-            -o members/rows_new.json \
+            -o /tmp/members_raw.json \
             --max-time 30 \
             --retry 3 \
             --retry-delay 5
 
-      - name: Validate and stamp timestamp
+      - name: Validate payload
         run: |
           python3 - <<'EOF'
-          import json, time, sys
+          import json, sys
 
-          with open('members/rows_new.json') as f:
+          with open('/tmp/members_raw.json') as f:
               text = f.read()
 
           try:
@@ -37,37 +44,97 @@ jobs:
           except Exception as e:
               print(f'JSON parse error (GAS may be down): {e}')
               print(f'Response: {text[:200]}')
-              sys.exit(0)   # GAS側エラーはワークフロー失敗にしない
+              sys.exit(0)   # GAS側エラーはワークフロー失敗にしない（payload未生成 → 後段でスキップ）
 
           if not isinstance(data, dict) or not isinstance(data.get('rows'), list):
               print('Invalid data structure (expected {rows: [...], recentWithdrawals: [...]})')
               sys.exit(0)   # 同上
 
-          data['_generatedMs'] = int(time.time() * 1000)
+          # タイムスタンプは比較対象から外すため、この時点では付けない
+          data.pop('_generatedMs', None)
 
-          with open('members/data.json', 'w', encoding='utf-8') as f:
+          with open('/tmp/members_payload.json', 'w', encoding='utf-8') as f:
               json.dump(data, f, ensure_ascii=False)
 
           print(f"OK: {len(data['rows'])} members, {len(data.get('recentWithdrawals', []))} recent withdrawals")
           EOF
 
-      - name: Cleanup temp file
-        run: rm -f members/rows_new.json
+      - name: Prepare apply script
+        run: |
+          cat > /tmp/apply_members.py <<'EOF'
+          import json, os, sys, time
+
+          PAYLOAD = '/tmp/members_payload.json'
+          TARGET  = 'members/data.json'
+
+          with open(PAYLOAD, encoding='utf-8') as f:
+              new = json.load(f)
+
+          old = None
+          if os.path.exists(TARGET):
+              try:
+                  with open(TARGET, encoding='utf-8') as f:
+                      old = json.load(f)
+              except Exception:
+                  old = None
+
+          # _generatedMs 以外に差分が無ければコミットしない
+          # （毎回タイムスタンプだけ書き換えて空コミットを量産していたのが競合の温床だった）
+          if isinstance(old, dict):
+              o = dict(old)
+              o.pop('_generatedMs', None)
+              if o == new:
+                  print('No substantive change')
+                  sys.exit(10)
+
+          out = dict(new)
+          out['_generatedMs'] = int(time.time() * 1000)
+          with open(TARGET, 'w', encoding='utf-8') as f:
+              json.dump(out, f, ensure_ascii=False)
+          print('members/data.json updated')
+          EOF
 
       - name: Commit and push if changed
         run: |
+          if [ ! -f /tmp/members_payload.json ]; then
+            echo "No valid payload (GAS error) - skip"
+            exit 0
+          fi
+
           git config user.name  'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git add members/data.json
-          if git diff --staged --quiet; then
-            echo "No changes"
-          else
+
+          # rebase は使わない。毎回 origin/main に完全同期してから生成物を載せ直すので
+          # マージ衝突が原理的に発生せず、リトライが必ず前進する。
+          for i in 1 2 3 4 5; do
+            git fetch origin main
+            git reset --hard origin/main
+
+            set +e
+            python3 /tmp/apply_members.py
+            rc=$?
+            set -e
+
+            if [ $rc -eq 10 ]; then
+              echo "No changes"
+              exit 0
+            fi
+            if [ $rc -ne 0 ]; then
+              echo "apply script failed (rc=$rc)"
+              exit 1
+            fi
+
+            git add members/data.json
             git commit -m 'Auto-update members data [skip ci]'
-            for i in 1 2 3 4 5; do
-              git pull --rebase origin main && git push && { echo "pushed on attempt $i"; exit 0; }
-              echo "push attempt $i failed, retrying in 3s..."
-              sleep 3
-            done
-            echo "push failed after 5 attempts"
-            exit 1
-          fi
+
+            if git push; then
+              echo "pushed on attempt $i"
+              exit 0
+            fi
+
+            echo "push attempt $i rejected (remote moved), retrying in 3s..."
+            sleep 3
+          done
+
+          echo "push failed after 5 attempts"
+          exit 1
