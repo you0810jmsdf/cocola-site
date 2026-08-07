@@ -54,6 +54,18 @@ function readCurJson(path) {
   }
 }
 
+function excerpt(value, maxLength) {
+  const text = String(value || '').replace(/\s+/g, ' ').trim();
+  if (!text) return '';
+  return text.length > maxLength ? text.slice(0, maxLength - 1) + '…' : text;
+}
+
+function proposalNotificationBody(proposal) {
+  const detail = excerpt(proposal.detail || proposal.needs || '', 92);
+  if (detail) return detail;
+  return proposal.title || '新しい提案が公開されました';
+}
+
 if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY || !PUSH_GAS_URL || !PUSH_API_TOKEN) {
   console.error('Missing required env vars (VAPID/PUSH).');
   process.exit(1);
@@ -114,13 +126,14 @@ function buildMessages() {
   if (newProposals.length === 1) {
     messages.push({
       title: '新しい提案があります',
-      body: newProposals[0].title || '新しい提案が公開されました',
+      body: proposalNotificationBody(newProposals[0]),
       url: DAO_URL,
     });
   } else if (newProposals.length > 1) {
+    const names = newProposals.slice(0, 3).map((p) => p.title || p.id).filter(Boolean).join(' / ');
     messages.push({
       title: `新しい提案が${newProposals.length}件`,
-      body: 'タップして提案一覧を確認できます',
+      body: names || 'タップして提案一覧を確認できます',
       url: DAO_URL,
     });
   }
