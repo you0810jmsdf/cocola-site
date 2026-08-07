@@ -113,6 +113,28 @@
       </section>
 
       <section class="content-section">
+        <p class="section-label">2026年8月</p>
+        <ul class="changelog-list">
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-08-07</p>
+            <h2 class="cl-title">外部から5分おきに <code>workflow_dispatch</code> され続ける問題への対処（<strong>DAO・メンバーデータ更新ワークフローを削除</strong>）</h2>
+            <p class="cl-desc">
+              <strong>症状</strong>: <code>update-dao-data.yml</code> と <code>update-members-data.yml</code> が、正確に5分刻み（毎時 <code>:00 :05 :10 :15 …</code>、秒は <code>:12</code>〜<code>:37</code> でばらつく）で <code>event=workflow_dispatch</code> / <code>triggering_actor=you0810jmsdf</code> として起動され続けていた。<code>update-dao-data.yml</code> は <code>on: workflow_dispatch</code> のみで cron も repository_dispatch も無いにもかかわらず発火しており、DAO と members が常に1〜2秒差で連続 dispatch されていた（＝単一の呼び出し元が2つを続けて叩いている）。ローカル Windows のタスクスケジューラは COCoLa 関連が全て Disabled でローカル発ではないことも確認済み。
+              <strong>調査で確定した事実</strong>: (a) 5分刻みかつ秒がばらつくのは GitHub cron ではなく GAS の <code>everyMinutes(5)</code> 時間主導トリガーの特徴。(b) ソースにハードコードされた GitHub PAT 2本を検証し、<code>cocola-gas/コード.gs</code> の PAT は既に失効（HTTP 401）、<code>cocola_topics/コード.js</code> の PAT のみ有効（HTTP 200）であることを確認。(c) 有効だった PAT を <code>POST /credentials/revoke</code> で失効させた（HTTP 202 → 検証 401）が、<strong>その後もワークフローを一時 enable した直後の 23:50:17Z / 23:50:18Z に dispatch が成功したため、発火元はこの PAT を使っていないことが判明</strong>。Script Properties の <code>GITHUB_PAT</code> はソースのハードコード値とは別物だった。(d) 「COCoLa イベントページ監視」プロジェクトの <code>runMonitor</code>（<code>everyMinutes(5)</code>・毎回 <code>:56</code> 秒起動・実行時間85〜99秒）が時刻的に一致したが、コード内に <code>dispatch</code> は0件、スプレッドシート「監視対象」シートの5行も全て通常ページ（監視対象の GAS 2件を実際に叩いて <code>COCoLa EVENT LIST</code> / <code>印西文化財マップ</code> の HTML を返すだけと確認）で、<strong>無罪が確定</strong>。(e) GAS の実行数画面には「プロジェクトのアクセス権:オーナー権限」フィルタが掛かっており、別アカウント所有プロジェクトの実行ログは表示されていなかった。
+              <strong>処置</strong>: 発火元の GAS プロジェクトが特定できなかったため、GitHub 側で受けを恒久的に塞ぐ方針とし、<code>.github/workflows/update-dao-data.yml</code> と <code>.github/workflows/update-members-data.yml</code> の2ファイルを削除。これにより dispatch は HTTP 404 となり、リポジトリの Actions 設定や GitHub Pages のビルド（<code>pages-build-deployment</code>）には一切影響しない。<code>update-members-data.yml</code> に残っていた <code>cron: '*/5 * * * *'</code> もファイルごと消滅。<strong>2026-08-07 の commit <code>fad719a</code> で入れたワークフロー衝突バグ修正は巻き戻していない</strong>（ファイル削除であり内容の復元ではない）。
+              <strong>残課題</strong>: 発火元の GAS トリガーは未特定のまま存続しており、5分おきに GitHub API を叩き続ける（今後は 404 が返る）。根治には <code>cocola.project@gmail.com</code> アカウントで GAS の実行数画面のフィルタを解除し、5分間隔で実行されているプロジェクトを特定してトリガーを削除する必要がある。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--infra">運営停止</span>
+              <span class="tag tag--fix">暴走停止</span>
+            </div>
+          </li>
+
+        </ul>
+      </section>
+
+      <section class="content-section">
         <p class="section-label">2026年7月</p>
         <ul class="changelog-list">
 
