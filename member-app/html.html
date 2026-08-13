@@ -1082,6 +1082,45 @@ a {
   font-size: 1.15rem;
   color: var(--green-dark);
 }
+/* 表示項目の見え消し設定 */
+.admin-display-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 10px;
+}
+.admin-display-item .adi-text { display: block; }
+.admin-display-item .adi-label {
+  display: block;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+.admin-display-item .adi-desc {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+.admin-display-item input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  margin-top: 2px;
+  accent-color: var(--green);
+}
+.admin-display-msg {
+  font-size: 0.85rem;
+  margin: 8px 0 0;
+  min-height: 1.2em;
+}
+.admin-display-msg.ok { color: var(--green-dark); }
+.admin-display-msg.ng { color: #e05; }
 .admin-kpi-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1303,7 +1342,11 @@ a {
 
 <div class="admin-overlay" id="admin-overlay" style="display:none">
   <div class="admin-panel">
-    <h2>📊 メンバーページ アクセス状況</h2>
+    <h2>👁 メンバー紹介の表示項目</h2>
+    <div id="admin-display-settings">
+      <p class="admin-loading">読み込み中...</p>
+    </div>
+    <h2 style="margin-top:28px;">📊 メンバーページ アクセス状況</h2>
     <div id="admin-body">
       <p class="admin-loading">読み込み中...</p>
     </div>
@@ -1367,6 +1410,42 @@ const SIL = `
 let allMembers = [];
 let activeCat = "all";
 let recentUpdatedNicknames = new Set();
+
+// === 表示項目設定（見え消し） ===========================================
+// 管理画面から更新した値を GAS(mode=json) が displayConfig として返す。
+// ⚠️ 既定値は コード.gs の DISPLAY_CONFIG_DEFAULT と必ず一致させること。
+//    静的JSONフォールバック時はこの既定値がそのまま使われる。
+const DISPLAY_CONFIG_DEFAULT = {
+  // 「〜をつくる」カテゴリの表示。2026-08-13 に概念が廃止されたため既定OFF。
+  categories: false,
+};
+let displayConfig = Object.assign({}, DISPLAY_CONFIG_DEFAULT);
+
+function mergeDisplayConfig(raw) {
+  const next = Object.assign({}, DISPLAY_CONFIG_DEFAULT);
+  if (raw && typeof raw === "object") {
+    Object.keys(DISPLAY_CONFIG_DEFAULT).forEach((key) => {
+      if (typeof raw[key] === "boolean") next[key] = raw[key];
+    });
+  }
+  displayConfig = next;
+}
+
+// カテゴリ絞り込みチップの表示/非表示。非表示時は絞り込みを「すべて」に戻す。
+function applyDisplayConfig() {
+  const chipList = document.getElementById("chipList");
+  if (chipList) {
+    chipList.style.display = displayConfig.categories ? "" : "none";
+  }
+  if (!displayConfig.categories && activeCat !== "all") {
+    activeCat = "all";
+    document.querySelectorAll(".chip").forEach((chip) => {
+      chip.classList.toggle("active", chip.dataset.cat === "all");
+    });
+  }
+  // 列チェックボックスは設定確定前に一度組み立てられているため作り直す
+  buildColSelector();
+}
 
 function toImgUrl(raw) {
   if (!raw) return "";
@@ -1543,10 +1622,16 @@ function isRecentlyUpdated(nickname) {
   return recentUpdatedNicknames.has(nickname);
 }
 
-function cardHTML(member) {
-  const tags = member.cats.map((cat) => {
+// カテゴリタグ。管理画面で非表示にされている場合は何も出さない。
+function catTagsHTML(member) {
+  if (!displayConfig.categories) return "";
+  return member.cats.map((cat) => {
     return '<span class="tag ' + (TAG_CLASS[cat] || "") + '">' + esc(cat) + '</span>';
   }).join("");
+}
+
+function cardHTML(member) {
+  const tags = catTagsHTML(member);
 
   const links = member.links.slice(0, 3).map((link) => {
     return '<a class="lbtn" href="' + esc(link.url) + '" target="_blank" rel="noopener">' + esc(link.label) + '</a>';
@@ -1582,9 +1667,7 @@ function sectionHTML(title, value) {
 }
 
 function modalHTML(member) {
-  const tags = member.cats.map((cat) => {
-    return '<span class="tag ' + (TAG_CLASS[cat] || "") + '">' + esc(cat) + '</span>';
-  }).join("");
+  const tags = catTagsHTML(member);
 
   const links = [];
   if (member.emailPublic) {
@@ -1753,11 +1836,13 @@ async function loadMembers() {
     const data = await response.json();
     rows = data.rows || [];
     updatedList = data.recentUpdates || [];
+    mergeDisplayConfig(data.displayConfig);
   } catch (_) {
     try {
       const data = await tryStaticMembers();
       rows = data.rows;
       updatedList = data.recentUpdates || [];
+      mergeDisplayConfig(data.displayConfig);
     } catch (error) {
       const banner = document.getElementById("err-banner");
       banner.style.display = "block";
@@ -1768,6 +1853,7 @@ async function loadMembers() {
     }
   }
   recentUpdatedNicknames = new Set(updatedList.map(u => u.nickname));
+  applyDisplayConfig();
   allMembers = buildMembers(rows);
   applyFilter();
 }
@@ -1819,9 +1905,18 @@ function saveListColPref() {
   localStorage.setItem(COL_PREF_KEY, JSON.stringify(activeListCols));
 }
 
+// 管理画面で非表示にした項目は、リスト表示の列と列チェックボックスからも外す。
+function selectableListCols() {
+  return LIST_COLS.filter((col) => col.id !== "cats" || displayConfig.categories);
+}
+
+function effectiveListCols() {
+  return activeListCols.filter((colId) => colId !== "cats" || displayConfig.categories);
+}
+
 function buildColSelector() {
   const sel = document.getElementById("colSelector");
-  sel.innerHTML = LIST_COLS.map((col) => {
+  sel.innerHTML = selectableListCols().map((col) => {
     const checked = activeListCols.includes(col.id) ? "checked" : "";
     const disabled = col.locked ? "disabled" : "";
     return '<label class="col-check">'
@@ -1888,13 +1983,14 @@ function renderList(list) {
     wrap.innerHTML = "<div class=\"empty\" style=\"border:none;\">該当するメンバーが見つかりませんでした。</div>";
     return;
   }
-  const theadCols = activeListCols.map((colId) => {
+  const cols = effectiveListCols();
+  const theadCols = cols.map((colId) => {
     const col = LIST_COLS.find((c) => c.id === colId);
     return "<th>" + esc(col ? col.label : colId) + "</th>";
   }).join("");
   const tbody = list.map((member) =>
     "<tr data-idx=\"" + member.idx + "\">"
-    + activeListCols.map((colId) => listCellHTML(member, colId)).join("")
+    + cols.map((colId) => listCellHTML(member, colId)).join("")
     + "</tr>"
   ).join("");
   wrap.innerHTML = "<table class=\"member-table\"><thead><tr>" + theadCols + "</tr></thead><tbody>" + tbody + "</tbody></table>";
@@ -1987,17 +2083,99 @@ function closePwModal() {
   document.getElementById('pw-overlay').style.display = 'none';
 }
 
-function openAdminPanel() {
+// 管理画面に並べる表示項目のトグル定義。
+// ⚠️ 項目を増やすときは コード.gs の DISPLAY_CONFIG_DEFAULT にも同じキーを足すこと。
+const DISPLAY_SETTING_ITEMS = [
+  {
+    key: 'categories',
+    label: '「〜をつくる」カテゴリ',
+    desc: 'カテゴリの絞り込みボタンと、カード・詳細・リスト列のカテゴリタグをまとめて表示／非表示にします。',
+  },
+];
+
+async function openAdminPanel() {
   const overlay = document.getElementById('admin-overlay');
   overlay.style.display = 'flex';
-  document.getElementById('admin-body').innerHTML = '<p class="admin-loading">読み込み中...</p>';
-  google.script.run
-    .withSuccessHandler(renderAdminStats)
-    .withFailureHandler((err) => {
-      document.getElementById('admin-body').innerHTML =
-        '<p style="color:#e05">読み込みエラー: ' + err.message + '</p>';
-    })
-    .getAccessStats();
+  renderDisplaySettings();   // まず現在の設定で描画
+  refreshDisplaySettings();  // 裏で最新を取り直す（他の端末での変更を反映）
+
+  const body = document.getElementById('admin-body');
+  body.innerHTML = '<p class="admin-loading">読み込み中...</p>';
+  // GAS版・GitHub Pages版の両方で動くよう fetch で取得する。
+  // （google.script.run は GitHub Pages 上には存在せず、以前はここで停止していた）
+  try {
+    const res = await fetch(
+      APP_URL + '?mode=stats&key=' + encodeURIComponent(ADMIN_PW) + '&t=' + Date.now(),
+      { credentials: 'omit' }
+    );
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const stats = await res.json();
+    if (stats.error) throw new Error(stats.error);
+    renderAdminStats(stats);
+  } catch (err) {
+    body.innerHTML = '<p style="color:#e05">読み込みエラー: ' + esc(err.message) + '</p>';
+  }
+}
+
+function renderDisplaySettings() {
+  const box = document.getElementById('admin-display-settings');
+  box.innerHTML = DISPLAY_SETTING_ITEMS.map((item) => ''
+    + '<label class="admin-display-item">'
+    + '<span class="adi-text">'
+    + '<span class="adi-label">' + esc(item.label) + '</span>'
+    + '<span class="adi-desc">' + esc(item.desc) + '</span>'
+    + '</span>'
+    + '<input type="checkbox" data-key="' + esc(item.key) + '"'
+    + (displayConfig[item.key] ? ' checked' : '') + '>'
+    + '</label>'
+  ).join('') + '<p class="admin-display-msg" id="admin-display-msg">チェックを外すと全閲覧者の画面から非表示になります。</p>';
+
+  box.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
+    cb.addEventListener('change', () => saveDisplaySettings(box));
+  });
+}
+
+async function refreshDisplaySettings() {
+  try {
+    const res = await fetch(APP_URL + '?mode=displayConfig&t=' + Date.now(), { credentials: 'omit' });
+    if (!res.ok) return;
+    mergeDisplayConfig(await res.json());
+    renderDisplaySettings();
+  } catch (_) {}
+}
+
+async function saveDisplaySettings(box) {
+  const msg = document.getElementById('admin-display-msg');
+  const patch = {};
+  box.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
+    patch[cb.dataset.key] = cb.checked;
+  });
+
+  msg.className = 'admin-display-msg';
+  msg.textContent = '保存中...';
+  try {
+    const url = APP_URL
+      + '?mode=setDisplayConfig&key=' + encodeURIComponent(ADMIN_PW)
+      + '&config=' + encodeURIComponent(JSON.stringify(patch))
+      + '&t=' + Date.now();
+    const res = await fetch(url, { credentials: 'omit' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const result = await res.json();
+    if (!result.ok) throw new Error(result.error || '保存に失敗しました');
+
+    mergeDisplayConfig(result.displayConfig);
+    applyDisplayConfig();
+    applyFilter();   // 開いたまま背後の一覧にも即反映する
+    msg.className = 'admin-display-msg ok';
+    msg.textContent = '保存しました。他の閲覧者には再読み込み後に反映されます。';
+  } catch (err) {
+    // 保存できていないので、チェック状態を実際の設定に戻す
+    box.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
+      cb.checked = !!displayConfig[cb.dataset.key];
+    });
+    msg.className = 'admin-display-msg ng';
+    msg.textContent = '保存に失敗しました: ' + err.message;
+  }
 }
 
 function closeAdminPanel() {

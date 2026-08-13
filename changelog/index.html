@@ -117,6 +117,23 @@
         <ul class="changelog-list">
 
           <li class="cl-entry">
+            <p class="cl-date">2026-08-13</p>
+            <h2 class="cl-title">メンバー紹介の<strong>表示項目を管理画面から見え消しできる機能</strong>を追加（第1弾として「〜をつくる」カテゴリを非表示に）</h2>
+            <p class="cl-desc">
+              <strong>背景</strong>: 「ものをつくる／まちをつくる／つながりをつくる／食をつくる／自分をつくる／ともにつくる」というカテゴリの概念が廃止されたため、メンバー紹介ページから該当表示を下げる必要が生じた。今後も同様に「使わなくなった項目を下げる」場面が想定されるため、コードを都度書き換えるのではなく<strong>管理画面のチェックボックスで表示／非表示を切り替えられる仕組み</strong>として実装した。
+              <strong>実装</strong>: 表示設定を <code>cocola-gas</code> のスクリプトプロパティ <code>MEMBER_DISPLAY_CONFIG</code> に保存し、<code>mode=json</code> の応答に <code>displayConfig</code> として同梱する方式にした。メンバー紹介ページは既に <code>mode=json</code> を読み込んでいるため、<strong>設定取得のための追加通信は発生しない</strong>。設定の読み書き用に <code>mode=displayConfig</code>（取得・公開）と <code>mode=setDisplayConfig</code>（更新・パスワード必須）を新設した。
+              <strong>操作方法</strong>: メンバー紹介ページ右上の「🔒 管理」→ パスワード入力 → 「👁 メンバー紹介の表示項目」のチェックを外すと、<strong>全閲覧者の画面から該当項目が消える</strong>（チェックを入れれば元に戻せる）。カテゴリをOFFにすると、絞り込みボタン・カード・詳細モーダル・リスト表示の「カテゴリ」列がまとめて非表示になり、絞り込みは「すべて」に戻る。
+              <strong>あわせて修正</strong>: 管理パネルのアクセス統計が <code>google.script.run</code> 経由で読み込まれており、<strong>GitHub Pages 上では <code>google</code> が存在せず常に「読み込み中...」で停止していた</strong>問題を、<code>mode=stats</code> への <code>fetch</code> に置き換えて解消した。
+              <strong>デプロイ</strong>: <code>cocola-gas</code> をフロント用固定ID <code>@106</code>／静的JSON生成用固定ID <code>@107</code> の両方へ反映済み。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--new">新機能</span>
+              <span class="tag tag--improve">運用改善</span>
+              <span class="tag tag--fix">管理画面修復</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
             <p class="cl-date">2026-08-07</p>
             <h2 class="cl-title">外部から5分おきに <code>workflow_dispatch</code> され続ける問題への対処（<strong>DAO・メンバーデータ更新ワークフローを削除</strong>）</h2>
             <p class="cl-desc">
