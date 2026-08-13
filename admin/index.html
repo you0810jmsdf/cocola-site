@@ -197,7 +197,7 @@
             <div class="wf-list">
               <div class="wf-row"><button class="button button--secondary wf-btn" onclick="noticeMembersSchedule('wf0')">メンバーデータ</button><span class="wf-status" id="wf0"></span></div>
               <div class="wf-row"><button class="button button--secondary wf-btn" onclick="triggerWorkflow('update-events-data.yml','wf1')">イベントデータ</button><span class="wf-status" id="wf1"></span></div>
-              <div class="wf-row"><button class="button button--secondary wf-btn" onclick="triggerWorkflow('update-dao-data.yml','wf2')">DAOデータ</button><span class="wf-status" id="wf2"></span></div>
+              <div class="wf-row"><button class="button button--secondary wf-btn" onclick="noticeDaoStopped('wf2')">DAOデータ</button><span class="wf-status" id="wf2"></span></div>
               <div class="wf-row"><button class="button button--secondary wf-btn" onclick="triggerWorkflow('sync-event-sources.yml','wf3')">イベントソース同期</button><span class="wf-status" id="wf3"></span></div>
               <div class="wf-row"><button class="button button--secondary wf-btn" onclick="triggerWorkflow('health-check.yml','wf4')">ヘルスチェック</button><span class="wf-status" id="wf4"></span></div>
               <div class="wf-row"><button class="button button--secondary wf-btn" onclick="triggerWorkflow('update-schedule-data.yml','wf5')">スケジュールデータ</button><span class="wf-status" id="wf5"></span></div>
@@ -256,6 +256,15 @@
       var status = document.getElementById(statusId);
       status.style.color = '#607068';
       status.textContent = '更新は毎朝09:00です（手動起動は停止中）';
+    }
+
+    // DAOデータも手動起動できない。
+    // update-dao-data.yml は 2026-08-07 の dispatch 暴走対策でファイルごと削除しており
+    // （DAO は運営停止対象のため復活させない方針）、叩いても HTTP 404 になる。
+    function noticeDaoStopped(statusId) {
+      var status = document.getElementById(statusId);
+      status.style.color = '#607068';
+      status.textContent = 'DAOデータの自動更新は停止中です';
     }
 
     // GitHub Actions ワークフローの手動トリガー（GAS経由でPATを保護）
