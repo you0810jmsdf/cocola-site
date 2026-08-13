@@ -1819,8 +1819,18 @@ async function copyMailingList() {
 
 const STATIC_MEMBERS_URL = 'https://you0810jmsdf.github.io/cocola-site/members/data.json';
 
+// GASの応答は通常でも3秒前後かかり、混み合うと返ってこないことがある。
+// fetch 自体にはタイムアウトが無いため、打ち切らないと「メンバー情報を
+// 読み込んでいます...」のまま固まり、静的JSONへのフォールバックも動かない。
+function fetchWithTimeout(url, ms) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  return fetch(url, { credentials: 'omit', signal: controller.signal })
+    .finally(() => clearTimeout(timer));
+}
+
 async function tryStaticMembers() {
-  const res = await fetch(STATIC_MEMBERS_URL + '?t=' + Math.floor(Date.now() / 60000), { credentials: 'omit' });
+  const res = await fetchWithTimeout(STATIC_MEMBERS_URL + '?t=' + Math.floor(Date.now() / 60000), 8000);
   if (!res.ok) throw new Error('static HTTP ' + res.status);
   const data = await res.json();
   if (!Array.isArray(data.rows) || data.rows.length === 0) throw new Error('empty static');
@@ -1831,7 +1841,8 @@ async function loadMembers() {
   let rows = null;
   let updatedList = [];
   try {
-    const response = await fetch(APP_URL + "?mode=json&ts=" + Date.now(), { credentials: 'omit' });
+    // 5秒で打ち切る（通常応答は約3秒。超えたら静的JSONに切り替えたほうが速い）
+    const response = await fetchWithTimeout(APP_URL + "?mode=json&ts=" + Date.now(), 5000);
     if (!response.ok) throw new Error("HTTP " + response.status);
     const data = await response.json();
     rows = data.rows || [];
