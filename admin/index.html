@@ -195,7 +195,7 @@
             <h3>⚙️ 静的データの即時更新</h3>
             <p>通常は5分ごとに自動更新されます。サイトにすぐ反映したいとき、各データの更新を手動で起動できます。</p>
             <div class="wf-list">
-              <div class="wf-row"><button class="button button--secondary wf-btn" onclick="triggerWorkflow('update-members-data.yml','wf0')">メンバーデータ</button><span class="wf-status" id="wf0"></span></div>
+              <div class="wf-row"><button class="button button--secondary wf-btn" onclick="noticeMembersSchedule('wf0')">メンバーデータ</button><span class="wf-status" id="wf0"></span></div>
               <div class="wf-row"><button class="button button--secondary wf-btn" onclick="triggerWorkflow('update-events-data.yml','wf1')">イベントデータ</button><span class="wf-status" id="wf1"></span></div>
               <div class="wf-row"><button class="button button--secondary wf-btn" onclick="triggerWorkflow('update-dao-data.yml','wf2')">DAOデータ</button><span class="wf-status" id="wf2"></span></div>
               <div class="wf-row"><button class="button button--secondary wf-btn" onclick="triggerWorkflow('sync-event-sources.yml','wf3')">イベントソース同期</button><span class="wf-status" id="wf3"></span></div>
@@ -247,6 +247,16 @@
       try { authed = sessionStorage.getItem(SESSION_KEY) === '1'; } catch (e) {}
       if (authed) { unlock(); } else { setTimeout(function () { pw.focus(); }, 50); }
     })();
+
+    // メンバーデータだけは手動起動できない。
+    // 2026-08-07 の 5分おき dispatch 暴走対策で update-members-data.yml から
+    // workflow_dispatch トリガーを削除したため、叩いても HTTP 422 で必ず失敗する。
+    // （schedule の毎日 09:00 JST のみで更新する方針。復活させると暴走が再開する）
+    function noticeMembersSchedule(statusId) {
+      var status = document.getElementById(statusId);
+      status.style.color = '#607068';
+      status.textContent = '更新は毎朝09:00です（手動起動は停止中）';
+    }
 
     // GitHub Actions ワークフローの手動トリガー（GAS経由でPATを保護）
     function triggerWorkflow(workflow, statusId) {

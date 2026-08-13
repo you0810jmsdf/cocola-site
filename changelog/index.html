@@ -118,6 +118,17 @@
 
           <li class="cl-entry">
             <p class="cl-date">2026-08-13</p>
+            <h2 class="cl-title">運営管理画面の「メンバーデータ」手動更新ボタンを<strong>更新タイミングの案内に変更</strong></h2>
+            <p class="cl-desc">
+              運営管理画面（データ手動更新）の「メンバーデータ」ボタンは、2026-08-07 に 5分おきの不正な起動を止めるため <code>workflow_dispatch</code> を削除した影響で、押しても必ず失敗する状態になっていた。押した際に「<strong>更新は毎朝09:00です（手動起動は停止中）</strong>」と表示する形に変更し、失敗表示が出ないようにした。メンバーデータ以外のボタン（イベントデータ・イベントソース同期・ヘルスチェック・スケジュールデータ）は従来どおり手動起動できる。
+            </p>
+            <div class="cl-tags">
+              <span class="tag tag--improve">運用改善</span>
+            </div>
+          </li>
+
+          <li class="cl-entry">
+            <p class="cl-date">2026-08-13</p>
             <h2 class="cl-title">メンバー紹介が<strong>「読み込んでいます...」のまま固まる問題を解消</strong>＋入会時の<strong>誤った検証NGメールを停止</strong></h2>
             <p class="cl-desc">
               <strong>症状</strong>: スマートフォンでメンバー紹介を開くと「メンバー情報を読み込んでいます...」から進まないことがある。
