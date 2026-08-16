@@ -2,140 +2,38 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://you0810jmsdf.github.io/cocola-site/</loc>
-    <lastmod>2026-06-11</lastmod>
-    <changefreq>weekly</changefreq>
+    <lastmod>2026-08-16</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://you0810jmsdf.github.io/cocola-site/apps/</loc>
-    <lastmod>2026-06-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://you0810jmsdf.github.io/cocola-site/bunkazai-map/</loc>
-    <lastmod>2026-06-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://you0810jmsdf.github.io/cocola-site/categories/jibun/</loc>
-    <lastmod>2026-06-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://you0810jmsdf.github.io/cocola-site/categories/machi/</loc>
-    <lastmod>2026-06-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://you0810jmsdf.github.io/cocola-site/categories/mono/</loc>
-    <lastmod>2026-06-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://you0810jmsdf.github.io/cocola-site/categories/shoku/</loc>
-    <lastmod>2026-06-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://you0810jmsdf.github.io/cocola-site/categories/tomoni/</loc>
-    <lastmod>2026-06-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://you0810jmsdf.github.io/cocola-site/categories/tsunagari/</loc>
-    <lastmod>2026-06-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://you0810jmsdf.github.io/cocola-site/changelog/</loc>
-    <lastmod>2026-06-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://you0810jmsdf.github.io/cocola-site/dangotsusin/</loc>
-    <lastmod>2026-06-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://you0810jmsdf.github.io/cocola-site/dao/</loc>
-    <lastmod>2026-06-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://you0810jmsdf.github.io/cocola-site/dao/minutes.html</loc>
-    <lastmod>2026-06-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://you0810jmsdf.github.io/cocola-site/events/</loc>
-    <lastmod>2026-06-11</lastmod>
+    <loc>https://you0810jmsdf.github.io/cocola-site/member-app/html.html</loc>
+    <lastmod>2026-08-16</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://you0810jmsdf.github.io/cocola-site/join/</loc>
-    <lastmod>2026-06-11</lastmod>
+    <lastmod>2026-08-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://you0810jmsdf.github.io/cocola-site/lab/</loc>
-    <lastmod>2026-06-11</lastmod>
+    <loc>https://you0810jmsdf.github.io/cocola-site/adventure/</loc>
+    <lastmod>2026-08-16</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://you0810jmsdf.github.io/cocola-site/lab/cidao-roadmap.html</loc>
-    <lastmod>2026-06-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://you0810jmsdf.github.io/cocola-site/lab/sbt-mockup.html</loc>
-    <lastmod>2026-06-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://you0810jmsdf.github.io/cocola-site/member-app/html.html</loc>
-    <lastmod>2026-06-11</lastmod>
-    <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://you0810jmsdf.github.io/cocola-site/metaverse/</loc>
-    <lastmod>2026-06-11</lastmod>
+    <lastmod>2026-08-16</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://you0810jmsdf.github.io/cocola-site/organizations/</loc>
-    <lastmod>2026-06-11</lastmod>
-    <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://you0810jmsdf.github.io/cocola-site/schedule/</loc>
-    <lastmod>2026-06-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://you0810jmsdf.github.io/cocola-site/schedule/how-to-use.html</loc>
-    <lastmod>2026-06-11</lastmod>
+    <loc>https://you0810jmsdf.github.io/cocola-site/bunkazai-map/</loc>
+    <lastmod>2026-08-16</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.7</priority>
   </url>
 </urlset>
