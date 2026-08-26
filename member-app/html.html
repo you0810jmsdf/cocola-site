@@ -1378,7 +1378,12 @@ function toImgUrl(raw) {
 function avatarHTML(photo, sizeClass) {
   const url = toImgUrl(photo);
   if (!url) return '<div class="' + sizeClass + '">' + SIL + '</div>';
-  return '<div class="' + sizeClass + '"><img src="' + esc(url) + '" alt="" loading="lazy" onerror="this.parentNode.innerHTML=' + JSON.stringify(SIL) + '; this.remove();"></div>';
+  return '<div class="' + sizeClass + '"><img src="' + esc(url) + '" alt="" loading="lazy" onerror="renderAvatarFallback(this)"></div>';
+}
+
+function renderAvatarFallback(img) {
+  const container = img && img.parentNode;
+  if (container) container.innerHTML = SIL;
 }
 
 function parseCategories(value) {
