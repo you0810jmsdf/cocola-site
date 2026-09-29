@@ -1734,9 +1734,24 @@ async function tryStaticMembers() {
   return data;
 }
 
+// フォームで退会処理が通らなかったメンバーをサイト側で非表示にする一覧（members/withdrawn.json）
+const WITHDRAWN_URL = 'https://you0810jmsdf.github.io/cocola-site/members/withdrawn.json';
+
+async function loadWithdrawnNicknames() {
+  try {
+    const res = await fetchWithTimeout(WITHDRAWN_URL + '?t=' + Math.floor(Date.now() / 60000), 5000);
+    if (!res.ok) return new Set();
+    const data = await res.json();
+    return new Set((data.members || []).map(m => String(m.nickname || '').trim()).filter(Boolean));
+  } catch (_) {
+    return new Set();
+  }
+}
+
 async function loadMembers() {
   let rows = null;
   let updatedList = [];
+  const withdrawnPromise = loadWithdrawnNicknames();
   try {
     // 5秒で打ち切る（通常応答は約3秒。超えたら静的JSONに切り替えたほうが速い）
     const response = await fetchWithTimeout(APP_URL + "?mode=json&ts=" + Date.now(), 5000);
@@ -1759,6 +1774,10 @@ async function loadMembers() {
       document.getElementById("meta").textContent = "読み込みエラー";
       return;
     }
+  }
+  const withdrawn = await withdrawnPromise;
+  if (withdrawn.size) {
+    rows = rows.filter(row => !withdrawn.has(String(row[COL.nickname] || '').trim()));
   }
   recentUpdatedNicknames = new Set(updatedList.map(u => u.nickname));
   applyDisplayConfig();

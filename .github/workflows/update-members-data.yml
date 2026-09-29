@@ -58,6 +58,25 @@ jobs:
           # タイムスタンプは比較対象から外すため、この時点では付けない
           data.pop('_generatedMs', None)
 
+          # members/withdrawn.json: フォームで退会処理が通らなかったメンバーをサイト側で退会扱いにする
+          try:
+              from datetime import datetime, timedelta, timezone
+              with open('members/withdrawn.json', encoding='utf-8') as f:
+                  overrides = json.load(f).get('members', [])
+              names = {str(m.get('nickname', '')).strip() for m in overrides} - {''}
+              data['rows'] = [r for r in data['rows'] if str(r[3] if len(r) > 3 else '').strip() not in names]
+              recent = data.get('recentWithdrawals') or []
+              listed = {str(w.get('nickname', '')).strip() for w in recent}
+              cutoff = (datetime.now(timezone(timedelta(hours=9))) - timedelta(days=7)).strftime('%Y/%m/%d')
+              for m in overrides:
+                  nick = str(m.get('nickname', '')).strip()
+                  at = str(m.get('withdrawnAt', ''))
+                  if nick and nick not in listed and at.replace('-', '/')[:10] >= cutoff:
+                      recent.append({'nickname': nick, 'withdrawnAt': at})
+              data['recentWithdrawals'] = recent
+          except FileNotFoundError:
+              pass
+
           with open('/tmp/members_payload.json', 'w', encoding='utf-8') as f:
               json.dump(data, f, ensure_ascii=False)
 
